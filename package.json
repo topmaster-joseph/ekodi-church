@@ -1,0 +1,13 @@
+{
+  "name": "ekodi-church-homepage",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler pages dev . --port 8788",
+    "deploy": "wrangler pages deploy . --project-name ekodi-church"
+  },
+  "devDependencies": {
+    "wrangler": "^4.26.0"
+  }
+}
+
