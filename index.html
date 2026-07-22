@@ -29,7 +29,14 @@
         <p class="eyebrow">WELCOME TO EKODI CHURCH</p>
         <h1>부르심에서 교제로,<br><em>교제에서 세상으로</em></h1>
         <p class="hero-copy">세상에서 구별된 에클레시아,<br>하나님과 하나된 코이노니아, 세상 속에 증인된 디아스포라.</p>
-        <div class="hero-actions"><a class="button primary" href="#worship">예배 안내</a><a class="button text" href="#about">처음 오셨나요? <span>→</span></a></div>
+        <div class="overview-grid" aria-label="홈페이지 전체 메뉴">
+          <a href="#about"><span>01</span><strong>교회 소개</strong><small>EK·KO·DI 정체성</small></a>
+          <a href="#worship"><span>02</span><strong>예배 안내</strong><small>시간과 장소</small></a>
+          <a href="#message"><span>03</span><strong>말씀</strong><small>복음 메시지</small></a>
+          <a href="#community"><span>04</span><strong>공동체</strong><small>교회·선교·찬양</small></a>
+          <a href="#youtube"><span>05</span><strong>온라인</strong><small>유튜브·미팅·헌금</small></a>
+          <a href="#location"><span>06</span><strong>오시는 길</strong><small>주소와 연락처</small></a>
+        </div>
       </div>
       <p class="scroll-cue">SCROLL <span></span></p>
     </section>
@@ -65,7 +72,7 @@
       <div class="message-head reveal"><div><p class="eyebrow">GOSPEL & MESSAGE</p><h2>복음으로 걷는 한 주</h2></div><a href="https://litt.ly/ekodichurch" target="_blank" rel="noreferrer">교회 소식 보기 →</a></div>
       <article class="sermon reveal">
         <div class="sermon-art"><div class="sun"></div><span>GRACE<br>UPON<br>GRACE</span></div>
-        <div class="sermon-info"><span class="tag">EKODI 메시지</span><p>에클레시아 · 코이노니아 · 디아스포라</p><h3>우리를 부르시고, 하나 되게 하시며, 보내시는 하나님</h3><p class="summary">예배로 부름받고, 사랑 안에서 하나 되며, 일상의 자리에서 복음의 증인으로 살아갑니다.</p><div><span>주일 오전 11시</span><span>담임목사 정찬균</span></div><a class="play" href="https://www.youtube.com/results?search_query=EKODI%EA%B5%90%ED%9A%8C" target="_blank" rel="noreferrer">▶ <span>유튜브 말씀 보기</span></a></div>
+        <div class="sermon-info"><span class="tag">EKODI 메시지</span><p>에클레시아 · 코이노니아 · 디아스포라</p><h3>우리를 부르시고, 하나 되게 하시며, 보내시는 하나님</h3><p class="summary">예배로 부름받고, 사랑 안에서 하나 되며, 일상의 자리에서 복음의 증인으로 살아갑니다.</p><div><span>주일 오전 11시</span><span>담임목사 정찬균</span></div><a class="play" href="#youtube">▶ <span>홈페이지에서 말씀 보기</span></a></div>
       </article>
     </section>
 
@@ -81,11 +88,22 @@
 
     <section class="online section" id="online">
       <div class="section-label reveal">05 · ONLINE</div>
-      <div class="online-head reveal"><p class="eyebrow">EKODI ONLINE</p><h2>어디에서든 함께하는<br><em>예배와 교제</em></h2><p>말씀을 시청하고, 온라인으로 헌금 안내를 받으며,<br>실시간 미팅에 참여할 수 있습니다.</p></div>
+      <div class="online-head reveal"><p class="eyebrow">EKODI ONLINE</p><h2>홈페이지 안에서 함께하는<br><em>말씀과 교제</em></h2><p>페이지를 떠나지 않고 두 채널의 최신 영상을 보고,<br>실시간 모임과 헌금 안내를 이용할 수 있습니다.</p></div>
+
+      <div class="youtube-room reveal" id="youtube">
+        <div class="youtube-toolbar" role="tablist" aria-label="EKODI 유튜브 채널 선택">
+          <button class="channel-tab active" role="tab" aria-selected="true" data-channel="church">EKODI교회</button>
+          <button class="channel-tab" role="tab" aria-selected="false" data-channel="mission">EKODI선교회</button>
+        </div>
+        <div class="video-frame">
+          <iframe id="youtube-player" src="https://www.youtube-nocookie.com/embed/videoseries?list=UUnp_LXmJBcJRX7CgJT9FF7w" title="EKODI교회 최신 유튜브 영상" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+        <div class="channel-links"><a href="https://www.youtube.com/@ekodichurch" target="_blank" rel="noreferrer">EKODI교회 채널 ↗</a><a href="https://www.youtube.com/@ekodicommunity" target="_blank" rel="noreferrer">EKODI선교회 채널 ↗</a></div>
+      </div>
+
       <div class="online-actions">
-        <article class="online-card reveal"><span class="online-icon" aria-hidden="true">▶</span><h3>EKODI 유튜브</h3><p>예배 말씀과 찬양 영상을 유튜브에서 시청하세요.</p><a class="button primary" href="https://www.youtube.com/results?search_query=EKODI%EA%B5%90%ED%9A%8C" target="_blank" rel="noreferrer">유튜브 바로가기</a></article>
-        <article class="online-card reveal"><span class="online-icon" aria-hidden="true">♡</span><h3>온라인 헌금</h3><p>헌금 계좌와 기부금 영수증 안내를 안전하게 문의할 수 있습니다.</p><a class="button primary" href="mailto:ekodichurch@gmail.com?subject=EKODI%EA%B5%90%ED%9A%8C%20%EC%98%A8%EB%9D%BC%EC%9D%B8%20%ED%97%8C%EA%B8%88%20%EB%AC%B8%EC%9D%98">헌금 안내 요청</a><small>문의 010-3501-8542</small></article>
-        <article class="online-card reveal"><span class="online-icon" aria-hidden="true">◎</span><h3>온라인 실시간 미팅</h3><p>별도 설치 없이 EKODI 온라인 교제실에 참여하세요.</p><a class="button primary" href="https://meet.jit.si/EKODIChurchLive" target="_blank" rel="noreferrer">실시간 미팅 참여</a><small>입장 전 이름을 입력해 주세요.</small></article>
+        <article class="online-card reveal"><span class="online-icon" aria-hidden="true">◎</span><h3>Jitsi 실시간 미팅</h3><p>참여자는 Jitsi 교제실에 입장하고, 방송 담당자는 PRISM Live에서 Jitsi 창을 화면 캡처 소스로 추가해 유튜브로 송출할 수 있습니다.</p><a class="button primary" href="https://meet.jit.si/EKODIChurchLive" target="_blank" rel="noreferrer">실시간 미팅 참여</a><small>PRISM Live 직접 연결이 아닌 화면 캡처 방식</small></article>
+        <article class="online-card giving-card reveal"><span class="online-icon" aria-hidden="true">♡</span><h3>온라인 헌금</h3><p>예금주 확인 후 아래 공식 계좌로 보내실 수 있습니다.</p><div class="accounts"><div><span>십일조·주일헌금</span><strong>농협 355-0088-5391-83</strong><button class="copy-account" data-account="3550088539183">계좌 복사</button></div><div><span>선교헌금</span><strong>국민 782301-01-666597</strong><button class="copy-account" data-account="78230101666597">계좌 복사</button></div></div><small>영수증 발행 문의 010-3501-8542</small></article>
       </div>
     </section>
 
