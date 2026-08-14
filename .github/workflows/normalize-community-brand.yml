@@ -1,0 +1,55 @@
+name: Normalize EKODI Community Brand
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - '.github/workflows/normalize-community-brand.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: true
+      - name: Normalize formal organization name and links
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('index.html')
+          text = p.read_text(encoding='utf-8')
+          text = text.replace('EKODI선교회', '에코디커뮤니티').replace('에코디선교회', '에코디커뮤니티')
+
+          # Only the former organization card is redirected to Community.
+          pattern = r'(<article class="reveal c2">[\s\S]*?<h3>에코디커뮤니티</h3>[\s\S]*?<a href=")[^"]+(" target="_blank" rel="noreferrer">)[^<]+(</a>)'
+          text, count = re.subn(pattern, r'\1https://community.ekodi.kr\2에코디커뮤니티 보기 →\3', text, count=1)
+          if count != 1:
+              raise SystemExit('Could not normalize Community card link')
+
+          social = '<a data-ekodi-social="true" href="https://social.ekodi.kr/?org=church">Social</a>'
+          if social not in text:
+              marker = '<a href="#online">온라인</a>'
+              if marker not in text:
+                  raise SystemExit('Church navigation marker not found')
+              text = text.replace(marker, marker + social, 1)
+
+          if 'EKODI선교회' in text or '에코디선교회' in text:
+              raise SystemExit('Legacy formal organization name remains')
+          p.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit normalized source
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name 'EKODI Automation'
+          git config user.email 'automation@ekodi.kr'
+          git add index.html
+          git commit -m 'Use EKODI Community canonical brand on Church site'
+          git push

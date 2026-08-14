@@ -1,6 +1,40 @@
 const menuButton = document.querySelector('.menu-button');
 const nav = document.querySelector('#main-nav');
 
+// EKODI선교회는 에코디커뮤니티로 통합되었습니다. 기존 정적 문구가 남아 있어도
+// 사용자에게는 새 명칭과 canonical Community 링크만 노출합니다.
+document.querySelectorAll('h1,h2,h3,p,span,small,a,button').forEach((element) => {
+  for (const node of element.childNodes) {
+    if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('EKODI선교회')) {
+      node.textContent = node.textContent.replaceAll('EKODI선교회', '에코디커뮤니티');
+    }
+    if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('에코디선교회')) {
+      node.textContent = node.textContent.replaceAll('에코디선교회', '에코디커뮤니티');
+    }
+  }
+});
+const communityCard = [...document.querySelectorAll('.community-cards article')].find((card) => card.querySelector('h3')?.textContent.includes('에코디커뮤니티'));
+if (communityCard) {
+  const link = communityCard.querySelector('a');
+  if (link) {
+    link.href = 'https://community.ekodi.kr';
+    link.textContent = '에코디커뮤니티 보기 →';
+  }
+}
+document.querySelectorAll('a[href="https://www.youtube.com/@ekodicommunity"]').forEach((link) => {
+  link.textContent = '에코디커뮤니티 채널 ↗';
+});
+
+// Every EKODI site should have a small path back to the shared Social Hub.
+if (nav && !nav.querySelector('[data-ekodi-social]')) {
+  const socialLink = document.createElement('a');
+  socialLink.href = 'https://social.ekodi.kr/?org=church';
+  socialLink.textContent = 'Social';
+  socialLink.dataset.ekodiSocial = 'true';
+  socialLink.setAttribute('aria-label', '에코디교회 소셜 허브');
+  nav.append(socialLink);
+}
+
 menuButton.addEventListener('click', () => {
   const open = nav.classList.toggle('open');
   menuButton.setAttribute('aria-expanded', open);
@@ -27,7 +61,7 @@ const youtubeChannels = {
   },
   mission: {
     playlist: 'UUm1PFvzN0PRnyiF8Xx_mYTw',
-    title: 'EKODI선교회 최신 유튜브 영상',
+    title: '에코디커뮤니티 최신 유튜브 영상',
   },
 };
 
