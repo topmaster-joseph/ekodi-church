@@ -25,6 +25,16 @@ document.querySelectorAll('a[href="https://www.youtube.com/@ekodicommunity"]').f
   link.textContent = '에코디커뮤니티 채널 ↗';
 });
 
+// Every EKODI site should have a small path back to the shared Social Hub.
+if (nav && !nav.querySelector('[data-ekodi-social]')) {
+  const socialLink = document.createElement('a');
+  socialLink.href = 'https://social.ekodi.kr/?org=church';
+  socialLink.textContent = 'Social';
+  socialLink.dataset.ekodiSocial = 'true';
+  socialLink.setAttribute('aria-label', '에코디교회 소셜 허브');
+  nav.append(socialLink);
+}
+
 menuButton.addEventListener('click', () => {
   const open = nav.classList.toggle('open');
   menuButton.setAttribute('aria-expanded', open);
