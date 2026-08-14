@@ -35,6 +35,41 @@ if (nav && !nav.querySelector('[data-ekodi-social]')) {
   nav.append(socialLink);
 }
 
+async function syncChurchSocialLinks() {
+  const host = document.querySelector('.channel-links');
+  if (!host) return;
+  try {
+    const response = await fetch('https://api.ekodi.kr/api/social/registry', {
+      headers: { accept: 'application/json' },
+      cache: 'no-store',
+    });
+    if (!response.ok) throw new Error(`registry_${response.status}`);
+    const registry = await response.json();
+    const church = (registry.organizations || []).find((org) => org.id === 'church' && org.isActive !== false);
+    const channels = (church?.channels || []).filter((channel) => channel.isActive !== false);
+    const nodes = channels.map((channel) => {
+      const link = document.createElement('a');
+      link.href = channel.url;
+      link.target = '_blank';
+      link.rel = 'noreferrer noopener';
+      link.textContent = `${channel.label || channel.provider || 'Channel'} ↗`;
+      link.dataset.provider = channel.provider || 'other';
+      return link;
+    });
+    const hub = document.createElement('a');
+    hub.href = 'https://social.ekodi.kr/?org=church';
+    hub.target = '_blank';
+    hub.rel = 'noreferrer noopener';
+    hub.textContent = '전체 소셜채널 ↗';
+    nodes.push(hub);
+    host.replaceChildren(...nodes);
+    host.dataset.registryRevision = String(registry.revision || registry.version || 'live');
+  } catch (error) {
+    console.warn('[EKODI Church Social] existing channel links retained', error?.message || error);
+  }
+}
+syncChurchSocialLinks();
+
 menuButton.addEventListener('click', () => {
   const open = nav.classList.toggle('open');
   menuButton.setAttribute('aria-expanded', open);
