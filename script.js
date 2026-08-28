@@ -1,6 +1,27 @@
 const menuButton = document.querySelector('.menu-button');
 const nav = document.querySelector('#main-nav');
 
+// Public EKODI Shell: keep the current service identity clear and expose only
+// the most useful next actions, plus the shared service switch and My EKODI.
+if (nav) {
+  const items = [
+    { href: '#worship', label: '예배안내' },
+    { href: '#online', label: '온라인' },
+    { href: '#location', label: '오시는 길' },
+    { href: 'https://ekodi.kr/', label: '서비스 전환', className: 'shell-switch' },
+    { href: 'https://my.ekodi.kr/', label: 'My EKODI', className: 'shell-my' },
+  ];
+  const links = items.map((item) => {
+    const link = document.createElement('a');
+    link.href = item.href;
+    link.textContent = item.label;
+    if (item.className) link.className = item.className;
+    if (item.href.startsWith('http')) link.setAttribute('aria-label', item.label);
+    return link;
+  });
+  nav.replaceChildren(...links);
+}
+
 // EKODI선교회는 에코디커뮤니티로 통합되었습니다. 기존 정적 문구가 남아 있어도
 // 사용자에게는 새 명칭과 canonical Community 링크만 노출합니다.
 document.querySelectorAll('h1,h2,h3,p,span,small,a,button').forEach((element) => {
@@ -13,6 +34,13 @@ document.querySelectorAll('h1,h2,h3,p,span,small,a,button').forEach((element) =>
     }
   }
 });
+
+// Footer follows the Korean-first user-facing naming rule.
+const footerBrandName = document.querySelector('footer .footer-brand strong');
+if (footerBrandName) footerBrandName.textContent = '에코디교회';
+const footerCopyright = document.querySelector('footer .footer-meta span');
+if (footerCopyright) footerCopyright.textContent = '© 2026 에코디교회';
+
 const communityCard = [...document.querySelectorAll('.community-cards article')].find((card) => card.querySelector('h3')?.textContent.includes('에코디커뮤니티'));
 if (communityCard) {
   const link = communityCard.querySelector('a');
@@ -24,16 +52,6 @@ if (communityCard) {
 document.querySelectorAll('a[href="https://www.youtube.com/@ekodicommunity"]').forEach((link) => {
   link.textContent = '에코디커뮤니티 채널 ↗';
 });
-
-// Every EKODI site should have a small path back to the shared Social Hub.
-if (nav && !nav.querySelector('[data-ekodi-social]')) {
-  const socialLink = document.createElement('a');
-  socialLink.href = 'https://social.ekodi.kr/?org=church';
-  socialLink.textContent = 'Social';
-  socialLink.dataset.ekodiSocial = 'true';
-  socialLink.setAttribute('aria-label', '에코디교회 소셜 허브');
-  nav.append(socialLink);
-}
 
 async function syncChurchSocialLinks() {
   const host = document.querySelector('.channel-links');
@@ -70,15 +88,17 @@ async function syncChurchSocialLinks() {
 }
 syncChurchSocialLinks();
 
-menuButton.addEventListener('click', () => {
-  const open = nav.classList.toggle('open');
-  menuButton.setAttribute('aria-expanded', open);
-});
+if (menuButton && nav) {
+  menuButton.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    menuButton.setAttribute('aria-expanded', open);
+  });
 
-nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => {
-  nav.classList.remove('open');
-  menuButton.setAttribute('aria-expanded', 'false');
-}));
+  nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => {
+    nav.classList.remove('open');
+    menuButton.setAttribute('aria-expanded', 'false');
+  }));
+}
 
 const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
   if (entry.isIntersecting) {
