@@ -1,20 +1,30 @@
-/* 2026-08-29 · clearer navigation + community-led closing */
+/* 2026-08-29 · EKODI user-shell alignment + community-led closing */
 .site-header{
   position:fixed;
   top:0;
   left:0;
   right:0;
-  height:76px;
+  height:72px;
   padding:0 5vw;
-  background:rgba(9,35,30,.92);
-  -webkit-backdrop-filter:blur(16px) saturate(140%);
-  backdrop-filter:blur(16px) saturate(140%);
-  border-bottom:1px solid rgba(255,255,255,.16);
-  box-shadow:0 8px 30px rgba(4,22,18,.16);
+  background:linear-gradient(90deg,rgba(7,25,22,.98) 0%,rgba(14,43,37,.97) 58%,rgba(21,54,47,.96) 100%);
+  -webkit-backdrop-filter:blur(16px) saturate(135%);
+  backdrop-filter:blur(16px) saturate(135%);
+  border-bottom:1px solid rgba(226,203,151,.22);
+  box-shadow:0 8px 26px rgba(4,22,18,.14);
   z-index:100;
 }
+.site-header:after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-1px;
+  height:1px;
+  background:linear-gradient(90deg,transparent 0%,rgba(216,189,129,.52) 32%,rgba(216,189,129,.18) 72%,transparent 100%);
+  pointer-events:none;
+}
 .site-header .brand{color:#fff}
-.site-header nav{gap:30px;align-items:center}
+.site-header nav{gap:22px;align-items:center}
 .site-header nav a{
   opacity:1;
   color:#fff;
@@ -23,11 +33,20 @@
   letter-spacing:-.01em;
   padding:9px 2px;
   border-bottom:1px solid transparent;
-  transition:border-color .2s ease,color .2s ease,opacity .2s ease;
+  transition:border-color .2s ease,color .2s ease,background .2s ease;
 }
 .site-header nav a:hover,
 .site-header nav a:focus-visible{color:#f0d9a1;border-bottom-color:#d8bd81;outline:none}
-.hero{padding-top:150px}
+.site-header nav a.shell-switch{color:#d8dfda}
+.site-header nav a.shell-my{
+  padding:9px 13px;
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:999px;
+  background:rgba(255,255,255,.07);
+}
+.site-header nav a.shell-my:hover,
+.site-header nav a.shell-my:focus-visible{background:#f4f0e5;color:#173730;border-color:#f4f0e5}
+.hero{padding-top:146px}
 
 /* Replace the footer-like visit panel with one human, image-led invitation. */
 .community-visit{
@@ -89,25 +108,35 @@
 .photo-credit{display:block;margin-top:18px;font-size:9px;color:#8f9b96}
 .photo-credit a{text-decoration:underline;text-underline-offset:2px}
 
-/* Keep the actual footer unmistakably simple and separate. */
+/* Actual footer: one centered identity block, deliberately quieter than the page content. */
 footer{
-  padding:28px 8vw 24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:28px 24px 24px;
   text-align:center;
   background:#0b2722;
 }
-.footer-brand{justify-content:center;margin:0 0 10px}
-footer>p{margin:0 auto;max-width:760px;font-family:var(--sans);font-size:11px;line-height:1.7;color:#ffffff8f}
+.footer-brand{justify-content:center;margin:0 0 10px;text-align:center}
+footer>p{margin:0 auto;max-width:760px;font-family:var(--sans);font-size:11px;line-height:1.7;color:#ffffff8f;text-align:center}
 .footer-meta{
+  width:min(760px,100%);
+  display:flex;
+  flex-direction:column;
   justify-content:center;
-  gap:24px;
+  align-items:center;
+  gap:8px;
   margin-top:18px;
   padding-top:16px;
   border-top:1px solid #ffffff18;
+  text-align:center;
 }
+.footer-meta a{display:inline-flex;justify-content:center}
 
 @media(max-width:980px){
   .site-header{padding:0 28px}
-  .site-header nav{gap:20px}
+  .site-header nav{gap:16px}
   .site-header nav a{font-size:12px}
   .community-visit{grid-template-columns:1fr}
   .community-visit-photo{min-height:460px}
@@ -118,11 +147,12 @@ footer>p{margin:0 auto;max-width:760px;font-family:var(--sans);font-size:11px;li
   .site-header{height:70px;padding:0 20px}
   .site-header nav{
     top:70px;
-    background:rgba(9,35,30,.98);
-    padding:24px 22px 28px;
+    background:linear-gradient(180deg,rgba(7,25,22,.995),rgba(14,43,37,.99));
+    padding:22px 22px 26px;
     box-shadow:0 16px 35px rgba(4,22,18,.24);
   }
-  .site-header nav a{font-size:14px;padding:5px 0}
+  .site-header nav a{font-size:14px;padding:7px 0}
+  .site-header nav a.shell-my{padding:10px 14px;text-align:center}
   .hero{padding-top:118px}
   .community-visit-photo{min-height:360px;background-position:center 48%}
   .community-visit-copy{padding:58px 24px 64px}
@@ -130,7 +160,6 @@ footer>p{margin:0 auto;max-width:760px;font-family:var(--sans);font-size:11px;li
   .visit-actions{display:grid;grid-template-columns:1fr}
   .visit-actions .button{width:100%}
   footer{padding:26px 24px 22px}
-  .footer-meta{gap:14px;flex-wrap:wrap}
 }
 
 @media(max-width:480px){
