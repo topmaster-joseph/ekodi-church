@@ -34,6 +34,15 @@ jobs:
           grep -Fq "https://community.ekodi.kr" script.js
           grep -Fq "https://social.ekodi.kr/?org=church" script.js
           grep -Fq "에코디커뮤니티 최신 유튜브 영상" script.js
+          grep -Fq '<strong>에코디교회</strong>' index.html
+          if grep -Fq 'EKODI교회' index.html; then
+            echo 'Legacy EKODI교회 display name remains in preview source.'
+            exit 1
+          fi
+          if grep -Fq 'data-ekodi-social="true"' index.html; then
+            echo 'Social must not be injected into the compact public header.'
+            exit 1
+          fi
       - name: Verify Cloudflare preview credentials
         run: |
           test -n "$CLOUDFLARE_API_TOKEN" || (echo 'Missing CLOUDFLARE_API_TOKEN' && exit 1)
@@ -54,7 +63,9 @@ jobs:
             root_code=$(curl -L -sS -o /tmp/church.html -w '%{http_code}' --connect-timeout 5 --max-time 15 "$PREVIEW_URL/" || true)
             script_code=$(curl -L -sS -o /tmp/church-script.js -w '%{http_code}' --connect-timeout 5 --max-time 15 "$PREVIEW_URL/script.js" || true)
             if [[ "$root_code" =~ ^[23] ]] && [[ "$script_code" == "200" ]] \
-              && grep -Fq 'EKODI교회' /tmp/church.html \
+              && grep -Fq '<strong>에코디교회</strong>' /tmp/church.html \
+              && ! grep -Fq 'EKODI교회' /tmp/church.html \
+              && ! grep -Fq 'data-ekodi-social="true"' /tmp/church.html \
               && grep -Fq 'https://community.ekodi.kr' /tmp/church-script.js \
               && grep -Fq 'https://social.ekodi.kr/?org=church' /tmp/church-script.js; then
               echo "Church Community brand preview verified: $PREVIEW_URL"
