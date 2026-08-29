@@ -9,7 +9,6 @@ const headerBrandLink = document.querySelector('.site-header .brand');
 if (headerBrandLink) headerBrandLink.setAttribute('aria-label', '에코디교회 홈');
 
 // Show one short Scripture line per calendar day, based on Korea time.
-// The deck intentionally uses concise excerpts so the header stays readable.
 const dailyScriptures = [
   { ref: '시편 23:1', text: '여호와는 나의 목자시니 내게 부족함이 없으리로다' },
   { ref: '시편 46:10', text: '너희는 가만히 있어 내가 하나님 됨을 알지어다' },
@@ -64,7 +63,7 @@ if (siteHeader) {
     dailyVerse = document.createElement('div');
     dailyVerse.className = 'daily-verse';
     dailyVerse.setAttribute('aria-live', 'polite');
-    dailyVerse.innerHTML = '<span class="daily-verse-label">오늘의 말씀</span><span class="daily-verse-text"></span><span class="daily-verse-ref"></span>';
+    dailyVerse.innerHTML = '<span class="daily-verse-text"></span><span class="daily-verse-ref"></span>';
     siteHeader.insertBefore(dailyVerse, menuButton || nav || null);
   }
 
@@ -74,7 +73,7 @@ if (siteHeader) {
   if (verseText) verseText.textContent = `“${scripture.text}”`;
   if (verseRef) verseRef.textContent = scripture.ref;
   dailyVerse.title = `${scripture.text} · ${scripture.ref}`;
-  dailyVerse.setAttribute('aria-label', `오늘의 말씀, ${scripture.text}, ${scripture.ref}`);
+  dailyVerse.setAttribute('aria-label', `${scripture.text}, ${scripture.ref}`);
 }
 
 // Public church header: keep only the most useful next actions and My EKODI.
@@ -96,8 +95,7 @@ if (nav) {
   nav.replaceChildren(...links);
 }
 
-// EKODI선교회는 에코디커뮤니티로 통합되었습니다. 기존 정적 문구가 남아 있어도
-// 사용자에게는 새 명칭과 canonical Community 링크만 노출합니다.
+// EKODI선교회는 에코디커뮤니티로 통합되었습니다.
 document.querySelectorAll('h1,h2,h3,p,span,small,a,button').forEach((element) => {
   for (const node of element.childNodes) {
     if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('EKODI선교회')) {
@@ -109,7 +107,6 @@ document.querySelectorAll('h1,h2,h3,p,span,small,a,button').forEach((element) =>
   }
 });
 
-// Footer follows the Korean-first user-facing naming rule.
 const footerBrandName = document.querySelector('footer .footer-brand strong');
 if (footerBrandName) footerBrandName.textContent = '에코디교회';
 const footerCopyright = document.querySelector('footer .footer-meta span');
@@ -127,9 +124,13 @@ document.querySelectorAll('a[href="https://www.youtube.com/@ekodicommunity"]').f
   link.textContent = '에코디커뮤니티 채널 ↗';
 });
 
+// Keep canonical YouTube links from the page intact. The registry may add other
+// social channels, but it must not replace the worship route with stale data.
 async function syncChurchSocialLinks() {
   const host = document.querySelector('.channel-links');
   if (!host) return;
+  const preserved = [...host.querySelectorAll('a')].map((link) => link.cloneNode(true));
+  const urls = new Set(preserved.map((link) => link.href));
   try {
     const response = await fetch('https://api.ekodi.kr/api/social/registry', {
       headers: { accept: 'application/json' },
@@ -138,22 +139,28 @@ async function syncChurchSocialLinks() {
     if (!response.ok) throw new Error(`registry_${response.status}`);
     const registry = await response.json();
     const church = (registry.organizations || []).find((org) => org.id === 'church' && org.isActive !== false);
-    const channels = (church?.channels || []).filter((channel) => channel.isActive !== false);
-    const nodes = channels.map((channel) => {
+    const channels = (church?.channels || []).filter((channel) => channel.isActive !== false && channel.provider !== 'youtube');
+    const nodes = [...preserved];
+    channels.forEach((channel) => {
+      if (!channel.url || urls.has(channel.url)) return;
       const link = document.createElement('a');
       link.href = channel.url;
       link.target = '_blank';
       link.rel = 'noreferrer noopener';
       link.textContent = `${channel.label || channel.provider || 'Channel'} ↗`;
       link.dataset.provider = channel.provider || 'other';
-      return link;
+      nodes.push(link);
+      urls.add(channel.url);
     });
-    const hub = document.createElement('a');
-    hub.href = 'https://social.ekodi.kr/?org=church';
-    hub.target = '_blank';
-    hub.rel = 'noreferrer noopener';
-    hub.textContent = '전체 소셜채널 ↗';
-    nodes.push(hub);
+    const hubUrl = 'https://social.ekodi.kr/?org=church';
+    if (!urls.has(hubUrl)) {
+      const hub = document.createElement('a');
+      hub.href = hubUrl;
+      hub.target = '_blank';
+      hub.rel = 'noreferrer noopener';
+      hub.textContent = '전체 소셜채널 ↗';
+      nodes.push(hub);
+    }
     host.replaceChildren(...nodes);
     host.dataset.registryRevision = String(registry.revision || registry.version || 'live');
   } catch (error) {
@@ -195,6 +202,10 @@ const youtubeChannels = {
 };
 
 const youtubePlayer = document.querySelector('#youtube-player');
+function youtubePlaylistUrl(playlist) {
+  return `https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(playlist)}&rel=0&playsinline=1&origin=${encodeURIComponent('https://church.ekodi.kr')}`;
+}
+
 document.querySelectorAll('.channel-tab').forEach((tab) => tab.addEventListener('click', () => {
   const selected = youtubeChannels[tab.dataset.channel];
   if (!selected || !youtubePlayer) return;
@@ -205,7 +216,8 @@ document.querySelectorAll('.channel-tab').forEach((tab) => tab.addEventListener(
     button.setAttribute('aria-selected', String(active));
   });
 
-  youtubePlayer.src = `https://www.youtube-nocookie.com/embed/videoseries?list=${selected.playlist}`;
+  youtubePlayer.src = youtubePlaylistUrl(selected.playlist);
+  youtubePlayer.referrerPolicy = 'strict-origin-when-cross-origin';
   youtubePlayer.title = selected.title;
 }));
 
