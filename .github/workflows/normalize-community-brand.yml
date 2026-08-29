@@ -34,12 +34,10 @@ jobs:
           if count != 1:
               raise SystemExit('Could not normalize Community card link')
 
+          # Keep the public header intentionally compact. Social discovery belongs in
+          # the online/social area, not as a permanent top-level header item.
           social = '<a data-ekodi-social="true" href="https://social.ekodi.kr/?org=church">Social</a>'
-          if social not in text:
-              marker = '<a href="#online">온라인</a>'
-              if marker not in text:
-                  raise SystemExit('Church navigation marker not found')
-              text = text.replace(marker, marker + social, 1)
+          text = text.replace(social, '')
 
           if 'EKODI선교회' in text or '에코디선교회' in text:
               raise SystemExit('Legacy formal organization name remains')
@@ -51,5 +49,5 @@ jobs:
           git config user.name 'EKODI Automation'
           git config user.email 'automation@ekodi.kr'
           git add index.html
-          git commit -m 'Use EKODI Community canonical brand on Church site'
+          git commit -m 'Normalize Community brand and Church header'
           git push
