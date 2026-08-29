@@ -45,6 +45,28 @@
   text-decoration:underline;
   text-underline-offset:3px;
 }
+.church-footer-legal{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  gap:7px 18px;
+  width:min(760px,100%);
+  font-size:11px;
+  line-height:1.6;
+  text-align:center;
+}
+.church-footer-legal a{
+  color:rgba(255,255,255,.88);
+  text-decoration:none;
+  text-underline-offset:4px;
+}
+.church-footer-legal a:hover,
+.church-footer-legal a:focus-visible{
+  color:#fff;
+  text-decoration:underline;
+  outline:none;
+}
 .church-footer-bottom{
   width:min(760px,100%);
   margin-top:2px;
@@ -126,6 +148,7 @@ html[data-ekodi-service="church"] .ekodi-user-ui-footer,
 @media(max-width:720px){
   .site-footer.church-footer{padding:27px 20px 22px!important}
   .church-footer-info{display:grid;gap:5px}
+  .church-footer-legal{gap:6px 14px}
   .church-footer-bottom{display:grid;gap:5px}
 }
 
