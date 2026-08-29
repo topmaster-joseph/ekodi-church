@@ -8,7 +8,6 @@
   <link rel="canonical" href="https://church.ekodi.kr/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://images.unsplash.com">
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="church-refresh.css">
@@ -16,7 +15,7 @@
   <link rel="stylesheet" href="community-visual.css">
   <link rel="stylesheet" href="church-footer.css">
 </head>
-<body>
+<body data-ekodi-footer-mode="service">
   <header class="site-header" id="top">
     <a class="brand" href="#top" aria-label="에코디교회 홈">
       <span class="brand-mark" aria-hidden="true">E</span>
@@ -158,7 +157,6 @@
     </section>
 
     <section class="community-visit" id="location">
-      <div class="community-visit-photo reveal" role="img" aria-label="식탁에 둘러앉아 이야기를 나누는 공동체"></div>
       <div class="community-visit-copy reveal">
         <div class="section-label">06 · TOGETHER</div>
         <p class="eyebrow">COME AS YOU ARE</p>
@@ -173,7 +171,6 @@
           <a class="button primary" href="https://map.naver.com/p/search/%EC%A0%84%EB%82%A8%20%EB%AC%B4%EC%95%88%EA%B5%B0%20%EC%B2%AD%EA%B3%84%EB%A9%B4%20%EB%B0%B1%EB%A0%A8%EB%8F%991%EA%B8%B8%2017-4" target="_blank" rel="noreferrer">오시는 길 보기 ↗</a>
           <a class="button text" href="#online">온라인으로 먼저 만나기</a>
         </div>
-        <small class="photo-credit">Photo: <a href="https://unsplash.com/photos/group-of-friends-gathered-around-a-table-for-a-meal-MAFMkfevd7w" target="_blank" rel="noreferrer">tommao wang / Unsplash</a></small>
       </div>
     </section>
   </main>
@@ -196,7 +193,7 @@
     <div class="giving-result" id="giving-result" role="status" hidden></div>
   </dialog>
 
-  <footer class="site-footer church-footer">
+  <footer class="site-footer church-footer" data-ekodi-service-footer>
     <div class="church-footer-inner">
       <strong class="church-footer-brand">EKODI CHURCH</strong>
       <div class="church-footer-info" aria-label="에코디교회 운영 정보">
@@ -206,10 +203,16 @@
         <span>고유번호 213-13-01959</span>
         <a href="mailto:ekodichurch@gmail.com">ekodichurch@gmail.com</a>
       </div>
+      <nav class="church-footer-legal" aria-label="법적 고지">
+        <a data-ekodi-i18n="privacy" href="https://ekodi.kr/privacy">개인정보처리방침</a>
+        <a data-ekodi-i18n="terms" href="https://ekodi.kr/terms">이용약관</a>
+        <a data-ekodi-i18n="contact" href="mailto:ekodibiz@gmail.com">문의</a>
+      </nav>
       <div class="church-footer-bottom"><span>© 2026 EKODI CHURCH</span><a href="#top">맨 위로 ↑</a></div>
     </div>
   </footer>
   <script src="script.js"></script>
+  <script src="church-i18n.js"></script>
   <script src="giving.js"></script>
 </body>
 </html>
