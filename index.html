@@ -134,10 +134,22 @@
         </article>
       </div>
 
-      <div class="giving-strip reveal">
-        <div><p class="eyebrow">GIVING</p><h3>온라인 헌금</h3><p>예금주 확인 후 공식 계좌로 보내실 수 있습니다.</p></div>
-        <div class="accounts compact-accounts"><div><span>십일조·주일헌금</span><strong>농협 355-0088-5391-83</strong><button class="copy-account" data-account="3550088539183">계좌 복사</button></div><div><span>선교헌금</span><strong>국민 782301-01-666597</strong><button class="copy-account" data-account="78230101666597">계좌 복사</button></div></div>
-        <small>영수증 발행 문의 010-3501-8542</small>
+      <div class="giving-strip reveal" id="giving">
+        <div class="giving-copy">
+          <p class="eyebrow">GIVING</p>
+          <h3>온라인 헌금</h3>
+          <p>카드·간편결제 또는 공식 계좌이체 중 편한 방법을 선택할 수 있습니다.</p>
+          <div class="giving-primary-actions">
+            <button class="button primary" id="open-giving-payment" type="button" disabled>결제 연결 확인 중</button>
+            <a class="button text" href="#giving-accounts">계좌이체</a>
+          </div>
+          <small id="giving-payment-status" role="status">안전한 결제 연결 상태를 확인하고 있습니다.</small>
+        </div>
+        <div class="accounts compact-accounts" id="giving-accounts">
+          <div><span>십일조·주일헌금</span><strong>농협 355-0088-5391-83</strong><button class="copy-account" data-account="3550088539183">계좌 복사</button></div>
+          <div><span>선교헌금</span><strong>국민 782301-01-666597</strong><button class="copy-account" data-account="78230101666597">계좌 복사</button></div>
+        </div>
+        <small class="giving-receipt-help">영수증 발행 문의 010-3501-8542</small>
       </div>
     </section>
 
@@ -162,11 +174,28 @@
     </section>
   </main>
 
-  <footer>
-    <div class="brand footer-brand"><span class="brand-mark">E</span><span><strong>에코디교회</strong><small>EKODI CHURCH</small></span></div>
-    <p>전남 무안군 청계면 백련동1길 17-4, 1층 · 010-3501-8542 · ekodichurch@gmail.com</p>
-    <div class="footer-meta"><span>© 2026 에코디교회</span><a href="#top">맨 위로 ↑</a></div>
+  <dialog class="giving-dialog" id="giving-dialog" aria-labelledby="giving-dialog-title">
+    <form class="giving-dialog-close-form" method="dialog"><button type="submit" aria-label="온라인 헌금 창 닫기">닫기 ×</button></form>
+    <div class="giving-dialog-head">
+      <p class="eyebrow">SECURE GIVING</p>
+      <h3 id="giving-dialog-title">온라인 헌금</h3>
+      <p>헌금 종류와 금액을 선택한 뒤 카드·간편결제로 진행합니다.</p>
+    </div>
+    <div class="giving-form" id="giving-form">
+      <label class="giving-field" for="giving-type"><span>헌금 종류</span><select id="giving-type"><option value="tithe_sunday">십일조·주일헌금</option><option value="mission">선교헌금</option><option value="thanksgiving">감사헌금</option><option value="other">기타헌금</option></select></label>
+      <fieldset class="giving-amount-field"><legend>헌금 금액</legend><div class="giving-presets"><button type="button" data-giving-amount="10000">1만원</button><button type="button" data-giving-amount="30000">3만원</button><button type="button" data-giving-amount="50000">5만원</button><button type="button" data-giving-amount="100000">10만원</button></div><label for="giving-amount"><span>직접 입력</span><input id="giving-amount" type="number" min="1000" max="10000000" step="1000" inputmode="numeric" value="10000"><b>원</b></label></fieldset>
+      <div id="payment-method" class="giving-payment-method"></div>
+      <div id="agreement" class="giving-agreement"></div>
+      <button class="button primary giving-pay-button" id="giving-pay-button" type="button">선택한 금액 결제하기</button>
+      <p class="giving-dialog-note">카드 정보는 에코디교회가 직접 저장하지 않으며 결제사 보안창에서 처리됩니다.</p>
+    </div>
+    <div class="giving-result" id="giving-result" role="status" hidden></div>
+  </dialog>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner"><span>© 2026 에코디교회 · EKODI CHURCH</span><a href="#top">맨 위로 ↑</a></div>
   </footer>
   <script src="script.js"></script>
+  <script src="giving.js"></script>
 </body>
 </html>
