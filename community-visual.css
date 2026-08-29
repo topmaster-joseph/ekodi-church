@@ -53,40 +53,43 @@
 .menu-button span{background:var(--deep)}
 .daily-verse{
   min-width:0;
-  max-width:640px;
+  max-width:720px;
   justify-self:center;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:8px;
+  gap:0;
   color:var(--deep);
   font-family:var(--serif);
-  font-size:12px;
+  font-size:16px;
   line-height:1.35;
-  letter-spacing:-.01em;
+  letter-spacing:-.02em;
+  text-align:center;
 }
-.daily-verse-label{
-  flex:0 0 auto;
-  color:#9a7b45;
-  font-family:var(--sans);
-  font-size:9px;
-  font-weight:700;
-  letter-spacing:.12em;
-}
+.daily-verse-label,.daily-verse-ref{display:none!important}
 .daily-verse-text{
   min-width:0;
   overflow:hidden;
   white-space:nowrap;
   text-overflow:ellipsis;
 }
-.daily-verse-ref{
-  flex:0 0 auto;
-  color:#6f807a;
-  font-family:var(--sans);
-  font-size:9px;
-  font-weight:600;
-}
 .hero{padding-top:146px}
+
+/* Keep the YouTube worship route explicit even if the social registry changes. */
+.youtube-direct-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:14px;
+}
+.youtube-direct-actions .button{
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.youtube-direct-actions .button.primary{background:var(--deep);color:#fff}
+.youtube-direct-actions .button.text{border:1px solid #c7d0ca;color:var(--deep);padding-inline:16px}
 
 /* Replace the footer-like visit panel with one human, image-led invitation. */
 .community-visit{
@@ -256,9 +259,7 @@ footer>p{margin:0 auto;max-width:760px;font-family:var(--sans);font-size:11px;li
   .site-header{grid-template-columns:auto minmax(170px,1fr) auto;gap:18px;padding:0 32px}
   .site-header nav{gap:14px}
   .site-header nav a{font-size:12px}
-  .daily-verse{font-size:11px;gap:6px}
-  .daily-verse-label{font-size:8px}
-  .daily-verse-ref{font-size:8px}
+  .daily-verse{font-size:14px}
   .giving-strip{grid-template-columns:1fr}
   .giving-receipt-help{white-space:normal}
 }
@@ -287,9 +288,7 @@ footer>p{margin:0 auto;max-width:760px;font-family:var(--sans);font-size:11px;li
   .site-header nav a{font-size:14px;padding:7px 0}
   .site-header nav a.shell-my{padding:10px 14px;text-align:center}
   .menu-button{justify-self:end}
-  .daily-verse{max-width:none;font-size:10px;gap:5px}
-  .daily-verse-label{display:none}
-  .daily-verse-ref{font-size:8px}
+  .daily-verse{max-width:none;font-size:13px}
   .hero{padding-top:118px}
   .community-visit-photo{min-height:360px;background-position:center 48%}
   .community-visit-copy{padding:58px 24px 64px}
@@ -297,6 +296,8 @@ footer>p{margin:0 auto;max-width:760px;font-family:var(--sans);font-size:11px;li
   .visit-actions{display:grid;grid-template-columns:1fr}
   .visit-actions .button{width:100%}
   footer{padding:26px 24px 22px}
+  .youtube-direct-actions{display:grid;grid-template-columns:1fr}
+  .youtube-direct-actions .button{width:100%}
   .giving-primary-actions{display:grid;grid-template-columns:1fr}
   .giving-primary-actions .button{width:100%}
   .giving-dialog-head{padding:42px 24px 20px}
@@ -309,8 +310,7 @@ footer>p{margin:0 auto;max-width:760px;font-family:var(--sans);font-size:11px;li
   .site-header .brand{gap:8px}
   .site-header .brand-mark{width:32px;height:32px;font-size:18px}
   .site-header .brand strong{font-size:15px}
-  .daily-verse{font-size:9px}
-  .daily-verse-ref{display:none}
+  .daily-verse{font-size:11px}
   .community-visit-photo{min-height:300px}
   .community-visit-copy h2{font-size:35px}
   .visit-facts div{grid-template-columns:54px 1fr;gap:12px}
