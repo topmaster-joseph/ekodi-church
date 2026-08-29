@@ -1,8 +1,9 @@
 const menuButton = document.querySelector('.menu-button');
 const nav = document.querySelector('#main-nav');
 const siteHeader = document.querySelector('.site-header');
+const churchT = (source) => window.EKODIChurchI18n?.t?.(source) || source;
 
-// Korean-first church identity in the public header.
+// Korean-first church identity in the public header. The locale layer translates it after boot.
 const headerBrandName = document.querySelector('.site-header .brand strong');
 if (headerBrandName) headerBrandName.textContent = '에코디교회';
 const headerBrandLink = document.querySelector('.site-header .brand');
@@ -163,6 +164,7 @@ async function syncChurchSocialLinks() {
     }
     host.replaceChildren(...nodes);
     host.dataset.registryRevision = String(registry.revision || registry.version || 'live');
+    window.EKODIChurchI18n?.refresh?.();
   } catch (error) {
     console.warn('[EKODI Church Social] existing channel links retained', error?.message || error);
   }
@@ -218,16 +220,16 @@ document.querySelectorAll('.channel-tab').forEach((tab) => tab.addEventListener(
 
   youtubePlayer.src = youtubePlaylistUrl(selected.playlist);
   youtubePlayer.referrerPolicy = 'strict-origin-when-cross-origin';
-  youtubePlayer.title = selected.title;
+  youtubePlayer.title = churchT(selected.title);
 }));
 
 document.querySelectorAll('.copy-account').forEach((button) => button.addEventListener('click', async () => {
   try {
     await navigator.clipboard.writeText(button.dataset.account);
-    button.textContent = '복사 완료';
+    button.textContent = churchT('복사 완료');
     button.classList.add('copied');
     window.setTimeout(() => {
-      button.textContent = '계좌 복사';
+      button.textContent = churchT('계좌 복사');
       button.classList.remove('copied');
     }, 1800);
   } catch {
