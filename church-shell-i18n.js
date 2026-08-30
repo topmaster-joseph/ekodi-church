@@ -46,13 +46,6 @@ function translateText(node){
   if(node.nodeValue!==next)node.nodeValue=next;
   state.last=next;
 }
-function translateAttr(node,name){
-  const current=node.getAttribute?.(name);
-  if(!current)return;
-  const state=stateFor({node,name},current);
-  const next=translated(current.trim());
-  if(next!==current.trim())node.setAttribute(name,next);
-}
 function run(){
   scheduled=false;
   const root=document.body||document.documentElement;
@@ -75,7 +68,7 @@ function loadExtensions(){
     link.dataset.ekodiChurchHeaderTune='v1';
     document.head.append(link);
   }
-  for(const src of ['/church-i18n-extended.js','/church-header-controls.js']){
+  for(const src of ['/church-i18n-extended.js','/church-i18n-payment-patch.js','/church-header-controls.js']){
     if(document.querySelector(`script[src="${src}"]`))continue;
     const script=document.createElement('script');
     script.src=src;
