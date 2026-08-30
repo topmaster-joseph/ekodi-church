@@ -67,9 +67,27 @@ function run(){
   });
 }
 function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(run);}
+function loadExtensions(){
+  if(!document.querySelector('link[data-ekodi-church-header-tune]')){
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href='/church-header-tune.css';
+    link.dataset.ekodiChurchHeaderTune='v1';
+    document.head.append(link);
+  }
+  for(const src of ['/church-i18n-extended.js','/church-header-controls.js']){
+    if(document.querySelector(`script[src="${src}"]`))continue;
+    const script=document.createElement('script');
+    script.src=src;
+    script.defer=true;
+    script.dataset.ekodiChurchExtension='v1';
+    document.head.append(script);
+  }
+}
 
 window.addEventListener('ekodi:locale-change',schedule);
 window.addEventListener('ekodi:church-i18n-applied',schedule);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
 new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true,characterData:true});
+loadExtensions();
 })();
