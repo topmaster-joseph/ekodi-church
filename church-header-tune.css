@@ -11,7 +11,7 @@
 .site-header .brand:hover strong,
 .site-header .brand:focus-visible strong{color:#806633}
 .site-header nav{gap:10px!important}
-.site-header nav>a{padding-inline:0!important}
+.site-header nav>a{padding-inline:0!important;text-align:center!important}
 .site-header nav>a.shell-my{padding:8px 11px!important}
 .site-header .ekodi-user-language{
   margin-inline-start:0!important;
@@ -22,6 +22,7 @@
   line-height:1;
   opacity:.72;
 }
+.site-header .ekodi-user-language__label{display:none!important}
 .site-header .ekodi-user-language__select{
   min-height:32px!important;
   max-width:112px!important;
@@ -32,6 +33,7 @@
   font-size:11.5px!important;
   font-weight:650!important;
   letter-spacing:-.02em;
+  text-align:center!important;
 }
 .site-header #ekodi-ccm-mr-toggle{
   position:static!important;
@@ -49,6 +51,7 @@
   backdrop-filter:none!important;
   font:650 11.5px/1.15 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;
   white-space:nowrap;
+  text-align:center!important;
 }
 .site-header #ekodi-ccm-mr-toggle:hover,
 .site-header #ekodi-ccm-mr-toggle:focus-visible{
@@ -56,10 +59,132 @@
   color:#fff!important;
   border-color:#173730!important;
 }
+
+/* Header Scripture: reference and verse share one calm, equal style. */
+.site-header .daily-verse{
+  gap:7px!important;
+  overflow:hidden;
+  color:rgba(23,55,48,.67)!important;
+  font-family:var(--serif)!important;
+  font-size:14px!important;
+  font-weight:400!important;
+  line-height:1.45!important;
+  letter-spacing:-.02em!important;
+  text-align:center!important;
+}
+.site-header .daily-verse-text,
+.site-header .daily-verse-ref{
+  display:inline!important;
+  color:inherit!important;
+  font:inherit!important;
+  font-weight:400!important;
+  letter-spacing:inherit!important;
+  opacity:1!important;
+  white-space:nowrap;
+}
+.site-header .daily-verse-text{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.site-header .daily-verse-ref{flex:0 0 auto}
+.site-header .daily-verse-ref::before{content:"·";margin-right:7px;opacity:.48}
+
+/* Church page alignment: keep the header structure, center the content itself. */
+main,
+.hero-content,
+.section,
+.section-label,
+.intro-grid>*,
+.value-card,
+.worship-grid>*,
+.schedule>div,
+.message-head,
+.sermon-info,
+.community-head,
+.community-cards article,
+.online-head,
+.ministry-card,
+.giving-strip,
+.giving-copy,
+.compact-accounts>div,
+.location-copy,
+.community-visit-copy,
+.visit-panel,
+.giving-dialog-head,
+.giving-form,
+.giving-result{
+  text-align:center!important;
+}
+.hero-content,
+.intro-copy,
+.online-head,
+.community-head>p,
+.location-copy>p,
+.community-visit-copy>p,
+.visit-note,
+footer>p{
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+.intro-grid,.worship-grid{align-items:center!important}
+.message-head,.community-head{align-items:center!important}
+.message-head>div,.community-head>div{width:100%}
+.message-head>a{margin-left:auto!important;margin-right:auto!important}
+.community-cards article{align-items:center!important}
+.schedule>div{
+  grid-template-columns:1fr 1.55fr 1fr!important;
+  justify-items:center!important;
+  gap:14px!important;
+}
+.schedule span,.schedule strong,.schedule small{width:100%;text-align:center!important}
+.sermon-info>div,
+.youtube-direct-actions,
+.channel-links,
+.giving-primary-actions,
+.visit-actions,
+.ministry-kicker,
+.devotion-pulse{
+  justify-content:center!important;
+}
+.sermon-info .tag,.sermon-info .play{margin-left:auto;margin-right:auto}
+.ministry-card .compact-video{width:100%}
+.ministry-card .button{align-self:center}
+.giving-strip{justify-items:center!important}
+.giving-strip>*{width:100%}
+.compact-accounts>div{justify-items:center!important}
+.compact-accounts .copy-account{justify-self:center!important}
+.giving-field,.giving-amount-field,.giving-amount-field legend{text-align:center!important}
+.giving-field select{text-align:center!important;text-align-last:center!important}
+.giving-amount-field label{justify-content:center!important}
+.giving-amount-field label input{text-align:center!important}
+.location dl,.visit-panel dl{
+  grid-template-columns:1fr!important;
+  justify-items:center!important;
+  gap:5px!important;
+  text-align:center!important;
+}
+.location dd,.visit-panel dd{margin:0!important;text-align:center!important}
+.visit-facts div{
+  grid-template-columns:1fr!important;
+  justify-items:center!important;
+  gap:5px!important;
+  text-align:center!important;
+}
+.visit-actions{justify-content:center!important}
+.site-footer,.site-footer-inner{text-align:center!important}
+
+@media(max-width:1100px){
+  .site-header .daily-verse{font-size:13px!important}
+}
 @media(max-width:900px){
   .site-header{gap:14px!important}
   .site-header nav{gap:8px!important}
   .site-header .ekodi-user-language__select{max-width:104px!important}
+}
+@media(max-width:800px){
+  .schedule>div{grid-template-columns:1fr!important;gap:5px!important;padding:22px 0!important}
+  .schedule small{display:block!important}
 }
 @media(max-width:760px){
   .site-header nav.open{gap:6px!important}
@@ -67,4 +192,8 @@
   .site-header nav.open #ekodi-ccm-mr-toggle{align-self:stretch}
   .site-header nav.open .ekodi-user-language__select{width:100%;max-width:none!important}
   .site-header nav.open #ekodi-ccm-mr-toggle{width:100%!important;justify-content:center}
+}
+@media(max-width:620px){
+  .site-header .daily-verse{gap:5px!important;font-size:11.5px!important}
+  .site-header .daily-verse-ref::before{margin-right:5px}
 }
