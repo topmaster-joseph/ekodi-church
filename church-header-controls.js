@@ -3,6 +3,7 @@
 if(window.__EKODI_CHURCH_HEADER_CONTROLS__)return;
 window.__EKODI_CHURCH_HEADER_CONTROLS__=true;
 
+const EXTENDED=new Set(['my','kac','vi','mn','id']);
 const MUSIC={
   'ko-KR':{off:'♫ 음악',on:'♫ 끄기',play:'배경 음악 재생',stop:'배경 음악 끄기'},
   en:{off:'♫ Music',on:'♫ Off',play:'Play background music',stop:'Turn off background music'},
@@ -15,18 +16,22 @@ const MUSIC={
   id:{off:'♫ Musik',on:'♫ Mati',play:'Putar musik latar',stop:'Matikan musik latar'}
 };
 let scheduled=false;
+let lastLocale='';
 
-function locale(){
-  const raw=String(window.EKODIUserLanguage?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||'ko-KR');
-  if(raw.startsWith('ko'))return'ko-KR';
-  if(raw.startsWith('zh'))return'zh-CN';
-  if(raw.startsWith('ja'))return'ja';
-  if(raw.startsWith('my'))return'my';
-  if(raw.startsWith('kac'))return'kac';
-  if(raw.startsWith('vi'))return'vi';
-  if(raw.startsWith('mn'))return'mn';
-  if(raw.startsWith('id'))return'id';
+function normalizeLocale(value){
+  const raw=String(value||'').trim().toLowerCase();
+  if(raw==='ko'||raw.startsWith('ko-'))return'ko-KR';
+  if(raw==='zh'||raw.startsWith('zh-'))return'zh-CN';
+  if(raw==='ja'||raw.startsWith('ja-'))return'ja';
+  if(raw==='my'||raw.startsWith('my-'))return'my';
+  if(raw==='kac'||raw.startsWith('kac-')||raw==='jinghpaw'||raw==='kachin')return'kac';
+  if(raw==='vi'||raw.startsWith('vi-'))return'vi';
+  if(raw==='mn'||raw.startsWith('mn-'))return'mn';
+  if(raw==='id'||raw.startsWith('id-'))return'id';
   return'en';
+}
+function locale(){
+  return normalizeLocale(window.EKODIUserLanguage?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||'ko-KR');
 }
 function syncBrand(){
   const brand=document.querySelector('.site-header .brand');
@@ -60,11 +65,27 @@ function syncMusic(){
   if(button.getAttribute('aria-label')!==aria)button.setAttribute('aria-label',aria);
   if(button.title!==aria)button.title=aria;
 }
+function navigateForExtendedLocale(next){
+  const previous=lastLocale||locale();
+  lastLocale=next;
+  if(next===previous||(!EXTENDED.has(next)&&!EXTENDED.has(previous)))return false;
+  try{
+    const url=new URL(location.href);
+    url.searchParams.set('lang',next);
+    location.replace(url.toString());
+  }catch{location.reload();}
+  return true;
+}
 function run(){scheduled=false;syncBrand();syncMusic();}
 function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(run);}
-window.addEventListener('ekodi:locale-change',schedule);
+lastLocale=locale();
+window.addEventListener('ekodi:locale-change',event=>{
+  const next=normalizeLocale(event.detail?.locale||locale());
+  if(!navigateForExtendedLocale(next))schedule();
+});
 window.addEventListener('ekodi:user-header-ready',schedule);
 window.addEventListener('ekodi:church-i18n-applied',schedule);
+window.addEventListener('ekodi:church-extended-i18n-applied',schedule);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
 new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['aria-pressed']});
 })();
