@@ -16,6 +16,10 @@
   let widgetPromise = null;
 
   const tr = (source, vars = {}) => window.EKODIChurchI18n?.t?.(source, vars) || source;
+  const setNodeText = (node, value) => {
+    const next = String(value ?? '');
+    if (node && node.textContent !== next) node.textContent = next;
+  };
   const clampAmount = (value) => {
     const number = Number.parseInt(String(value).replace(/[^0-9]/g, ''), 10);
     if (!Number.isFinite(number)) return 0;
@@ -24,8 +28,8 @@
   const amountText = (value) => window.EKODIChurchI18n?.formatAmount?.(value) || `${Number(value).toLocaleString('ko-KR')}원`;
 
   function setStatus(message, state = '') {
-    statusNode.textContent = tr(message);
-    statusNode.dataset.state = state;
+    setNodeText(statusNode, tr(message));
+    if (statusNode.dataset.state !== state) statusNode.dataset.state = state;
   }
 
   function setDialogResult(message, ok, receiptUrl = '') {
@@ -98,7 +102,7 @@
     if (!amount) return;
     amountInput.value = String(amount);
     await widgets.setAmount({ currency: 'KRW', value: amount });
-    payButton.textContent = `${amountText(amount)} ${tr('선택한 금액 결제하기')}`;
+    setNodeText(payButton, `${amountText(amount)} ${tr('선택한 금액 결제하기')}`);
   }
 
   async function fetchConfig() {
@@ -108,17 +112,17 @@
       config = await response.json();
       if (config.enabled && config.provider === 'toss' && config.clientKey) {
         openButton.disabled = false;
-        openButton.textContent = tr('카드·간편결제');
+        setNodeText(openButton, tr('카드·간편결제'));
         setStatus('카드·간편결제와 계좌이체를 사용할 수 있습니다.', 'ready');
       } else {
         openButton.disabled = true;
-        openButton.textContent = tr('카드·간편결제 PG 연결 필요');
+        setNodeText(openButton, tr('카드·간편결제 PG 연결 필요'));
         setStatus('계좌이체는 바로 이용할 수 있으며 카드·간편결제는 PG 운영키 연결 후 자동 활성화됩니다.', 'pending');
       }
     } catch (error) {
       console.warn('[EKODI Church Giving] payment config unavailable', error?.message || error);
       openButton.disabled = true;
-      openButton.textContent = tr('카드·간편결제 연결 확인 필요');
+      setNodeText(openButton, tr('카드·간편결제 연결 확인 필요'));
       setStatus('현재 계좌이체를 이용해 주세요.', 'error');
     }
   }
@@ -130,7 +134,7 @@
     if (typeof dialog.showModal === 'function' && !dialog.open) dialog.showModal();
     try {
       openButton.disabled = true;
-      openButton.textContent = tr('결제창 준비 중');
+      setNodeText(openButton, tr('결제창 준비 중'));
       await initializeWidgets();
       await syncWidgetAmount();
     } catch (error) {
@@ -138,7 +142,7 @@
       setDialogResult('결제창을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.', false);
     } finally {
       openButton.disabled = false;
-      openButton.textContent = tr('카드·간편결제');
+      setNodeText(openButton, tr('카드·간편결제'));
     }
   });
 
@@ -159,7 +163,7 @@
     if (!config?.enabled || !widgets || amount < 1000) return;
 
     payButton.disabled = true;
-    payButton.textContent = tr('결제 요청 중…');
+    setNodeText(payButton, tr('결제 요청 중…'));
     try {
       const response = await fetch('/api/giving/order', {
         method: 'POST',
@@ -186,7 +190,7 @@
       console.error('[EKODI Church Giving] payment request failed', error);
       setDialogResult('결제 요청을 시작하지 못했습니다. 결제 연결 상태를 확인하거나 계좌이체를 이용해 주세요.', false);
       payButton.disabled = false;
-      payButton.textContent = `${amountText(amount)} ${tr('선택한 금액 결제하기')}`;
+      setNodeText(payButton, `${amountText(amount)} ${tr('선택한 금액 결제하기')}`);
     }
   });
 
@@ -223,7 +227,7 @@
       });
       const result = await response.json();
       if (!response.ok || !result.ok) throw new Error(result.message || result.code || 'confirm_failed');
-      const label = result.givingLabel || '헌금';
+      const label = tr(result.givingLabel || '온라인 헌금');
       const approved = `${label} ${amountText(result.amount)} ${tr('헌금 결제가 완료되었습니다.')}`;
       setDialogResult(approved, true, result.receiptUrl || '');
       window.history.replaceState({}, document.title, `${window.location.pathname}#giving`);
@@ -235,10 +239,10 @@
 
   window.addEventListener('ekodi:church-i18n-applied', () => {
     if (config?.enabled) {
-      openButton.textContent = tr('카드·간편결제');
+      setNodeText(openButton, tr('카드·간편결제'));
       setStatus('카드·간편결제와 계좌이체를 사용할 수 있습니다.', 'ready');
     } else if (config) {
-      openButton.textContent = tr('카드·간편결제 PG 연결 필요');
+      setNodeText(openButton, tr('카드·간편결제 PG 연결 필요'));
       setStatus('계좌이체는 바로 이용할 수 있으며 카드·간편결제는 PG 운영키 연결 후 자동 활성화됩니다.', 'pending');
     }
     if (widgets) void syncWidgetAmount();
