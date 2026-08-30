@@ -62,6 +62,17 @@ const SCHEDULE={
     ['Doa malam','Setiap hari · 23.30','Ruang ibadah']
   ]
 };
+const FOCUS={
+  'ko-KR':{daily:'매일묵상',dailyFallback:'오늘의 말씀으로 하루를 시작합니다.',dailyCta:'오늘 묵상 보기 →',sermon:'주일설교',sermonFallback:'이번 주 주일설교를 바로 만나보세요.',sermonCta:'주일설교 보기 →'},
+  en:{daily:'Daily Meditation',dailyFallback:'Begin today with Scripture.',dailyCta:'Open today’s meditation →',sermon:'Sunday Sermon',sermonFallback:'Go straight to this week’s Sunday sermon.',sermonCta:'Open Sunday sermon →'},
+  'zh-CN':{daily:'每日默想',dailyFallback:'以今天的经文开始新的一天。',dailyCta:'查看今日默想 →',sermon:'主日讲道',sermonFallback:'直接进入本周主日讲道。',sermonCta:'查看主日讲道 →'},
+  ja:{daily:'毎日の黙想',dailyFallback:'今日のみことばから一日を始めます。',dailyCta:'今日の黙想を見る →',sermon:'主日説教',sermonFallback:'今週の主日説教をすぐにご覧いただけます。',sermonCta:'主日説教を見る →'},
+  my:{daily:'နေ့စဉ် ဆင်ခြင်ခြင်း',dailyFallback:'ယနေ့ နှုတ်ကပတ်တော်ဖြင့် နေ့ကို စတင်ပါ။',dailyCta:'ယနေ့ ဆင်ခြင်ခြင်း →',sermon:'တနင်္ဂနွေ တရားဟော',sermonFallback:'ယခုအပတ် တနင်္ဂနွေ တရားဟောချက်ကို ကြည့်ပါ။',sermonCta:'တရားဟောချက် ကြည့်ရန် →'},
+  kac:{daily:'Shani shagu Myit Mada',dailyFallback:'Shani na Chyum ga hte shani hpe hpaw.',dailyCta:'Shani na myit mada →',sermon:'Sunday Ga Shaga',sermonFallback:'Ndai laban na Sunday ga shaga hpe yu.',sermonCta:'Sunday ga shaga yu →'},
+  vi:{daily:'Suy ngẫm hằng ngày',dailyFallback:'Bắt đầu ngày mới với Lời Chúa hôm nay.',dailyCta:'Xem suy ngẫm hôm nay →',sermon:'Bài giảng Chúa nhật',sermonFallback:'Đi thẳng đến bài giảng Chúa nhật tuần này.',sermonCta:'Xem bài giảng Chúa nhật →'},
+  mn:{daily:'Өдөр тутмын бясалгал',dailyFallback:'Өнөөдрийн үгээр өдрөө эхлүүлээрэй.',dailyCta:'Өнөөдрийн бясалгал →',sermon:'Нямын номлол',sermonFallback:'Энэ долоо хоногийн Нямын номлолыг үзээрэй.',sermonCta:'Нямын номлол үзэх →'},
+  id:{daily:'Renungan Harian',dailyFallback:'Mulai hari dengan firman hari ini.',dailyCta:'Buka renungan hari ini →',sermon:'Khotbah Minggu',sermonFallback:'Langsung menuju khotbah Minggu pekan ini.',sermonCta:'Buka khotbah Minggu →'}
+};
 let scheduled=false;
 let lastLocale='';
 
@@ -126,6 +137,37 @@ function syncSchedule(){
     if(place&&place.textContent!==values[2])place.textContent=values[2];
   });
 }
+function safeLocalizedText(value,fallback){
+  const text=String(value||'').trim();
+  if(!text)return fallback;
+  if(locale()!=='ko-KR'&&/[가-힣]/.test(text))return fallback;
+  return text;
+}
+function syncHeroFocus(){
+  const root=document.querySelector('.hero-focus');
+  if(!root)return;
+  const copy=FOCUS[locale()]||FOCUS.en;
+  const devotion=root.querySelector('.hero-focus-devotion');
+  const sermon=root.querySelector('.hero-focus-sermon');
+  const devotionLabel=devotion?.querySelector('.hero-focus-label');
+  const devotionText=devotion?.querySelector('.hero-focus-devotion-text');
+  const devotionRef=devotion?.querySelector('.hero-focus-devotion-ref');
+  const sermonLabel=sermon?.querySelector('.hero-focus-label');
+  const sermonText=sermon?.querySelector('.hero-focus-sermon-text');
+  const sermonCta=sermon?.querySelector('.hero-focus-sermon-cta');
+  const verseText=safeLocalizedText(document.querySelector('.daily-verse-text')?.textContent,copy.dailyFallback);
+  const verseRef=safeLocalizedText(document.querySelector('.daily-verse-ref')?.textContent,copy.dailyCta);
+  const currentSermon=safeLocalizedText(document.querySelector('.sermon-info h3')?.textContent,copy.sermonFallback);
+  if(devotionLabel)devotionLabel.textContent=copy.daily;
+  if(devotionText)devotionText.textContent=verseText;
+  if(devotionRef)devotionRef.textContent=verseRef||copy.dailyCta;
+  if(sermonLabel)sermonLabel.textContent=copy.sermon;
+  if(sermonText)sermonText.textContent=currentSermon;
+  if(sermonCta)sermonCta.textContent=copy.sermonCta;
+  root.setAttribute('aria-label',`${copy.daily} · ${copy.sermon}`);
+  if(devotion)devotion.setAttribute('aria-label',`${copy.daily}: ${verseText}`);
+  if(sermon)sermon.setAttribute('aria-label',`${copy.sermon}: ${currentSermon}`);
+}
 function navigateForExtendedLocale(next){
   const previous=lastLocale||locale();
   lastLocale=next;
@@ -137,7 +179,7 @@ function navigateForExtendedLocale(next){
   }catch{location.reload();}
   return true;
 }
-function run(){scheduled=false;syncBrand();syncMusic();syncSchedule();}
+function run(){scheduled=false;syncBrand();syncMusic();syncSchedule();syncHeroFocus();}
 function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>requestAnimationFrame(run));}
 lastLocale=locale();
 window.addEventListener('ekodi:locale-change',event=>{
