@@ -15,6 +15,53 @@ const MUSIC={
   mn:{off:'♫ Хөгжим',on:'♫ Унтраах',play:'Дэвсгэр хөгжим тоглуулах',stop:'Дэвсгэр хөгжим унтраах'},
   id:{off:'♫ Musik',on:'♫ Mati',play:'Putar musik latar',stop:'Matikan musik latar'}
 };
+const SCHEDULE={
+  'ko-KR':[
+    ['주일모임','매주 일요일 오전 11시','예배실'],
+    ['토요모임','매주 토요일 오전 11시','예배실'],
+    ['심야기도','매일 저녁 11시 30분','예배실']
+  ],
+  en:[
+    ['Sunday Gathering','Every Sunday · 11:00 AM','Worship room'],
+    ['Saturday Gathering','Every Saturday · 11:00 AM','Worship room'],
+    ['Late-night Prayer','Daily · 11:30 PM','Worship room']
+  ],
+  'zh-CN':[
+    ['主日聚会','每周日 上午11:00','礼拜室'],
+    ['周六聚会','每周六 上午11:00','礼拜室'],
+    ['深夜祷告','每晚 11:30','礼拜室']
+  ],
+  ja:[
+    ['主日集会','毎週日曜 午前11:00','礼拝室'],
+    ['土曜集会','毎週土曜 午前11:00','礼拝室'],
+    ['深夜祈祷','毎日 午後11:30','礼拝室']
+  ],
+  my:[
+    ['တနင်္ဂနွေ စုဝေးပွဲ','တနင်္ဂနွေတိုင်း မနက် 11:00','ဝတ်ပြုခန်း'],
+    ['စနေနေ့ စုဝေးပွဲ','စနေတိုင်း မနက် 11:00','ဝတ်ပြုခန်း'],
+    ['ညဉ့်နက် ဆုတောင်းခြင်း','နေ့တိုင်း ည 11:30','ဝတ်ပြုခန်း']
+  ],
+  kac:[
+    ['Sunday Zuphpawng','Sunday shagu 11:00 AM','Nawku gawk'],
+    ['Saturday Zuphpawng','Saturday shagu 11:00 AM','Nawku gawk'],
+    ['Shana akyu hpyi','Shani shagu 11:30 PM','Nawku gawk']
+  ],
+  vi:[
+    ['Nhóm Chúa nhật','Mỗi Chúa nhật · 11:00','Phòng thờ phượng'],
+    ['Nhóm thứ Bảy','Mỗi thứ Bảy · 11:00','Phòng thờ phượng'],
+    ['Cầu nguyện đêm','Mỗi tối · 23:30','Phòng thờ phượng']
+  ],
+  mn:[
+    ['Нямын цуглаан','Ням бүр · 11:00','Мөргөлийн өрөө'],
+    ['Бямбын цуглаан','Бямба бүр · 11:00','Мөргөлийн өрөө'],
+    ['Шөнийн залбирал','Өдөр бүр · 23:30','Мөргөлийн өрөө']
+  ],
+  id:[
+    ['Pertemuan Minggu','Setiap Minggu · 11.00','Ruang ibadah'],
+    ['Pertemuan Sabtu','Setiap Sabtu · 11.00','Ruang ibadah'],
+    ['Doa malam','Setiap hari · 23.30','Ruang ibadah']
+  ]
+};
 let scheduled=false;
 let lastLocale='';
 
@@ -65,6 +112,20 @@ function syncMusic(){
   if(button.getAttribute('aria-label')!==aria)button.setAttribute('aria-label',aria);
   if(button.title!==aria)button.title=aria;
 }
+function syncSchedule(){
+  const rows=[...document.querySelectorAll('#worship .schedule>div')].slice(0,3);
+  const data=SCHEDULE[locale()]||SCHEDULE.en;
+  rows.forEach((row,index)=>{
+    const values=data[index];
+    if(!values)return;
+    const label=row.querySelector('span');
+    const time=row.querySelector('strong');
+    const place=row.querySelector('small');
+    if(label&&label.textContent!==values[0])label.textContent=values[0];
+    if(time&&time.textContent!==values[1])time.textContent=values[1];
+    if(place&&place.textContent!==values[2])place.textContent=values[2];
+  });
+}
 function navigateForExtendedLocale(next){
   const previous=lastLocale||locale();
   lastLocale=next;
@@ -76,8 +137,8 @@ function navigateForExtendedLocale(next){
   }catch{location.reload();}
   return true;
 }
-function run(){scheduled=false;syncBrand();syncMusic();}
-function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(run);}
+function run(){scheduled=false;syncBrand();syncMusic();syncSchedule();}
+function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>requestAnimationFrame(run));}
 lastLocale=locale();
 window.addEventListener('ekodi:locale-change',event=>{
   const next=normalizeLocale(event.detail?.locale||locale());
