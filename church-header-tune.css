@@ -1,0 +1,70 @@
+.site-header .brand{
+  text-decoration:none;
+  cursor:pointer;
+}
+.site-header .brand strong{
+  color:#173730;
+  font-weight:900;
+  letter-spacing:-.035em;
+  text-shadow:0 .2px 0 currentColor;
+}
+.site-header .brand:hover strong,
+.site-header .brand:focus-visible strong{color:#806633}
+.site-header nav{gap:10px!important}
+.site-header nav>a{padding-inline:0!important}
+.site-header nav>a.shell-my{padding:8px 11px!important}
+.site-header .ekodi-user-language{
+  margin-inline-start:0!important;
+  gap:4px!important;
+}
+.site-header .ekodi-user-language__icon{
+  font-size:13px;
+  line-height:1;
+  opacity:.72;
+}
+.site-header .ekodi-user-language__select{
+  min-height:32px!important;
+  max-width:112px!important;
+  border-radius:999px!important;
+  border-color:rgba(23,55,48,.16)!important;
+  background:rgba(255,255,255,.5)!important;
+  padding:0 23px 0 9px!important;
+  font-size:11.5px!important;
+  font-weight:650!important;
+  letter-spacing:-.02em;
+}
+.site-header #ekodi-ccm-mr-toggle{
+  position:static!important;
+  inset:auto!important;
+  z-index:auto!important;
+  min-width:0!important;
+  min-height:32px!important;
+  margin:0!important;
+  padding:7px 10px!important;
+  border:1px solid rgba(23,55,48,.16)!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.5)!important;
+  color:#173730!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  font:650 11.5px/1.15 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;
+  white-space:nowrap;
+}
+.site-header #ekodi-ccm-mr-toggle:hover,
+.site-header #ekodi-ccm-mr-toggle:focus-visible{
+  background:#173730!important;
+  color:#fff!important;
+  border-color:#173730!important;
+}
+@media(max-width:900px){
+  .site-header{gap:14px!important}
+  .site-header nav{gap:8px!important}
+  .site-header .ekodi-user-language__select{max-width:104px!important}
+}
+@media(max-width:760px){
+  .site-header nav.open{gap:6px!important}
+  .site-header nav.open .ekodi-user-language,
+  .site-header nav.open #ekodi-ccm-mr-toggle{align-self:stretch}
+  .site-header nav.open .ekodi-user-language__select{width:100%;max-width:none!important}
+  .site-header nav.open #ekodi-ccm-mr-toggle{width:100%!important;justify-content:center}
+}
