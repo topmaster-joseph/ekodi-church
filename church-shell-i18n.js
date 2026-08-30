@@ -68,7 +68,7 @@ function loadExtensions(){
     link.dataset.ekodiChurchHeaderTune='v1';
     document.head.append(link);
   }
-  for(const src of ['/church-i18n-extended.js','/church-i18n-payment-patch.js','/church-header-controls.js']){
+  for(const src of ['/church-i18n-extended.js','/church-i18n-payment-patch.js','/church-header-controls.js','/church-footer-number-i18n.js']){
     if(document.querySelector(`script[src="${src}"]`))continue;
     const script=document.createElement('script');
     script.src=src;
