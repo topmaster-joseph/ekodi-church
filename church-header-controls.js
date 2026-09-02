@@ -182,13 +182,13 @@ function syncHeaderVerseLayout(){
     return;
   }
   apply(root,'position','absolute');
-  apply(root,'left','50%');
+  apply(root,'left','14px');
   apply(root,'right','auto');
   apply(root,'bottom','10px');
   apply(root,'width','calc(100vw - 28px)');
   apply(root,'max-width','calc(100vw - 28px)');
   apply(root,'min-width','0');
-  apply(root,'transform','translateX(-50%)');
+  apply(root,'transform','none');
   apply(root,'display','block');
   apply(root,'overflow','visible');
   apply(root,'box-sizing','border-box');
