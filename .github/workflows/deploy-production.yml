@@ -1,4 +1,4 @@
-name: Deploy EKODI Church Production
+name: Validate EKODI Church Release
 
 on:
   workflow_dispatch:
@@ -19,12 +19,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: ekodi-church-production
-  cancel-in-progress: false
-
-env:
-  WRANGLER_VERSION: '4.119.0'
-  PROJECT_NAME: 'ekodi-church'
+  group: ekodi-church-validate-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:
@@ -52,85 +48,4 @@ jobs:
           fi
           curl -L -fsS --connect-timeout 5 --max-time 20 -o /tmp/missionfund.html https://go.missionfund.org/fmd01
           test -s /tmp/missionfund.html
-
-  preview:
-    needs: validate
-    runs-on: ubuntu-latest
-    timeout-minutes: 12
-    env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '24'
-      - name: Verify Cloudflare credentials
-        run: |
-          test -n "$CLOUDFLARE_API_TOKEN"
-          test -n "$CLOUDFLARE_ACCOUNT_ID"
-      - name: Deploy isolated preview
-        shell: bash
-        run: |
-          set -euo pipefail
-          branch="release-${GITHUB_SHA::8}"
-          npx --yes wrangler@${WRANGLER_VERSION} pages deploy . --project-name "$PROJECT_NAME" --branch "$branch" --commit-hash "$GITHUB_SHA" --commit-dirty=true 2>&1 | tee /tmp/pages-preview.log
-          preview_url=$(grep -Eo 'https://[^[:space:]]+\.pages\.dev' /tmp/pages-preview.log | tail -1 || true)
-          test -n "$preview_url"
-          echo "PREVIEW_URL=$preview_url" >> "$GITHUB_ENV"
-      - name: Verify preview giving route
-        shell: bash
-        run: |
-          set -euo pipefail
-          for attempt in $(seq 1 15); do
-            root_code=$(curl -L -sS -o /tmp/root.html -w '%{http_code}' --connect-timeout 5 --max-time 15 "$PREVIEW_URL/" || true)
-            config_code=$(curl -L -sS -o /tmp/config.json -w '%{http_code}' --connect-timeout 5 --max-time 15 "$PREVIEW_URL/api/giving/config" || true)
-            if [ "$root_code" = '200' ] && [ "$config_code" = '200' ] \
-              && grep -Fq '미션펀드 보안 후원창' /tmp/root.html \
-              && grep -Fq '"provider":"missionfund"' /tmp/config.json \
-              && grep -Fq 'https://go.missionfund.org/fmd01' /tmp/config.json; then
-              exit 0
-            fi
-            sleep 4
-          done
-          exit 1
-
-  production:
-    needs: preview
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 12
-    env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '24'
-      - name: Deploy production branch
-        shell: bash
-        run: |
-          set -euo pipefail
-          npx --yes wrangler@${WRANGLER_VERSION} pages deploy . --project-name "$PROJECT_NAME" --branch main --commit-hash "$GITHUB_SHA" --commit-dirty=true
-      - name: Verify production
-        shell: bash
-        run: |
-          set -euo pipefail
-          for attempt in $(seq 1 18); do
-            page_code=$(curl -L -sS -o /tmp/live.html -w '%{http_code}' --connect-timeout 5 --max-time 15 https://church.ekodi.kr/ || true)
-            config_code=$(curl -L -sS -o /tmp/live-config.json -w '%{http_code}' --connect-timeout 5 --max-time 15 https://church.ekodi.kr/api/giving/config || true)
-            if [ "$page_code" = '200' ] && [ "$config_code" = '200' ] \
-              && grep -Fq '미션펀드 보안 후원창' /tmp/live.html \
-              && grep -Fq '에코디교회 · 십일조·주일헌금' /tmp/live.html \
-              && grep -Fq '에코디선교회 · 선교헌금' /tmp/live.html \
-              && grep -Fq '"provider":"missionfund"' /tmp/live-config.json \
-              && grep -Fq 'https://go.missionfund.org/fmd01' /tmp/live-config.json; then
-              echo 'EKODI Church production giving verified.'
-              exit 0
-            fi
-            sleep 5
-          done
-          echo 'Production verification did not converge.'
-          exit 1
-
+          echo 'Church release boundary verified. Production deployment is owned by the EKODI central release pipeline.'
