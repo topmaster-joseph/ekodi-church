@@ -11,6 +11,8 @@ test('online giving keeps bank transfer available and uses verified MissionFund 
   assert.match(html, /id="giving"/);
   assert.match(html, /355-0088-5391-83/);
   assert.match(html, /782301-01-666597/);
+  assert.match(html, /에코디교회 · 십일조·주일헌금/);
+  assert.match(html, /에코디선교회 · 선교헌금/);
   assert.match(runtime, /go\.missionfund\.org/);
   assert.match(runtime, /hostname !== 'go\.missionfund\.org'/);
   assert.match(config, /provider: 'missionfund'/);

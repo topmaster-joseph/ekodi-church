@@ -1,0 +1,51 @@
+name: Validate EKODI Church Release
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'giving.js'
+      - 'functions/api/giving/**'
+      - '_headers'
+      - 'test/**'
+      - 'package.json'
+      - '.github/workflows/deploy-production.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ekodi-church-validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - name: Validate giving boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm test
+          node --check giving.js
+          node --check functions/api/giving/config.js
+          grep -Fq "provider: 'missionfund'" functions/api/giving/config.js
+          grep -Fq 'https://go.missionfund.org/fmd01' functions/api/giving/config.js
+          grep -Fq '에코디교회 · 십일조·주일헌금' index.html
+          grep -Fq '에코디선교회 · 선교헌금' index.html
+          if grep -RniE 'TOSS_CLIENT_KEY|TOSS_SECRET_KEY|tosspayments\.com' -- index.html giving.js functions README.md _headers; then
+            echo 'Toss-specific dependency must not remain in the church giving surface.'
+            exit 1
+          fi
+          curl -L -fsS --connect-timeout 5 --max-time 20 -o /tmp/missionfund.html https://go.missionfund.org/fmd01
+          test -s /tmp/missionfund.html
+          echo 'Church release boundary verified. Production deployment is owned by the EKODI central release pipeline.'

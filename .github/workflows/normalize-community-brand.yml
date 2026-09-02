@@ -26,7 +26,11 @@ jobs:
 
           p = Path('index.html')
           text = p.read_text(encoding='utf-8')
+          mission_finance = '에코디선교회 · 선교헌금'
+          marker = '__EKODI_MISSION_FINANCE__'
+          text = text.replace(mission_finance, marker)
           text = text.replace('EKODI선교회', '에코디커뮤니티').replace('에코디선교회', '에코디커뮤니티')
+          text = text.replace(marker, mission_finance)
 
           # Only the former organization card is redirected to Community.
           pattern = r'(<article class="reveal c2">[\s\S]*?<h3>에코디커뮤니티</h3>[\s\S]*?<a href=")[^"]+(" target="_blank" rel="noreferrer">)[^<]+(</a>)'
@@ -39,8 +43,9 @@ jobs:
           social = '<a data-ekodi-social="true" href="https://social.ekodi.kr/?org=church">Social</a>'
           text = text.replace(social, '')
 
-          if 'EKODI선교회' in text or '에코디선교회' in text:
-              raise SystemExit('Legacy formal organization name remains')
+          legacy_check = text.replace(mission_finance, '')
+          if 'EKODI선교회' in legacy_check or '에코디선교회' in legacy_check:
+              raise SystemExit('Legacy formal organization name remains outside the finance label')
           p.write_text(text, encoding='utf-8')
           PY
       - name: Commit normalized source
