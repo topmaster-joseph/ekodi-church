@@ -101,6 +101,23 @@ export async function onRequestPost({ request, env }) {
     }, upstream.status >= 400 && upstream.status < 600 ? upstream.status : 502);
   }
 
+  try {
+    const financeUrl = String(env.FINANCE_WEBHOOK_URL || 'https://finance-api.ekodi.kr/webhooks/toss').trim();
+    if (financeUrl) {
+      const financeResponse = await fetch(financeUrl, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          eventType: 'PAYMENT_STATUS_CHANGED',
+          data: { paymentKey: String(payment?.paymentKey || paymentKey), orderId, status: String(payment?.status || 'DONE') },
+        }),
+      });
+      if (!financeResponse.ok) console.warn('[EKODI Church Giving] finance sync delayed', financeResponse.status);
+    }
+  } catch (error) {
+    console.warn('[EKODI Church Giving] finance sync unavailable', error?.message || error);
+  }
+
   return json({
     ok: true,
     orderId,
