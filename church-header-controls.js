@@ -168,7 +168,43 @@ function syncHeroFocus(){
   if(devotion)devotion.setAttribute('aria-label',`${copy.daily}: ${verseText}`);
   if(sermon)sermon.setAttribute('aria-label',`${copy.sermon}: ${currentSermon}`);
 }
-function navigateForExtendedLocale(next){
+function syncHeaderVerseLayout(){
+  const root=document.querySelector('.site-header .daily-verse');
+  const text=root?.querySelector('.daily-verse-text');
+  const ref=root?.querySelector('.daily-verse-ref');
+  if(!root||!text||!ref)return;
+  const mobile=matchMedia('(max-width: 800px)').matches;
+  const apply=(node,name,value)=>node.style.setProperty(name,value,'important');
+  const clear=(node,name)=>node.style.removeProperty(name);
+  const props=['position','left','right','bottom','width','max-width','min-width','transform','display','overflow','white-space','word-break','overflow-wrap','text-overflow','box-sizing','margin-top'];
+  if(!mobile){
+    for(const node of [root,text,ref])for(const prop of props)clear(node,prop);
+    return;
+  }
+  apply(root,'position','absolute');
+  apply(root,'left','50%');
+  apply(root,'right','auto');
+  apply(root,'bottom','10px');
+  apply(root,'width','calc(100vw - 28px)');
+  apply(root,'max-width','calc(100vw - 28px)');
+  apply(root,'min-width','0');
+  apply(root,'transform','translateX(-50%)');
+  apply(root,'display','block');
+  apply(root,'overflow','visible');
+  apply(root,'box-sizing','border-box');
+  for(const node of [text,ref]){
+    apply(node,'display','block');
+    apply(node,'width','100%');
+    apply(node,'max-width','100%');
+    apply(node,'min-width','0');
+    apply(node,'white-space','normal');
+    apply(node,'word-break','keep-all');
+    apply(node,'overflow-wrap','normal');
+    apply(node,'text-overflow','clip');
+    apply(node,'overflow','visible');
+  }
+  apply(ref,'margin-top','2px');
+}function navigateForExtendedLocale(next){
   const previous=lastLocale||locale();
   lastLocale=next;
   if(next===previous||(!EXTENDED.has(next)&&!EXTENDED.has(previous)))return false;
@@ -179,7 +215,7 @@ function navigateForExtendedLocale(next){
   }catch{location.reload();}
   return true;
 }
-function run(){scheduled=false;syncBrand();syncMusic();syncSchedule();syncHeroFocus();}
+function run(){scheduled=false;syncBrand();syncMusic();syncSchedule();syncHeroFocus();syncHeaderVerseLayout();}
 function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>requestAnimationFrame(run));}
 lastLocale=locale();
 window.addEventListener('ekodi:locale-change',event=>{
