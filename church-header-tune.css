@@ -309,3 +309,25 @@ footer>p{
     font-size:12px!important;
   }
 }
+/* Keep the mobile Scripture bounded to the physical viewport even when the
+   authenticated/shared shell makes the header wider than the visual viewport. */
+@media(max-width:800px){
+  .site-header .daily-verse{
+    left:50%!important;
+    right:auto!important;
+    width:calc(100vw - 36px)!important;
+    max-width:calc(100vw - 36px)!important;
+    transform:translateX(-50%)!important;
+    box-sizing:border-box!important;
+  }
+  .site-header .daily-verse-text,
+  .site-header .daily-verse-ref{
+    max-width:100%!important;
+  }
+}
+@media(max-width:420px){
+  .site-header .daily-verse{
+    width:calc(100vw - 28px)!important;
+    max-width:calc(100vw - 28px)!important;
+  }
+}
