@@ -257,3 +257,55 @@ footer>p{
   .hero-focus{gap:8px}
   .hero-focus-card{min-height:80px}
 }
+
+/* 2026-09-02 mobile header scripture layout */
+.site-header .daily-verse,
+.site-header .daily-verse-text,
+.site-header .daily-verse-ref{
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  hyphens:none!important;
+}
+@media(max-width:800px){
+  .site-header{
+    min-height:118px!important;
+    height:auto!important;
+    padding:12px 18px 44px!important;
+    overflow:visible!important;
+  }
+  .site-header .daily-verse{
+    position:absolute!important;
+    left:18px!important;
+    right:18px!important;
+    bottom:10px!important;
+    width:auto!important;
+    max-width:none!important;
+    min-width:0!important;
+    display:block!important;
+    overflow:visible!important;
+    font-size:12.5px!important;
+    line-height:1.45!important;
+    text-align:center!important;
+  }
+  .site-header .daily-verse-text,
+  .site-header .daily-verse-ref{
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+  .site-header .daily-verse-text{display:block!important;min-width:0!important;width:100%!important}
+  .site-header .daily-verse-ref{display:block!important;margin-top:2px!important}
+  .site-header .daily-verse-ref::before{content:""!important;margin:0!important}
+}
+@media(max-width:420px){
+  .site-header{
+    min-height:124px!important;
+    padding-bottom:50px!important;
+  }
+  .site-header .daily-verse{
+    left:14px!important;
+    right:14px!important;
+    bottom:9px!important;
+    font-size:12px!important;
+  }
+}
