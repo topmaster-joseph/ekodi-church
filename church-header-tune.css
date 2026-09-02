@@ -313,11 +313,11 @@ footer>p{
    authenticated/shared shell makes the header wider than the visual viewport. */
 @media(max-width:800px){
   .site-header .daily-verse{
-    left:50%!important;
+    left:14px!important;
     right:auto!important;
     width:calc(100vw - 36px)!important;
     max-width:calc(100vw - 36px)!important;
-    transform:translateX(-50%)!important;
+    transform:none!important;
     box-sizing:border-box!important;
   }
   .site-header .daily-verse-text,
