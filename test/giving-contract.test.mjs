@@ -4,37 +4,33 @@ import test from 'node:test';
 
 const read = (name) => readFile(new URL(`../${name}`, import.meta.url), 'utf8');
 
-test('online giving keeps bank transfer available and the Toss checkout shell wired', async () => {
+test('online giving keeps bank transfer available and uses verified MissionFund checkout', async () => {
   const html = await read('index.html');
   const runtime = await read('giving.js');
+  const config = await read('functions/api/giving/config.js');
   assert.match(html, /id="giving"/);
   assert.match(html, /355-0088-5391-83/);
   assert.match(html, /782301-01-666597/);
-  assert.match(html, /id="giving-dialog"/);
-  assert.match(runtime, /js\.tosspayments\.com\/v2\/standard/);
-  assert.match(runtime, /\/api\/giving\/order/);
-  assert.match(runtime, /\/api\/giving\/confirm/);
+  assert.match(runtime, /go\.missionfund\.org/);
+  assert.match(runtime, /hostname !== 'go\.missionfund\.org'/);
+  assert.match(config, /provider: 'missionfund'/);
+  assert.match(config, /https:\/\/go\.missionfund\.org\/fmd01/);
+  assert.match(config, /NICE Payments/);
+  assert.match(config, /KFTC CMS/);
 });
 
-test('giving security policy permits only required external payment and media origins', async () => {
+test('giving security policy does not load a payment SDK into the church origin', async () => {
   const headers = await read('_headers');
-  assert.match(headers, /https:\/\/js\.tosspayments\.com/);
-  assert.match(headers, /https:\/\/\*\.tosspayments\.com/);
+  assert.match(headers, /script-src 'self'/);
   assert.match(headers, /https:\/\/www\.youtube-nocookie\.com/);
   assert.match(headers, /frame-ancestors 'none'/);
   assert.match(headers, /object-src 'none'/);
-  assert.doesNotMatch(headers, /unsafe-eval/);
+  assert.doesNotMatch(headers, /tosspayments|toss\.im|unsafe-eval/i);
 });
 
-test('giving backend fails closed without keys and syncs approved payments to finance core', async () => {
+test('legacy direct-PG endpoints are absent from the public runtime contract', async () => {
+  const runtime = await read('giving.js');
   const config = await read('functions/api/giving/config.js');
-  const order = await read('functions/api/giving/order.js');
-  const confirm = await read('functions/api/giving/confirm.js');
-  assert.match(config, /env\.TOSS_CLIENT_KEY/);
-  assert.match(config, /env\.TOSS_SECRET_KEY/);
-  assert.match(order, /PAYMENT_NOT_CONFIGURED/);
-  assert.match(confirm, /idempotency-key/);
-  assert.match(confirm, /finance-api\.ekodi\.kr\/webhooks\/toss/);
-  const combined = `${config}\n${order}\n${confirm}`;
-  assert.doesNotMatch(combined, /(?:live|test)_(?:sk|gsk|ck|gck)_[A-Za-z0-9_-]+/);
+  assert.doesNotMatch(runtime, /TossPayments|tosspayments|\/api\/giving\/(order|confirm)/i);
+  assert.doesNotMatch(config, /TOSS_CLIENT_KEY|TOSS_SECRET_KEY/);
 });

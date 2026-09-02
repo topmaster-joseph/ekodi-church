@@ -1,12 +1,15 @@
 # ekodi-church-homepage
-에코디교회 공식 홈페이지 · Cloudflare Pages 배포 구성
+에코디교회 공식 홈페이지 · Cloudflare Pages 운영 기준
 
 ## 온라인 헌금
-- 계좌이체는 PG 상태와 무관하게 항상 제공됩니다.
-- 카드·간편결제는 Toss Payments V2 주문서형 결제를 사용합니다.
-- Pages 운영 환경에는 `TOSS_CLIENT_KEY`, `TOSS_SECRET_KEY`가 모두 있어야 활성화됩니다.
-- 승인 완료 후 `finance-api.ekodi.kr/webhooks/toss`로 재검증 기반 회계 동기화를 시도합니다.
-- `FINANCE_WEBHOOK_URL`을 지정하면 별도 재무 코어로 교체할 수 있습니다.
+- 계좌이체는 홈페이지에서 공식 계좌를 직접 확인한 뒤 이용합니다.
+- 카드·자동이체는 에코디교회가 카드정보를 직접 받지 않고 MissionFund의 보안 후원창으로 연결합니다.
+- 확인된 교회 후원 프로젝트는 `https://go.missionfund.org/fmd01` 입니다.
+- MissionFund 결제망의 카드 처리는 NICE Payments, 계좌 자동이체는 금융결제원 CMS 경로를 사용합니다.
+- Toss 전용 SDK·운영키·직접 승인 API 의존성은 사용하지 않습니다.
 
-## 검증
-`npm test`로 헌금 UI, 결제 API 계약, CSP 허용 범위와 하드코딩 키 부재를 확인합니다.
+## 운영 원칙
+- 결제 제공사는 교체 가능한 어댑터로 취급하고 교회 페이지에는 결제 비밀키를 저장하지 않습니다.
+- 교회와 선교회 회계 주체 및 계좌는 화면에서 명확히 구분합니다.
+- 확인되지 않은 별도 가맹점이나 프로젝트를 추정 연결하지 않습니다.
+- `npm test`로 후원 경로, 보안 헤더, Toss 잔존 의존성을 검증합니다.

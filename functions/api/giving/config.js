@@ -6,17 +6,18 @@ const json = (data, status = 200) => new Response(JSON.stringify(data), {
   },
 });
 
-export function onRequestGet({ env }) {
-  const clientKey = String(env.TOSS_CLIENT_KEY || '').trim();
-  const secretKey = String(env.TOSS_SECRET_KEY || '').trim();
-  const enabled = Boolean(clientKey && secretKey);
+const CHURCH_CHECKOUT = Object.freeze({
+  provider: 'missionfund',
+  enabled: true,
+  organization: '에코디교회',
+  checkoutUrl: 'https://go.missionfund.org/fmd01',
+  methods: ['card', 'bank-auto-debit'],
+  processors: {
+    card: 'NICE Payments',
+    bankAutoDebit: 'KFTC CMS',
+  },
+});
 
-  return json({
-    provider: 'toss',
-    enabled,
-    clientKey: enabled ? clientKey : '',
-    currency: 'KRW',
-    minAmount: 1000,
-    maxAmount: 10000000,
-  });
+export function onRequestGet() {
+  return json(CHURCH_CHECKOUT);
 }
