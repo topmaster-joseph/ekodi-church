@@ -204,7 +204,39 @@ function syncHeaderVerseLayout(){
     apply(node,'overflow','visible');
   }
   apply(ref,'margin-top','2px');
-}function navigateForExtendedLocale(next){
+
+  const alreadyBalanced=text.querySelector('[data-ekodi-verse-line]');
+  const raw=alreadyBalanced
+    ? String(text.dataset.rawVerse||'').trim()
+    : String(text.textContent||'').replace(/\s+/g,' ').trim();
+  if(raw&&(!alreadyBalanced||text.dataset.rawVerse!==raw)){
+    text.dataset.rawVerse=raw;
+    const words=raw.split(' ').filter(Boolean);
+    if(words.length>3){
+      let best=1;
+      let score=Infinity;
+      for(let i=1;i<words.length;i++){
+        const left=words.slice(0,i).join(' ').length;
+        const right=words.slice(i).join(' ').length;
+        const next=Math.abs(left-right);
+        if(next<score){score=next;best=i;}
+      }
+      const first=document.createElement('span');
+      const second=document.createElement('span');
+      first.dataset.ekodiVerseLine='1';
+      second.dataset.ekodiVerseLine='2';
+      first.textContent=words.slice(0,best).join(' ');
+      second.textContent=words.slice(best).join(' ');
+      for(const line of [first,second]){
+        apply(line,'display','block');
+        apply(line,'white-space','nowrap');
+        apply(line,'word-break','keep-all');
+      }
+      text.replaceChildren(first,document.createTextNode(' '),second);
+    }
+  }
+}
+function navigateForExtendedLocale(next){
   const previous=lastLocale||locale();
   lastLocale=next;
   if(next===previous||(!EXTENDED.has(next)&&!EXTENDED.has(previous)))return false;
