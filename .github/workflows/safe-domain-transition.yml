@@ -22,7 +22,8 @@ jobs:
           python - <<'PY'
           import re
           from pathlib import Path
-          p=Path('index.html')          text=p.read_text(encoding='utf-8')
+          p=Path('index.html')
+          text=p.read_text(encoding='utf-8')
           canonical='  <link rel="canonical" href="https://ekodi.kr/ekodichurch/">\n'
           if 'rel="canonical"' in text:
               text=re.sub(r'\s*<link rel="canonical" href="[^"]+">\s*','\n'+canonical,text,count=1)
