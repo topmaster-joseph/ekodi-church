@@ -29,7 +29,7 @@
 
   async function fetchConfig() {
     try {
-      const response = await fetch('/api/giving/config', {
+      const response = await fetch('/giving-config.json', {
         headers: { accept: 'application/json' },
         cache: 'no-store',
       });
