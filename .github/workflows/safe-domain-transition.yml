@@ -1,4 +1,4 @@
-name: Safe Domain Transition
+name: Enforce Church Canonical Path
 
 on:
   workflow_dispatch:
@@ -11,20 +11,24 @@ permissions:
   contents: write
 
 jobs:
-  rollback:
+  enforce:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: true
-      - name: Remove inactive canonical metadata
+      - name: Enforce canonical path metadata
         run: |
           python - <<'PY'
+          import re
           from pathlib import Path
           p=Path('index.html')
           text=p.read_text(encoding='utf-8')
-          text=text.replace('  <link rel="canonical" href="https://church.ekodi.kr/">\n','')
-          text=text.replace('  <meta property="og:url" content="https://church.ekodi.kr/">\n','')
+          canonical='  <link rel="canonical" href="https://ekodi.kr/ekodichurch/">\n'
+          if 'rel="canonical"' in text:
+              text=re.sub(r'\s*<link rel="canonical" href="[^"]+">\s*','\n'+canonical,text,count=1)
+          else:
+              text=text.replace('</title>\n','</title>\n'+canonical,1)
           p.write_text(text,encoding='utf-8')
           PY
       - name: Commit
@@ -33,5 +37,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git commit -m 'Keep church canonical stable until DNS activation'
+          git commit -m 'Use ekodi.kr/ekodichurch as canonical path'
           git push

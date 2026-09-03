@@ -205,7 +205,7 @@ const youtubeChannels = {
 
 const youtubePlayer = document.querySelector('#youtube-player');
 function youtubePlaylistUrl(playlist) {
-  return `https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(playlist)}&rel=0&playsinline=1&origin=${encodeURIComponent('https://church.ekodi.kr')}`;
+  return `https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(playlist)}&rel=0&playsinline=1&origin=${encodeURIComponent('https://ekodi.kr')}`;
 }
 
 document.querySelectorAll('.channel-tab').forEach((tab) => tab.addEventListener('click', () => {

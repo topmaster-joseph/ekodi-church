@@ -15,13 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Set church.ekodi.kr canonical URL
+      - name: Set ekodi.kr/ekodichurch canonical URL
         run: |
           python - <<'PY'
           from pathlib import Path
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-          line = '  <link rel="canonical" href="https://church.ekodi.kr/">\n'
+          line = '  <link rel="canonical" href="https://ekodi.kr/ekodichurch/">\n'
           if 'rel="canonical"' not in s:
               s = s.replace('  <title>EKODI교회 | 에클레시아 · 코이노니아 · 디아스포라</title>\n', '  <title>EKODI교회 | 에클레시아 · 코이노니아 · 디아스포라</title>\n' + line)
           else:
@@ -34,5 +34,5 @@ jobs:
           git config user.name "EKODI Automation"
           git config user.email "automation@ekodi.kr"
           git add index.html
-          git diff --cached --quiet || git commit -m "Use church.ekodi.kr as canonical URL"
+          git diff --cached --quiet || git commit -m "Use ekodi.kr/ekodichurch as canonical URL"
           git push
