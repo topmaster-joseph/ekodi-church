@@ -5,6 +5,10 @@ window.__EKODI_CHURCH_EXTENDED_I18N__=true;
 
 const NEW=new Set(['my','kac','vi','mn','id']);
 const ORDER=['my','kac','vi','mn','id'];
+const CHURCH_LANGUAGES=[
+  ['ko-KR','한국어'],['en','English'],['zh-CN','中文'],['ja','日本語'],
+  ['my','မြန်မာ'],['kac','Jinghpaw'],['vi','Tiếng Việt'],['mn','Монгол'],['id','Bahasa']
+];
 const META={
   my:{title:'EKODI အသင်းတော် | Ekklesia · Koinonia · Diaspora · Jubilee',description:'EKODI အသင်းတော်သည် ဘုရားသခင်၏ ခေါ်တော်မူခြင်း၊ မိတ်သဟာယ၊ သက်သေခံခြင်းနှင့် လွတ်မြောက်ခြင်း၊ ပြန်လည်ထူထောင်ခြင်းကို အသက်ရှင်ဖော်ပြသော အသိုင်းအဝိုင်းဖြစ်သည်။'},
   kac:{title:'EKODI Nawku Htingnu | Ekklesia · Koinonia · Diaspora · Jubilee',description:'EKODI Nawku Htingnu gaw Karai Kasang a shaga la ai hpung, rau nga ai hpung, mungkan de sakse hkrung nga ai hpung rai nna, lawt lu ai hte hkrang shawng lu ai asak hpe hkrung nga ai.'},
@@ -128,6 +132,21 @@ function normalize(value){
   return String(value||'');
 }
 function sharedLocale(){return normalize(window.EKODIUserLanguage?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||'ko-KR');}
+function ensureLanguageOptions(){
+  const select=document.querySelector('[data-ekodi-language-control] select');
+  if(!select)return false;
+  const expected=CHURCH_LANGUAGES.map(([value,label])=>value+'\u0000'+label).join('\u0001');
+  const actual=[...select.options].map(option=>option.value+'\u0000'+option.textContent.trim()).join('\u0001');
+  if(actual!==expected){
+    const fragment=document.createDocumentFragment();
+    for(const [value,label] of CHURCH_LANGUAGES){const option=document.createElement('option');option.value=value;option.textContent=label;option.title=label;fragment.append(option);}
+    select.replaceChildren(fragment);
+  }
+  const current=sharedLocale();
+  if(CHURCH_LANGUAGES.some(([value])=>value===current)&&select.value!==current)select.value=current;
+  return true;
+}
+
 function core(source,locale){return P[source]?.[locale]||fallback.get(source)||source;}
 function captureFallback(){
   if(captured||capturing||!window.EKODIChurchI18n)return;
@@ -209,11 +228,11 @@ function apply(locale=desired){
   applyDaily(desired);
   window.dispatchEvent(new CustomEvent('ekodi:church-extended-i18n-applied',{detail:{locale:desired}}));
 }
-function schedule(){if(scheduled||capturing)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;apply(sharedLocale());});}
+function schedule(){if(scheduled||capturing)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;ensureLanguageOptions();apply(sharedLocale());});}
 
 window.EKODIChurchExtendedI18n=Object.freeze({supported:ORDER,getLocale:()=>desired,refresh:schedule});
 window.addEventListener('ekodi:locale-change',event=>{desired=normalize(event.detail?.locale||sharedLocale());if(NEW.has(desired))schedule();});
 window.addEventListener('ekodi:church-i18n-applied',()=>{if(NEW.has(sharedLocale()))schedule();});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{desired=sharedLocale();schedule();},{once:true});else{desired=sharedLocale();schedule();}
-new MutationObserver(()=>{if(NEW.has(sharedLocale()))schedule();}).observe(document.documentElement,{childList:true,subtree:true,characterData:true});
+new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true,characterData:true});
 })();
