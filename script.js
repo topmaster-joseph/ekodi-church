@@ -96,17 +96,6 @@ if (nav) {
   nav.replaceChildren(...links);
 }
 
-// EKODI선교회는 에코디커뮤니티로 통합되었습니다.
-document.querySelectorAll('h1,h2,h3,p,span,small,a,button').forEach((element) => {
-  for (const node of element.childNodes) {
-    if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('EKODI선교회')) {
-      node.textContent = node.textContent.replaceAll('EKODI선교회', '에코디커뮤니티');
-    }
-    if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('에코디선교회')) {
-      node.textContent = node.textContent.replaceAll('에코디선교회', '에코디커뮤니티');
-    }
-  }
-});
 
 const footerBrandName = document.querySelector('footer .footer-brand strong');
 if (footerBrandName) footerBrandName.textContent = '에코디교회';
