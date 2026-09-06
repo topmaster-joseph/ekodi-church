@@ -258,5 +258,5 @@ window.addEventListener('ekodi:user-header-ready',schedule);
 window.addEventListener('ekodi:church-i18n-applied',schedule);
 window.addEventListener('ekodi:church-extended-i18n-applied',schedule);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
-new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['aria-pressed','href']});
+new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['aria-pressed']});
 })();
