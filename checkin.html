@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="에코디교회 모임 참여 체크인">
+  <title>함께하기 | 에코디교회</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="church-participation.css">
+</head>
+<body>
+  <header class="checkin-header">
+    <a class="brand" href="./" aria-label="에코디교회 홈">
+      <span class="brand-mark" aria-hidden="true">E</span>
+      <span><strong>에코디교회</strong><small>EKODI CHURCH</small></span>
+    </a>
+    <a class="my-link" href="https://my.ekodi.kr/">My EKODI</a>
+  </header>
+
+  <main class="checkin-shell">
+    <section class="checkin-card" aria-labelledby="checkin-title">
+      <div class="eyebrow">PARTICIPATION</div>
+      <p class="status-pill" id="gathering-status">모임을 확인하고 있습니다</p>
+      <h1 id="checkin-title">함께함을 기록합니다</h1>
+      <p class="lead">출석은 사람을 평가하는 점수가 아니라, 우리가 서로를 잊지 않기 위한 작은 기록입니다.</p>
+
+      <div class="gathering-panel" id="gathering-panel" hidden>
+        <strong id="gathering-title"></strong>
+        <span id="gathering-time"></span>
+        <span id="gathering-location"></span>
+      </div>
+
+      <div class="state-card" id="loading-state" role="status">체크인 주소와 모임 상태를 확인하고 있습니다.</div>
+      <div class="state-card error" id="error-state" role="alert" hidden></div>
+      <div class="state-card success" id="success-state" role="status" hidden></div>
+
+      <form id="checkin-form" hidden>
+        <label class="field">
+          <span>이름</span>
+          <input id="display-name" name="displayName" type="text" maxlength="80" autocomplete="name" required placeholder="이름을 입력해 주세요">
+        </label>
+
+        <fieldset>
+          <legend>에코디교회와의 관계</legend>
+          <div class="choice-grid">
+            <label><input type="radio" name="participantKind" value="member"><span><strong>함께하고 있어요</strong><small>등록·정기 참여</small></span></label>
+            <label><input type="radio" name="participantKind" value="guest" checked><span><strong>처음 또는 방문이에요</strong><small>방문·초대·새로운 참여</small></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>오늘 함께하는 방식</legend>
+          <div class="choice-grid three">
+            <label><input type="radio" name="channel" value="onsite" checked><span><strong>현장</strong><small>같은 공간</small></span></label>
+            <label><input type="radio" name="channel" value="online"><span><strong>온라인</strong><small>영상·화상</small></span></label>
+            <label><input type="radio" name="channel" value="hybrid"><span><strong>함께</strong><small>현장+온라인</small></span></label>
+          </div>
+        </fieldset>
+
+        <button class="submit-button" type="submit">함께합니다</button>
+        <p class="privacy-note">연락처는 이 화면에서 수집하지 않습니다. 기기에는 중복 기록을 막기 위한 무작위 식별값만 저장됩니다.</p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="checkin-footer">
+    <span>EKODI CHURCH</span>
+    <a href="./">교회 홈으로</a>
+  </footer>
+  <script type="module" src="church-participation.js"></script>
+</body>
+</html>
