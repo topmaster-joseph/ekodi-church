@@ -123,6 +123,7 @@ const TEXT={
 '카드·자동이체 연결 확인 중':{en:'Checking card · automatic transfer connection','zh-CN':'正在检查银行卡·自动扣款连接',ja:'カード・自動引落の接続を確認中'},
 '에코디교회 · 십일조·주일헌금':{en:'EKODI Church · Tithe · Sunday offering','zh-CN':'EKODI教会 · 十一奉献·主日奉献',ja:'EKODI教会 · 十一献金・主日献金'},
 '에코디선교회 · 선교헌금':{en:'EKODI Mission · Mission offering','zh-CN':'EKODI宣教会 · 宣教奉献',ja:'EKODI宣教会 · 宣教献金'},
+'에코디커뮤니티 · 선교헌금':{en:'EKODI Community · Mission offering','zh-CN':'EKODI社区 · 宣教奉献',ja:'EKODIコミュニティ · 宣教献金'},
 '카드·자동이체':{en:'Card · automatic transfer','zh-CN':'银行卡·自动扣款',ja:'カード・自動引落'},
 '미션펀드의 안전한 후원창에서 카드와 자동이체를 이용할 수 있습니다.':{en:'Card and automatic transfer are available in MissionFund’s secure giving window.','zh-CN':'可在 MissionFund 安全奉献窗口使用银行卡和自动扣款。',ja:'MissionFundの安全な献金画面でカードと自動引落をご利用いただけます。'},
 '카드·자동이체 연결 확인 필요':{en:'Check card · automatic transfer connection','zh-CN':'需要检查银行卡·自动扣款连接',ja:'カード・自動引落の接続確認が必要です'},
