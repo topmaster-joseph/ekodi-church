@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'church-character-identity.js'
       - 'giving.js'
       - 'functions/api/giving/**'
       - '_headers'
@@ -37,9 +38,10 @@ jobs:
           set -euo pipefail
           npm test
           node --check giving.js
-          node --check functions/api/giving/config.js
-          grep -Fq "provider: 'missionfund'" functions/api/giving/config.js
-          grep -Fq 'https://go.missionfund.org/fmd01' functions/api/giving/config.js
+          node --check church-character-identity.js
+          test -s giving-config.json
+          grep -Fq '"provider": "missionfund"' giving-config.json
+          grep -Fq 'https://go.missionfund.org/fmd01' giving-config.json
           grep -Fq '에코디교회 · 십일조·주일헌금' index.html
           grep -Fq '에코디선교회 · 선교헌금' index.html
           if grep -RniE 'TOSS_CLIENT_KEY|TOSS_SECRET_KEY|tosspayments\.com' -- index.html giving.js functions README.md _headers; then
