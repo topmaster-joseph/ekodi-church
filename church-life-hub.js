@@ -184,6 +184,12 @@
         setStatus(`${button.querySelector('strong')?.textContent || '오늘의 안부'} 상태를 저장했습니다.`);
       });
     });
+    q('#share-presence')?.addEventListener('click', () => {
+      const active = qa('.presence-button').find((button) => button.dataset.presence === state.presence);
+      const label = active?.querySelector('strong')?.textContent || '';
+      const detail = active?.querySelector('small')?.textContent || '';
+      shareText([label, detail].filter(Boolean).join('\n'), '에코디교회 · 오늘의 안부');
+    });
   };
 
   const bindMemory = () => {
