@@ -11,6 +11,8 @@ on:
       - 'church-character-identity.js'
       - 'church-life-hub.js'
       - 'church-life-hub.css'
+      - 'church-life-hub-i18n.js'
+      - 'church-life-hub-i18n-state.js'
       - 'giving.js'
       - 'functions/api/giving/**'
       - '_headers'
@@ -42,6 +44,8 @@ jobs:
           node --check giving.js
           node --check church-character-identity.js
           node --check church-life-hub.js
+          node --check church-life-hub-i18n.js
+          node --check church-life-hub-i18n-state.js
           test -s church-life-hub.css
           test -s giving-config.json
           grep -Fq '"provider": "missionfund"' giving-config.json
@@ -50,6 +54,9 @@ jobs:
           grep -Fq '에코디선교회 · 선교헌금' index.html
           grep -Fq 'data-ekodi-life-hub' index.html
           grep -Fq '에코디선교회' index.html
+          grep -Fq 'church-life-hub-i18n-state.js' index.html
+          grep -Fq 'church-life-hub-i18n.js' index.html
+          grep -Fq '부르심에서 교제로,' index.html
           if grep -RniE 'TOSS_CLIENT_KEY|TOSS_SECRET_KEY|tosspayments\.com' -- index.html giving.js functions README.md _headers; then
             echo 'Toss-specific dependency must not remain in the church giving surface.'
             exit 1
