@@ -13,20 +13,84 @@ const MAP=Object.freeze({
   'MR 끄기':{en:'Turn off MR','zh-CN':'关闭 MR',ja:'MR をオフ'},
   'MR 켜기':{en:'Turn on MR','zh-CN':'开启 MR',ja:'MR をオン'}
 });
+const LANGUAGES=Object.freeze([
+  ['ko-KR','한국어'],['en','English'],['zh-CN','中文'],['ja','日本語'],
+  ['my','မြန်မာ'],['kac','Jinghpaw'],['vi','Tiếng Việt'],['mn','Монгол'],['id','Bahasa']
+]);
+const LANGUAGE_VALUES=new Set(LANGUAGES.map(([value])=>value));
 const states=new WeakMap();
 let scheduled=false;
 
-function locale(){
-  const raw=String(window.EKODIChurchI18n?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||'ko-KR');
-  if(raw.startsWith('en'))return'en';
-  if(raw.startsWith('zh'))return'zh-CN';
-  if(raw.startsWith('ja'))return'ja';
+function normalizeLocale(value){
+  const raw=String(value||'').trim();
+  if(raw==='ko'||raw.startsWith('ko-'))return'ko-KR';
+  if(raw==='en'||raw.startsWith('en-'))return'en';
+  if(raw==='zh'||raw.startsWith('zh-'))return'zh-CN';
+  if(raw==='ja'||raw.startsWith('ja-'))return'ja';
+  if(raw==='my'||raw.startsWith('my-'))return'my';
+  if(raw==='kac'||raw.startsWith('kac-'))return'kac';
+  if(raw==='vi'||raw.startsWith('vi-'))return'vi';
+  if(raw==='mn'||raw.startsWith('mn-'))return'mn';
+  if(raw==='id'||raw.startsWith('id-'))return'id';
   return'ko-KR';
+}
+function locale(){
+  const query=new URLSearchParams(location.search).get('lang');
+  return normalizeLocale(query||window.EKODIUserLanguage?.getLocale?.()||window.EKODIChurchI18n?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||'ko-KR');
 }
 function translated(source){
   const lang=locale();
   if(lang==='ko-KR')return source;
   return MAP[source]?.[lang]||source;
+}
+function ensureLanguageControl(){
+  const nav=document.querySelector('#main-nav');
+  if(!nav)return;
+  let control=document.querySelector('[data-ekodi-language-control]');
+  if(!control){
+    control=document.createElement('label');
+    control.className='ekodi-user-language';
+    control.dataset.ekodiLanguageControl='v1';
+    control.setAttribute('aria-label','Language');
+    control.style.cssText='display:flex;align-items:center;gap:3px;';
+    const icon=document.createElement('span');
+    icon.className='ekodi-user-language__icon';
+    icon.textContent='🌐';
+    icon.setAttribute('aria-hidden','true');
+    const label=document.createElement('span');
+    label.className='ekodi-user-language__label';
+    label.textContent='Language';
+    const select=document.createElement('select');
+    select.className='ekodi-user-language__select';
+    select.setAttribute('aria-label','Language');
+    control.append(icon,label,select);
+    const my=nav.querySelector('.shell-my');
+    nav.insertBefore(control,my||null);
+  }
+  const select=control.querySelector('select');
+  if(!select)return;
+  const expected=LANGUAGES.map(([value,label])=>`${value}\u0000${label}`).join('\u0001');
+  const actual=[...select.options].map(option=>`${option.value}\u0000${option.textContent.trim()}`).join('\u0001');
+  if(actual!==expected){
+    const fragment=document.createDocumentFragment();
+    for(const [value,label] of LANGUAGES){
+      const option=document.createElement('option');
+      option.value=value;option.textContent=label;option.title=label;fragment.append(option);
+    }
+    select.replaceChildren(fragment);
+  }
+  const current=locale();
+  if(LANGUAGE_VALUES.has(current)&&select.value!==current)select.value=current;
+  if(!select.dataset.ekodiLanguageBound){
+    select.dataset.ekodiLanguageBound='true';
+    select.addEventListener('change',()=>{
+      const next=normalizeLocale(select.value);
+      if(!LANGUAGE_VALUES.has(next))return;
+      const url=new URL(location.href);
+      url.searchParams.set('lang',next);
+      location.assign(url.toString());
+    });
+  }
 }
 function stateFor(node,value){
   let state=states.get(node);
@@ -48,6 +112,7 @@ function translateText(node){
 }
 function run(){
   scheduled=false;
+  ensureLanguageControl();
   const root=document.body||document.documentElement;
   const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
   let node;
