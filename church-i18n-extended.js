@@ -107,6 +107,9 @@ add('헌금 금액','အလှူ ပမာဏ','Hkungga amount','Số tiền d�
 add('직접 입력','ပမာဏ ရိုက်ထည့်ရန်','Amount ka','Nhập số tiền','Дүн оруулах','Masukkan jumlah');
 add('선택한 금액 결제하기','ရွေးထားသော ပမာဏ ပေးချေရန်','Lata da ai amount jaw','Thanh toán số tiền đã chọn','Сонгосон дүнг төлөх','Bayar jumlah terpilih');
 
+add('세상에서 구별된 에클레시아, 하나님과 하나된 코이노니아, 세상 속에 증인된 디아스포라.','လောကထဲမှ ခေါ်ထုတ်ထားသော Ekklesia၊ ဘုရားသခင်၌ တစ်လုံးတစ်ဝတည်းဖြစ်သော Koinonia၊ လောကထဲတွင် သက်သေဖြစ်သော Diaspora။','Mungkan kaw na shaga la ai Ekklesia, Karai Kasang hte rau ai Koinonia, mungkan hta sakse tai ai Diaspora.','Ekklesia được gọi ra khỏi thế gian, Koinonia hiệp một trong Đức Chúa Trời, Diaspora làm chứng giữa đời.','Дэлхийгээс дуудагдсан Ekklesia, Бурхантай нэгдсэн Koinonia, дэлхийд гэрчлэгч Diaspora.','Ekklesia yang dipanggil keluar dari dunia, Koinonia yang bersatu dalam Allah, Diaspora yang menjadi saksi di dunia.');
+add('전체 소셜채널 ↗','လူမှုကွန်ရက်ချန်နယ်များအားလုံး ↗','Social channel yawng ↗','Tất cả kênh mạng xã hội ↗','Бүх сошиал сувгууд ↗','Semua kanal sosial ↗');
+
 const DAILY={
   my:{ref:'ဂလာတိ 5:13',text:'အချင်းချင်း မေတ္တာဖြင့် အစေခံကြလော့။'},
   kac:{ref:'Galati 5:13',text:'Tsaw ra myit hte langai hte langai daw jau nga mu.'},
@@ -131,7 +134,8 @@ function normalize(value){
   if(raw==='id'||raw.startsWith('id-'))return'id';
   return String(value||'');
 }
-function sharedLocale(){return normalize(window.EKODIUserLanguage?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||'ko-KR');}
+function requestedUrlLocale(){const query=new URLSearchParams(location.search).get('lang');return query?normalize(query):'';}
+function sharedLocale(){const requested=requestedUrlLocale();if(NEW.has(requested))return requested;return normalize(window.EKODIUserLanguage?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||'ko-KR');}
 function ensureLanguageOptions(){
   const select=document.querySelector('[data-ekodi-language-control] select');
   if(!select)return false;
@@ -228,7 +232,7 @@ function apply(locale=desired){
   applyDaily(desired);
   window.dispatchEvent(new CustomEvent('ekodi:church-extended-i18n-applied',{detail:{locale:desired}}));
 }
-function schedule(){if(scheduled||capturing)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;ensureLanguageOptions();apply(sharedLocale());});}
+function schedule(){if(scheduled||capturing)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;ensureLanguageOptions();const shared=sharedLocale();if(NEW.has(shared))desired=shared;apply(desired);});}
 
 window.EKODIChurchExtendedI18n=Object.freeze({supported:ORDER,getLocale:()=>desired,refresh:schedule});
 window.addEventListener('ekodi:locale-change',event=>{desired=normalize(event.detail?.locale||sharedLocale());if(NEW.has(desired))schedule();});
