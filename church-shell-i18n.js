@@ -143,6 +143,7 @@ function loadExtensions(){
   }
 }
 
+ensureLanguageControl();
 window.addEventListener('ekodi:locale-change',schedule);
 window.addEventListener('ekodi:church-i18n-applied',schedule);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();

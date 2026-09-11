@@ -33,6 +33,7 @@ const TEXT={
 '부르심에서 교제로,':{en:'From calling to fellowship,','zh-CN':'从呼召走向团契，',ja:'召しから交わりへ、'},
 '교제에서 세상으로':{en:'from fellowship into the world','zh-CN':'从团契走向世界',ja:'交わりから世界へ'},
 '세상에서 구별된 에클레시아,':{en:'Ekklesia, called out from the world,','zh-CN':'从世界中被分别出来的 Ekklesia，',ja:'世から召し出されたエクレシア、'},
+'세상에서 구별된 에클레시아, 하나님과 하나된 코이노니아, 세상 속에 증인된 디아스포라.':{en:'Ekklesia, called out from the world; Koinonia, united with God; Diaspora, witnesses in the world.','zh-CN':'从世界中被分别出来的 Ekklesia，与上帝合一的 Koinonia，在世界中作见证的 Diaspora。',ja:'世から召し出されたエクレシア、神と一つにされるコイノニア、世の中で証人となるディアスポラ。'},
 '하나님과 하나된 코이노니아, 세상 속에 증인된 디아스포라.':{en:'Koinonia, united with God, and Diaspora, witnesses in the world.','zh-CN':'与上帝合一的 Koinonia，在世界中作见证的 Diaspora。',ja:'神と一つにされるコイノニア、世の中で証人となるディアスポラ。'},
 '그리고 자유와 회복을 삶으로 살아내는 희년.':{en:'And Jubilee, living freedom and restoration in everyday life.','zh-CN':'并在生活中活出自由与恢复的禧年。',ja:'そして、自由と回復を日々の生活で生きるヨベル。'},
 '홈페이지 전체 메뉴':{en:'Site sections','zh-CN':'网站全部菜单',ja:'サイト全体メニュー'},
@@ -236,6 +237,7 @@ let observer=null;
 let scheduled=false;
 const textState=new WeakMap();
 const attrState=new WeakMap();
+const DELEGATED_URL_LOCALES=new Set(['my','kac','vi','mn','id']);
 
 function normalize(value){
   const raw=String(value||'').trim();
@@ -247,6 +249,18 @@ function normalize(value){
   if(lower.startsWith('ja'))return'ja';
   return'ko-KR';
 }
+function requestedUrlLocale(){
+  const raw=String(new URLSearchParams(location.search).get('lang')||'').trim();
+  if(!raw)return'';
+  const lower=raw.toLowerCase();
+  if(lower==='my'||lower.startsWith('my-'))return'my';
+  if(lower==='kac'||lower.startsWith('kac-')||lower==='jinghpaw'||lower==='kachin')return'kac';
+  if(lower==='vi'||lower.startsWith('vi-'))return'vi';
+  if(lower==='mn'||lower.startsWith('mn-'))return'mn';
+  if(lower==='id'||lower.startsWith('id-'))return'id';
+  return normalize(raw);
+}
+function delegatedUrlLocale(){return DELEGATED_URL_LOCALES.has(requestedUrlLocale());}
 function interpolate(value,vars={}){return String(value).replace(/\{([a-zA-Z0-9_]+)\}/g,(_,key)=>String(vars[key]??`{${key}}`));}
 function t(source,vars={}){
   const key=String(source??'');
@@ -328,12 +342,12 @@ function applyDocument(nextLocale=locale){
   window.dispatchEvent(new CustomEvent('ekodi:church-i18n-applied',{detail:{locale}}));
 }
 function schedule(){
-  if(scheduled)return;
+  if(scheduled||delegatedUrlLocale())return;
   scheduled=true;
   requestAnimationFrame(()=>{scheduled=false;applyDocument(locale);});
 }
-function currentSharedLocale(){return normalize(window.EKODIUserLanguage?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||navigator.language);}
-function boot(){applyDocument(currentSharedLocale());}
+function currentSharedLocale(){const requested=requestedUrlLocale();if(requested&&SUPPORTED.has(requested))return requested;return normalize(window.EKODIUserLanguage?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||navigator.language);}
+function boot(){if(delegatedUrlLocale())return;applyDocument(currentSharedLocale());}
 
 window.EKODIChurchI18n=Object.freeze({
   getLocale:()=>locale,
