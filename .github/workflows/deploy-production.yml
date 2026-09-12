@@ -8,6 +8,8 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'script.js'
+      - 'live/**'
       - 'church-character-identity.js'
       - 'church-life-hub.js'
       - 'church-life-hub.css'
@@ -37,12 +39,14 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
-      - name: Validate giving boundary and church life hub
+      - name: Validate giving boundary, worship operations and church life hub
         shell: bash
         run: |
           set -euo pipefail
           npm test
           node --check giving.js
+          node --check script.js
+          node --check live/live.js
           node --check church-character-identity.js
           node --check church-life-hub.js
           node --check church-life-hub-i18n.js
@@ -52,6 +56,7 @@ jobs:
           test -s giving-config.json
           test -s mypage/index.html
           test -s mypage/styles.css
+          test -s live/index.html
           grep -Fq '"provider": "missionfund"' giving-config.json
           grep -Fq 'https://go.missionfund.org/fmd01' giving-config.json
           grep -Fq '에코디교회 · 십일조·주일헌금' index.html
@@ -64,6 +69,15 @@ jobs:
           grep -Fq '예배 운영 콘솔' mypage/index.html
           grep -Fq 'PPT 다운로드' mypage/index.html
           grep -Fq '라이브 스튜디오 열기' mypage/index.html
+          grep -Fq "church_worship_materials" mypage/app.js
+          grep -Fq "current_site_access" mypage/app.js
+          grep -Fq "metadata:{service:" live/live.js
+          grep -Fq "syncPublishedWorship" script.js
+          grep -Fq "https://ekodi.kr/my/" script.js
+          if grep -Fq 'https://my.ekodi.kr/' script.js; then
+            echo 'Deprecated My EKODI subdomain must not return.'
+            exit 1
+          fi
           if grep -RniE 'TOSS_CLIENT_KEY|TOSS_SECRET_KEY|tosspayments\.com' -- index.html giving.js functions README.md _headers; then
             echo 'Toss-specific dependency must not remain in the church giving surface.'
             exit 1
