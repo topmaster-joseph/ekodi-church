@@ -1,6 +1,9 @@
 (()=>{'use strict';
 const API='https://api.ekodi.kr/api/realtime';
 const TENANT='ekodichurch';
+const SUPABASE_URL='https://renzehysxirjilvdxacv.supabase.co';
+const PUBLISHABLE_KEY='sb_publishable_0QjB0WzZbjrd-FJ5D5cR7A_xUkXyOY_';
+const setupParams=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
 const state={room:null,pc:null,session:null,local:null,screen:null,remote:new MediaStream(),hosting:false};
 function token(){try{const central=sessionStorage.getItem('ekodi-auth-token');if(central)return central;const church=JSON.parse(sessionStorage.getItem('ekodi-church-pastor-session')||'null');return church?.accessToken||''}catch{return''}}
@@ -8,12 +11,24 @@ function headers(json=false,session=false){const h=new Headers();if(token())h.se
 async function api(path,options={}){const h=headers(Boolean(options.body),Boolean(options.session));const r=await fetch(`${API}${path}`,{...options,headers:h,cache:'no-store'});const data=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(data.error||`HTTP ${r.status}`);e.status=r.status;e.data=data;throw e}return data}
 function show(id){for(const key of ['entryView','studioView','viewerView'])$(key)?.classList.add('hidden');$(id)?.classList.remove('hidden')}
 function note(message,target='statusLog'){$(target).textContent=message}
-function login(){const back='https://ekodi.kr/ekodichurch/live/?mode=studio';location.href=`https://ekodi.kr/auth/?site=church&return_to=${encodeURIComponent(back)}`}
+function login(){const back=location.href;location.href=`https://ekodi.kr/auth/?site=church&return_to=${encodeURIComponent(back)}`}
+function liveTitle(){const service=setupParams.get('service')||'';const date=setupParams.get('date')||'';const title=setupParams.get('title')||'';const scripture=setupParams.get('scripture')||'';const parts=[service,date,title,scripture].filter(Boolean);return parts.length?parts.join(' · ').slice(0,180):'에코디교회 실시간 예배'}
+async function bootstrapCentralAuth(){
+  try{
+    const hash=new URLSearchParams(location.hash.replace(/^#/,''));
+    const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    const sb=createClient(SUPABASE_URL,PUBLISHABLE_KEY,{auth:{detectSessionInUrl:true,persistSession:true}});
+    const handoff=hash.get('ekodi_token');
+    if(handoff){const {error}=await sb.auth.verifyOtp({token_hash:handoff,type:hash.get('ekodi_type')||'email'});if(error)throw error;history.replaceState(null,'',location.pathname+location.search)}
+    const {data}=await sb.auth.getSession();
+    if(data?.session?.access_token)sessionStorage.setItem('ekodi-auth-token',data.session.access_token);
+  }catch(error){console.warn('[EKODI Live auth bootstrap]',error?.message||error)}
+}
 async function waitIce(pc){if(pc.iceGatheringState==='complete')return;await new Promise(resolve=>{const timer=setTimeout(resolve,2500);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(timer);resolve()}},{once:false})})}
 function providerDescription(data){return data?.provider?.sessionDescription||data?.provider?.data?.sessionDescription||data?.sessionDescription||null}
 function selectedLanguages(){return [...$('languageSelect').selectedOptions].map(x=>x.value)}
 async function createRoom(){
-  const body={tenant:TENANT,mode:'worship',title:'에코디교회 실시간 예배',interactiveParticipants:6,languages:selectedLanguages(),durationMinutes:180,recording:true,multistream:false,publicViewers:true,ai:true};
+  const body={tenant:TENANT,mode:'worship',title:liveTitle(),interactiveParticipants:6,languages:selectedLanguages(),durationMinutes:180,recording:true,multistream:false,publicViewers:true,ai:true,metadata:{service:setupParams.get('service')||'',date:setupParams.get('date')||'',scripture:setupParams.get('scripture')||'',messageTitle:setupParams.get('title')||'',preacher:setupParams.get('preacher')||'',notice:setupParams.get('notice')||''}};
   try{return await api('/rooms',{method:'POST',body:JSON.stringify(body)})}catch(error){
     if(error.status===401)return login();
     if(error.status===402&&error.data?.subscriptionUrl){location.href=error.data.subscriptionUrl;return null}
@@ -52,5 +67,5 @@ async function joinViewer(roomId=''){
 }
 async function refreshLive(){try{const live=await api(`/live?tenant=${TENANT}`);$('liveState').textContent=live.live?'현재 LIVE':'현재 대기';if(live.live)$('joinButton').textContent='현재 방송 참여하기'}catch{$('liveState').textContent='상태 확인 필요'}}
 $('hostButton').addEventListener('click',startHost);$('joinButton').addEventListener('click',()=>joinViewer());$('goLiveButton').addEventListener('click',goLive);$('endLiveButton').addEventListener('click',endLive);$('screenButton').addEventListener('click',shareScreen);$('cameraButton').addEventListener('click',async()=>{try{await acquireCamera();note('카메라가 준비되었습니다.')}catch(error){note(`카메라 사용 불가: ${error.message}`)}});$('micButton').addEventListener('click',()=>{const track=state.local?.getAudioTracks?.()[0];if(!track)return note('먼저 카메라·마이크를 준비해 주세요.');track.enabled=!track.enabled;$('micButton').textContent=track.enabled?'마이크':'마이크 꺼짐'});$('copyLinkButton').addEventListener('click',async()=>{await navigator.clipboard?.writeText?.($('shareLink').value);note('참여 링크를 복사했습니다.')});$('requestSpeakButton').addEventListener('click',()=>{if(!token())return login();note('발언 참여 승인은 다음 단계에서 제공됩니다.','viewerStatus')});
-const params=new URLSearchParams(location.search);if(params.get('mode')==='studio')startHost();else if(params.get('room'))joinViewer(params.get('room'));else refreshLive();
+void bootstrapCentralAuth().finally(()=>{if(setupParams.get('mode')==='studio')startHost();else if(setupParams.get('room'))joinViewer(setupParams.get('room'));else refreshLive()});
 })();
