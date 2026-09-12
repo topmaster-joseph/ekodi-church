@@ -18,6 +18,8 @@ test('church live studio keeps provider secrets server-side',async()=>{
   const [html,js]=await Promise.all([read('live/index.html'),read('live/live.js')]);
   assert.match(html,/LIVE STUDIO/);
   assert.match(html,/PPT·화면공유/);
+  assert.match(html,/href="\/ekodichurch\/live\/live\.css"/);
+  assert.match(html,/src="\/ekodichurch\/live\/live\.js"/);
   assert.match(js,/ekodi\.kr\/api\/realtime/);
   assert.match(js,/RTCPeerConnection/);
   assert.match(js,/getDisplayMedia/);
