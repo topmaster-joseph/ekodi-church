@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const API='https://api.ekodi.kr/api/realtime';
+const API='https://ekodi.kr/api/realtime';
 const TENANT='ekodichurch';
 const $=id=>document.getElementById(id);
 const state={room:null,pc:null,session:null,local:null,screen:null,remote:new MediaStream(),hosting:false};

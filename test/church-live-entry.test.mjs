@@ -18,7 +18,7 @@ test('church live studio keeps provider secrets server-side',async()=>{
   const [html,js]=await Promise.all([read('live/index.html'),read('live/live.js')]);
   assert.match(html,/LIVE STUDIO/);
   assert.match(html,/PPT·화면공유/);
-  assert.match(js,/api\.ekodi\.kr\/api\/realtime/);
+  assert.match(js,/ekodi\.kr\/api\/realtime/);
   assert.match(js,/RTCPeerConnection/);
   assert.match(js,/getDisplayMedia/);
   assert.doesNotMatch(js,/REALTIME_SFU_APP_SECRET|Cloudflare-Calls-Secret/);
