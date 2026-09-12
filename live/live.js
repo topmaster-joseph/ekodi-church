@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const API='https://api.ekodi.kr/api/realtime';
+const API='https://ekodi.kr/api/realtime';
 const TENANT='ekodichurch';
 const SUPABASE_URL='https://renzehysxirjilvdxacv.supabase.co';
 const PUBLISHABLE_KEY='sb_publishable_0QjB0WzZbjrd-FJ5D5cR7A_xUkXyOY_';
