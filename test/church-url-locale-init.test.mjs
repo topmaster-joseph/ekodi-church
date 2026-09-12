@@ -22,5 +22,5 @@ test('extended church i18n owns extended ?lang= values during initial render',()
 });
 
 test('language selector is created synchronously before async shell scheduling',()=>{
-  assert.match(shell,/ensureLanguageControl\(\);\nwindow\.addEventListener\('ekodi:locale-change'/);
+  assert.match(shell,/ensureLanguageControl\(\);\r?\nwindow\.addEventListener\('ekodi:locale-change'/);
 });
