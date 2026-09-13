@@ -25,3 +25,12 @@ test('church live studio keeps provider secrets server-side',async()=>{
   assert.match(js,/getDisplayMedia/);
   assert.doesNotMatch(js,/REALTIME_SFU_APP_SECRET|Cloudflare-Calls-Secret/);
 });
+
+test('church live host action preserves studio intent across auth bootstrap',async()=>{
+  const [html,intent]=await Promise.all([read('live/index.html'),read('live/host-intent.js')]);
+  assert.match(html,/src="\/ekodichurch\/live\/host-intent\.js" defer/);
+  assert.ok(html.indexOf('/ekodichurch/live/host-intent.js')<html.indexOf('/ekodichurch/live/live.js'));
+  assert.match(intent,/stopImmediatePropagation/);
+  assert.match(intent,/searchParams\.set\('mode','studio'\)/);
+  assert.match(intent,/location\.replace\(next\.href\)/);
+});
