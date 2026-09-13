@@ -11,7 +11,8 @@ function headers(json=false,session=false){const h=new Headers();if(token())h.se
 async function api(path,options={}){const h=headers(Boolean(options.body),Boolean(options.session));const r=await fetch(`${API}${path}`,{...options,headers:h,cache:'no-store'});const data=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(data.error||`HTTP ${r.status}`);e.status=r.status;e.data=data;throw e}return data}
 function show(id){for(const key of ['entryView','studioView','viewerView'])$(key)?.classList.add('hidden');$(id)?.classList.remove('hidden')}
 function note(message,target='statusLog'){$(target).textContent=message}
-function login(){const back=location.href;location.href=`https://ekodi.kr/auth/?site=church&return_to=${encodeURIComponent(back)}`}
+function safeReturnTo(){const back=new URL(location.href);const hash=new URLSearchParams(back.hash.replace(/^#/,''));if(['ekodi_token','ekodi_type','access_token','refresh_token'].some(key=>hash.has(key)))back.hash='';for(const key of ['ekodi_token','ekodi_type'])back.searchParams.delete(key);return back.toString()}
+function login(){location.href=`https://ekodi.kr/auth/?site=church&return_to=${encodeURIComponent(safeReturnTo())}`}
 function liveTitle(){const service=setupParams.get('service')||'';const date=setupParams.get('date')||'';const title=setupParams.get('title')||'';const scripture=setupParams.get('scripture')||'';const parts=[service,date,title,scripture].filter(Boolean);return parts.length?parts.join(' · ').slice(0,180):'에코디교회 실시간 예배'}
 async function bootstrapCentralAuth(){
   try{
@@ -19,7 +20,7 @@ async function bootstrapCentralAuth(){
     const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
     const sb=createClient(SUPABASE_URL,PUBLISHABLE_KEY,{auth:{detectSessionInUrl:true,persistSession:true}});
     const handoff=hash.get('ekodi_token');
-    if(handoff){const {error}=await sb.auth.verifyOtp({token_hash:handoff,type:hash.get('ekodi_type')||'email'});if(error)throw error;history.replaceState(null,'',location.pathname+location.search)}
+    if(handoff){history.replaceState(null,'',location.pathname+location.search);const {error}=await sb.auth.verifyOtp({token_hash:handoff,type:hash.get('ekodi_type')||'email'});if(error)throw error}
     const {data}=await sb.auth.getSession();
     if(data?.session?.access_token)sessionStorage.setItem('ekodi-auth-token',data.session.access_token);
   }catch(error){console.warn('[EKODI Live auth bootstrap]',error?.message||error)}
