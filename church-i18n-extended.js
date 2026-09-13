@@ -30,6 +30,8 @@ add('에코디교회 온라인 연결','EKODI အသင်းတော် အွ
 add('온라인 바로가기','အွန်လိုင်း လင့်ခ်များ','Online lam ni','Lối tắt trực tuyến','Онлайн холбоосууд','Akses online');
 add('오시는 길','လာရောက်ရန်','Sa wa lam','Đường đến','Ирэх зам','Petunjuk arah');
 add('부르심에서 교제로,','ခေါ်တော်မူခြင်းမှ မိတ်သဟာယသို့၊','Shaga la ai kaw na rau nga ai de,','Từ lời kêu gọi đến sự thông công,','Дуудлагаас нөхөрлөл рүү,','Dari panggilan menuju persekutuan,');
+add('말씀으로 삶을 읽고,','နှုတ်ကပတ်တော်ဖြင့် အသက်တာကို ဖတ်ရှုပြီး၊','Mungga hte asak hpe hti nna,','đọc cuộc sống qua Lời Chúa,','Үгээр амьдралаа уншиж,','membaca hidup melalui firman,');
+add('함께 살아내고 증언합니다','အတူတကွ အသက်ရှင်ပြီး သက်သေခံကြသည်','rau hkrung nna sakse madun ga ai','cùng sống và làm chứng','хамтдаа амьдруулж, гэрчилнэ','menghidupinya bersama dan bersaksi');
 add('교제에서 세상으로','မိတ်သဟာယမှ ကမ္ဘာသို့','rau nga ai kaw na mungkan de','dari persekutuan bước ra thế giới','нөхөрлөлөөс дэлхий рүү','dari persekutuan menuju dunia');
 add('세상에서 구별된 에클레시아,','လောကထဲမှ ခေါ်ထုတ်ထားသော Ekklesia၊','Mungkan kaw na shaga la ai Ekklesia,','Ekklesia được gọi ra khỏi thế gian,','Дэлхийгээс дуудагдсан Ekklesia,','Ekklesia yang dipanggil keluar dari dunia,');
 add('하나님과 하나된 코이노니아, 세상 속에 증인된 디아스포라.','ဘုရားသခင်၌ တစ်လုံးတစ်ဝတည်းဖြစ်သော Koinonia၊ လောကထဲတွင် သက်သေဖြစ်သော Diaspora။','Karai Kasang hte rau ai Koinonia, mungkan hta sakse tai ai Diaspora.','Koinonia hiệp một trong Đức Chúa Trời, Diaspora làm chứng giữa đời.','Бурхантай нэгдсэн Koinonia, дэлхийд гэрчлэгч Diaspora.','Koinonia yang bersatu dalam Allah, Diaspora yang menjadi saksi di dunia.');
