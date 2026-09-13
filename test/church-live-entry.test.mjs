@@ -30,13 +30,14 @@ test('church live studio keeps provider secrets server-side',async()=>{
   assert.doesNotMatch(js,/REALTIME_SFU_APP_SECRET|Cloudflare-Calls-Secret/);
 });
 
-test('church live host action preserves studio intent across auth bootstrap',async()=>{
+test('church live host action preserves studio intent without forcing a page reload',async()=>{
   const [html,intent]=await Promise.all([read('live/index.html'),read('live/host-intent.js')]);
   assert.match(html,/src="\.\/host-intent\.js" defer/);
   assert.ok(html.indexOf('./host-intent.js')<html.indexOf('./live.js'));
-  assert.match(intent,/stopImmediatePropagation/);
   assert.match(intent,/searchParams\.set\('mode','studio'\)/);
-  assert.match(intent,/location\.replace\(next\.href\)/);
+  assert.match(intent,/history\.replaceState/);
+  assert.doesNotMatch(intent,/stopImmediatePropagation/);
+  assert.doesNotMatch(intent,/location\.replace\(next\.href\)/);
 });
 
 test('church header presents online as one hub while preserving EKODI Live and YouTube',async()=>{
