@@ -49,3 +49,17 @@ test('church header presents online as one hub while preserving EKODI Live and Y
   assert.match(css,/\.site-header \.nav-online/);
   assert.match(css,/\.church-live-youtube/);
 });
+
+test('church online hub reflects actual EKODI Live state without replacing YouTube',async()=>{
+  const [html,status,css]=await Promise.all([
+    read('index.html'),read('church-online-status.js'),read('church-live-entry.css')
+  ]);
+  assert.match(html,/src="church-online-status\.js"/);
+  assert.match(status,/api\/realtime\/live\?tenant=ekodichurch/);
+  assert.match(status,/setInterval\(refresh,60000\)/);
+  assert.match(status,/room\?\.id/);
+  assert.match(status,/\?room=\$\{encodeURIComponent\(roomId\)\}/);
+  assert.match(css,/nav-online\[data-live="true"\]/);
+  assert.match(css,/content:"LIVE"/);
+  assert.match(html,/https:\/\/www\.youtube\.com\/@ekodichurch/);
+});

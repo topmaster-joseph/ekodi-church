@@ -14,3 +14,12 @@
 .church-live-youtube{background:transparent;color:#7e3b32;border-color:rgba(126,59,50,.28)!important}.church-live-youtube:hover,.church-live-youtube:focus-visible{background:#7e3b32;color:#fff;border-color:#7e3b32!important}
 @media(max-width:800px){.site-header .nav-online{justify-content:flex-start}.church-live-entry{width:calc(100% - 28px);margin-top:14px;padding:18px;display:grid;gap:16px}.church-live-entry-actions{justify-content:flex-start}.church-live-entry-actions a{flex:1 1 120px}}
 @media(max-width:520px){.church-live-entry-actions{display:grid;grid-template-columns:1fr 1fr}.church-live-youtube{grid-column:1/-1}.church-live-entry-actions a{width:100%}}
+
+.site-header .nav-online[data-live="true"] .nav-online-dot{background:#b44439;box-shadow:0 0 0 4px rgba(180,68,57,.14);animation:church-live-pulse 1.6s ease-in-out infinite}
+.site-header .nav-online[data-live="true"]::after{content:"LIVE";margin-left:1px;padding:2px 5px;border-radius:999px;background:#b44439;color:#fff;font-size:8px;font-weight:900;letter-spacing:.08em;line-height:1.2}
+.church-live-entry[data-live="true"]{border-color:rgba(180,68,57,.26);box-shadow:0 18px 45px rgba(78,44,39,.1)}
+.church-live-entry[data-live="true"] .church-live-entry-copy>span{color:#a13f35}
+.church-live-entry[data-live="true"] .church-live-join{background:#b44439;color:#fff;border-color:#b44439}
+.church-live-entry[data-live="true"] .church-live-join:hover,.church-live-entry[data-live="true"] .church-live-join:focus-visible{background:#8f342c;border-color:#8f342c}
+@keyframes church-live-pulse{0%,100%{box-shadow:0 0 0 4px rgba(180,68,57,.14)}50%{box-shadow:0 0 0 7px rgba(180,68,57,.03)}}
+@media(prefers-reduced-motion:reduce){.site-header .nav-online[data-live="true"] .nav-online-dot{animation:none}}
