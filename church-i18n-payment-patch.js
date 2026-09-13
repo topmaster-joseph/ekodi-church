@@ -94,5 +94,5 @@ window.addEventListener('ekodi:locale-change',schedule);
 window.addEventListener('ekodi:church-extended-i18n-applied',schedule);
 window.addEventListener('ekodi:church-i18n-applied',schedule);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
-new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['aria-label','title','placeholder']});
+new MutationObserver(()=>translateText()).observe(document.documentElement,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['aria-label','title','placeholder']});
 })();
