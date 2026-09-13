@@ -136,6 +136,7 @@ let fallbackAttrs=new Map();
 let captured=false;
 let capturing=false;
 let scheduled=false;
+let rerunRequested=false;
 
 function normalize(value){
   const raw=String(value||'').trim().toLowerCase();
@@ -244,7 +245,7 @@ function apply(locale=desired){
   applyDaily(desired);
   window.dispatchEvent(new CustomEvent('ekodi:church-extended-i18n-applied',{detail:{locale:desired}}));
 }
-function schedule(){if(scheduled||capturing)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;ensureLanguageOptions();const shared=sharedLocale();if(NEW.has(shared))desired=shared;apply(desired);});}
+function schedule(){if(capturing||scheduled){rerunRequested=true;return;}scheduled=true;requestAnimationFrame(()=>{scheduled=false;ensureLanguageOptions();const shared=sharedLocale();if(NEW.has(shared))desired=shared;apply(desired);if(rerunRequested){rerunRequested=false;schedule();}});}
 
 window.EKODIChurchExtendedI18n=Object.freeze({supported:ORDER,getLocale:()=>desired,refresh:schedule});
 window.addEventListener('ekodi:locale-change',event=>{desired=normalize(event.detail?.locale||sharedLocale());if(NEW.has(desired))schedule();});
