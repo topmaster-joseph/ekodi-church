@@ -18,18 +18,22 @@ test('church live studio keeps provider secrets server-side',async()=>{
   const [html,js]=await Promise.all([read('live/index.html'),read('live/live.js')]);
   assert.match(html,/LIVE STUDIO/);
   assert.match(html,/PPT·화면공유/);
-  assert.match(html,/href="\/ekodichurch\/live\/live\.css"/);
-  assert.match(html,/src="\/ekodichurch\/live\/live\.js"/);
+  assert.match(html,/href="\.\/live\.css"/);
+  assert.match(html,/src="\.\/live\.js"/);
   assert.match(js,/ekodi\.kr\/api\/realtime/);
   assert.match(js,/RTCPeerConnection/);
   assert.match(js,/getDisplayMedia/);
+  assert.match(html,/에코디 홈페이지에서만 방송/);
+  assert.match(html,/유튜브 등 외부 플랫폼에도 동시방송/);
+  assert.match(js,/broadcastSelection/);
+  assert.match(js,/multistream/);
   assert.doesNotMatch(js,/REALTIME_SFU_APP_SECRET|Cloudflare-Calls-Secret/);
 });
 
 test('church live host action preserves studio intent across auth bootstrap',async()=>{
   const [html,intent]=await Promise.all([read('live/index.html'),read('live/host-intent.js')]);
-  assert.match(html,/src="\/ekodichurch\/live\/host-intent\.js" defer/);
-  assert.ok(html.indexOf('/ekodichurch/live/host-intent.js')<html.indexOf('/ekodichurch/live/live.js'));
+  assert.match(html,/src="\.\/host-intent\.js" defer/);
+  assert.ok(html.indexOf('./host-intent.js')<html.indexOf('./live.js'));
   assert.match(intent,/stopImmediatePropagation/);
   assert.match(intent,/searchParams\.set\('mode','studio'\)/);
   assert.match(intent,/location\.replace\(next\.href\)/);
