@@ -45,7 +45,7 @@ async function refreshAuthToken(){
 async function waitIce(pc){if(pc.iceGatheringState==='complete')return;await new Promise(resolve=>{const timer=setTimeout(resolve,2500);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(timer);resolve()}},{once:false})})}
 function providerDescription(data){return data?.provider?.sessionDescription||data?.provider?.data?.sessionDescription||data?.sessionDescription||null}
 function selectedLanguages(){return [...$('languageSelect').selectedOptions].map(x=>x.value)}
-function broadcastSelection(){const mode=document.querySelector('input[name="broadcastMode"]:checked')?.value||'ekodi';const destinations=mode==='multistream'?[...document.querySelectorAll('#externalDestinations input:checked')].map(x=>x.value):[];return {mode,destinations,multistream:mode==='multistream'}}
+function broadcastSelection(){const mode=document.querySelector('input[name="broadcastMode"]:checked')?.value||'ekodi';const destinations=mode==='multistream'?[...document.querySelectorAll('#externalDestinations input:checked')].map(x=>x.value):[];return {broadcastMode:mode,destinations,multistream:mode==='multistream'}}
 async function createRoom(){
   const body={tenant:TENANT,mode:'worship',title:liveTitle(),interactiveParticipants:6,languages:selectedLanguages(),durationMinutes:180,recording:true,...broadcastSelection(),publicViewers:true,ai:true,metadata:{service:setupParams.get('service')||'',date:setupParams.get('date')||'',scripture:setupParams.get('scripture')||'',messageTitle:setupParams.get('title')||'',preacher:setupParams.get('preacher')||'',notice:setupParams.get('notice')||''}};
   const options={method:'POST',body:JSON.stringify(body)};
