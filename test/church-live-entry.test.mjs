@@ -38,3 +38,14 @@ test('church live host action preserves studio intent across auth bootstrap',asy
   assert.match(intent,/searchParams\.set\('mode','studio'\)/);
   assert.match(intent,/location\.replace\(next\.href\)/);
 });
+
+test('church header presents online as one hub while preserving EKODI Live and YouTube',async()=>{
+  const [html,css]=await Promise.all([read('index.html'),read('church-live-entry.css')]);
+  assert.match(html,/class="nav-online" href="#online"/);
+  assert.match(html,/ONLINE · EKODI CHURCH/);
+  assert.match(html,/https:\/\/ekodi\.kr\/ekodichurch\/live\/\?mode=studio/);
+  assert.match(html,/https:\/\/www\.youtube\.com\/@ekodichurch/);
+  assert.match(html,/에코디교회 채널 ↗/);
+  assert.match(css,/\.site-header \.nav-online/);
+  assert.match(css,/\.church-live-youtube/);
+});
