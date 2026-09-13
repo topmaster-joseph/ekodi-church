@@ -24,6 +24,10 @@ add('메뉴 열기','မီနူးဖွင့်ရန်','Menu hpaw','Mở 
 add('주요 메뉴','အဓိက မီနူး','Main menu','Menu chính','Үндсэн цэс','Menu utama');
 add('예배안내','ဝတ်ပြုခြင်း','Nawku','Thờ phượng','Мөргөл','Ibadah');
 add('온라인','အွန်လိုင်း','Online','Trực tuyến','Онлайн','Online');
+add('방송하기','တိုက်ရိုက်ထုတ်လွှင့်ရန်','Live nhtoi','Phát sóng','Шууд дамжуулах','Siaran');
+add('참여하기','ပါဝင်ရန်','Shang lawm','Tham gia','Оролцох','Ikut');
+add('에코디교회 온라인 연결','EKODI အသင်းတော် အွန်လိုင်း','EKODI online matut mahkai','Kết nối trực tuyến Hội thánh EKODI','EKODI Сүм онлайн','Gereja EKODI online');
+add('온라인 바로가기','အွန်လိုင်း လင့်ခ်များ','Online lam ni','Lối tắt trực tuyến','Онлайн холбоосууд','Akses online');
 add('오시는 길','လာရောက်ရန်','Sa wa lam','Đường đến','Ирэх зам','Petunjuk arah');
 add('부르심에서 교제로,','ခေါ်တော်မူခြင်းမှ မိတ်သဟာယသို့၊','Shaga la ai kaw na rau nga ai de,','Từ lời kêu gọi đến sự thông công,','Дуудлагаас нөхөрлөл рүү,','Dari panggilan menuju persekutuan,');
 add('교제에서 세상으로','မိတ်သဟာယမှ ကမ္ဘာသို့','rau nga ai kaw na mungkan de','dari persekutuan bước ra thế giới','нөхөрлөлөөс дэлхий рүү','dari persekutuan menuju dunia');
