@@ -27,8 +27,9 @@ async function bootstrapCentralAuth(){
 async function waitIce(pc){if(pc.iceGatheringState==='complete')return;await new Promise(resolve=>{const timer=setTimeout(resolve,2500);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(timer);resolve()}},{once:false})})}
 function providerDescription(data){return data?.provider?.sessionDescription||data?.provider?.data?.sessionDescription||data?.sessionDescription||null}
 function selectedLanguages(){return [...$('languageSelect').selectedOptions].map(x=>x.value)}
+function broadcastSelection(){const mode=document.querySelector('input[name="broadcastMode"]:checked')?.value||'ekodi';const destinations=mode==='multistream'?[...document.querySelectorAll('#externalDestinations input:checked')].map(x=>x.value):[];return {mode,destinations,multistream:mode==='multistream'}}
 async function createRoom(){
-  const body={tenant:TENANT,mode:'worship',title:liveTitle(),interactiveParticipants:6,languages:selectedLanguages(),durationMinutes:180,recording:true,multistream:false,publicViewers:true,ai:true,metadata:{service:setupParams.get('service')||'',date:setupParams.get('date')||'',scripture:setupParams.get('scripture')||'',messageTitle:setupParams.get('title')||'',preacher:setupParams.get('preacher')||'',notice:setupParams.get('notice')||''}};
+  const body={tenant:TENANT,mode:'worship',title:liveTitle(),interactiveParticipants:6,languages:selectedLanguages(),durationMinutes:180,recording:true,...broadcastSelection(),publicViewers:true,ai:true,metadata:{service:setupParams.get('service')||'',date:setupParams.get('date')||'',scripture:setupParams.get('scripture')||'',messageTitle:setupParams.get('title')||'',preacher:setupParams.get('preacher')||'',notice:setupParams.get('notice')||''}};
   try{return await api('/rooms',{method:'POST',body:JSON.stringify(body)})}catch(error){
     if(error.status===401)return login();
     if(error.status===402&&error.data?.subscriptionUrl){location.href=error.data.subscriptionUrl;return null}
@@ -66,6 +67,7 @@ async function joinViewer(roomId=''){
   }catch(error){note(`참여 연결 실패: ${error.message}`,'viewerStatus')}
 }
 async function refreshLive(){try{const live=await api(`/live?tenant=${TENANT}`);$('liveState').textContent=live.live?'현재 LIVE':'현재 대기';if(live.live)$('joinButton').textContent='현재 방송 참여하기'}catch{$('liveState').textContent='상태 확인 필요'}}
+document.querySelectorAll('input[name="broadcastMode"]').forEach(input=>input.addEventListener('change',()=>{$('externalDestinations').classList.toggle('hidden',input.value!=='multistream'||!input.checked)}));
 $('hostButton').addEventListener('click',startHost);$('joinButton').addEventListener('click',()=>joinViewer());$('goLiveButton').addEventListener('click',goLive);$('endLiveButton').addEventListener('click',endLive);$('screenButton').addEventListener('click',shareScreen);$('cameraButton').addEventListener('click',async()=>{try{await acquireCamera();note('카메라가 준비되었습니다.')}catch(error){note(`카메라 사용 불가: ${error.message}`)}});$('micButton').addEventListener('click',()=>{const track=state.local?.getAudioTracks?.()[0];if(!track)return note('먼저 카메라·마이크를 준비해 주세요.');track.enabled=!track.enabled;$('micButton').textContent=track.enabled?'마이크':'마이크 꺼짐'});$('copyLinkButton').addEventListener('click',async()=>{await navigator.clipboard?.writeText?.($('shareLink').value);note('참여 링크를 복사했습니다.')});$('requestSpeakButton').addEventListener('click',()=>{if(!token())return login();note('발언 참여 승인은 다음 단계에서 제공됩니다.','viewerStatus')});
 void bootstrapCentralAuth().finally(()=>{if(setupParams.get('mode')==='studio')startHost();else if(setupParams.get('room'))joinViewer(setupParams.get('room'));else refreshLive()});
 })();
