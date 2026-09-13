@@ -3,27 +3,44 @@ const API='https://ekodi.kr/api/realtime';
 const TENANT='ekodichurch';
 const SUPABASE_URL='https://renzehysxirjilvdxacv.supabase.co';
 const PUBLISHABLE_KEY='sb_publishable_0QjB0WzZbjrd-FJ5D5cR7A_xUkXyOY_';
+const AUTH_ATTEMPT_KEY='ekodi-live-auth-attempt';
+const AUTH_ATTEMPT_WINDOW=120000;
 const setupParams=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
-const state={room:null,pc:null,session:null,local:null,screen:null,remote:new MediaStream(),hosting:false};
+const state={room:null,pc:null,session:null,local:null,screen:null,remote:new MediaStream(),hosting:false,authClient:null};
 function token(){try{const central=sessionStorage.getItem('ekodi-auth-token');if(central)return central;const church=JSON.parse(sessionStorage.getItem('ekodi-church-pastor-session')||'null');return church?.accessToken||''}catch{return''}}
 function headers(json=false,session=false){const h=new Headers();if(token())h.set('authorization',`Bearer ${token()}`);if(json)h.set('content-type','application/json');if(session&&state.session?.accessKey)h.set('x-ekodi-session-key',state.session.accessKey);return h}
 async function api(path,options={}){const h=headers(Boolean(options.body),Boolean(options.session));const r=await fetch(`${API}${path}`,{...options,headers:h,cache:'no-store'});const data=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(data.error||`HTTP ${r.status}`);e.status=r.status;e.data=data;throw e}return data}
 function show(id){for(const key of ['entryView','studioView','viewerView'])$(key)?.classList.add('hidden');$(id)?.classList.remove('hidden')}
 function note(message,target='statusLog'){$(target).textContent=message}
 function safeReturnTo(){const back=new URL(location.href);const hash=new URLSearchParams(back.hash.replace(/^#/,''));if(['ekodi_token','ekodi_type','access_token','refresh_token'].some(key=>hash.has(key)))back.hash='';for(const key of ['ekodi_token','ekodi_type'])back.searchParams.delete(key);return back.toString()}
-function login(){location.href=`https://ekodi.kr/auth/?site=church&return_to=${encodeURIComponent(safeReturnTo())}`}
+function login(){
+  const now=Date.now();
+  const previous=Number(sessionStorage.getItem(AUTH_ATTEMPT_KEY)||0);
+  if(previous&&now-previous<AUTH_ATTEMPT_WINDOW){
+    const clean=new URL(location.href);clean.searchParams.delete('mode');history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
+    state.hosting=false;show('studioView');note('로그인 인증이 방송 권한으로 연결되지 않았습니다. 자동 재로그인을 중단했습니다. 잠시 후 다시 시도해 주세요.');
+    return null;
+  }
+  sessionStorage.setItem(AUTH_ATTEMPT_KEY,String(now));
+  location.href=`https://ekodi.kr/auth/?site=church&return_to=${encodeURIComponent(safeReturnTo())}`;
+  return null;
+}
 function liveTitle(){const service=setupParams.get('service')||'';const date=setupParams.get('date')||'';const title=setupParams.get('title')||'';const scripture=setupParams.get('scripture')||'';const parts=[service,date,title,scripture].filter(Boolean);return parts.length?parts.join(' · ').slice(0,180):'에코디교회 실시간 예배'}
 async function bootstrapCentralAuth(){
   try{
     const hash=new URLSearchParams(location.hash.replace(/^#/,''));
     const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-    const sb=createClient(SUPABASE_URL,PUBLISHABLE_KEY,{auth:{detectSessionInUrl:true,persistSession:true}});
+    const sb=createClient(SUPABASE_URL,PUBLISHABLE_KEY,{auth:{detectSessionInUrl:true,persistSession:true}});state.authClient=sb;
     const handoff=hash.get('ekodi_token');
     if(handoff){history.replaceState(null,'',location.pathname+location.search);const {error}=await sb.auth.verifyOtp({token_hash:handoff,type:hash.get('ekodi_type')||'email'});if(error)throw error}
     const {data}=await sb.auth.getSession();
     if(data?.session?.access_token)sessionStorage.setItem('ekodi-auth-token',data.session.access_token);
   }catch(error){console.warn('[EKODI Live auth bootstrap]',error?.message||error)}
+}
+async function refreshAuthToken(){
+  if(!state.authClient)return false;
+  try{const {data,error}=await state.authClient.auth.refreshSession();if(error||!data?.session?.access_token)return false;sessionStorage.setItem('ekodi-auth-token',data.session.access_token);return true}catch{return false}
 }
 async function waitIce(pc){if(pc.iceGatheringState==='complete')return;await new Promise(resolve=>{const timer=setTimeout(resolve,2500);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(timer);resolve()}},{once:false})})}
 function providerDescription(data){return data?.provider?.sessionDescription||data?.provider?.data?.sessionDescription||data?.sessionDescription||null}
@@ -31,7 +48,11 @@ function selectedLanguages(){return [...$('languageSelect').selectedOptions].map
 function broadcastSelection(){const mode=document.querySelector('input[name="broadcastMode"]:checked')?.value||'ekodi';const destinations=mode==='multistream'?[...document.querySelectorAll('#externalDestinations input:checked')].map(x=>x.value):[];return {mode,destinations,multistream:mode==='multistream'}}
 async function createRoom(){
   const body={tenant:TENANT,mode:'worship',title:liveTitle(),interactiveParticipants:6,languages:selectedLanguages(),durationMinutes:180,recording:true,...broadcastSelection(),publicViewers:true,ai:true,metadata:{service:setupParams.get('service')||'',date:setupParams.get('date')||'',scripture:setupParams.get('scripture')||'',messageTitle:setupParams.get('title')||'',preacher:setupParams.get('preacher')||'',notice:setupParams.get('notice')||''}};
-  try{return await api('/rooms',{method:'POST',body:JSON.stringify(body)})}catch(error){
+  const options={method:'POST',body:JSON.stringify(body)};
+  try{const created=await api('/rooms',options);sessionStorage.removeItem(AUTH_ATTEMPT_KEY);return created}catch(error){
+    if(error.status===401&&await refreshAuthToken()){
+      try{const created=await api('/rooms',options);sessionStorage.removeItem(AUTH_ATTEMPT_KEY);return created}catch(retryError){error=retryError}
+    }
     if(error.status===401)return login();
     if(error.status===402&&error.data?.subscriptionUrl){location.href=error.data.subscriptionUrl;return null}
     throw error;
