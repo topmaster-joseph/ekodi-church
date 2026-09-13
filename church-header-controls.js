@@ -89,7 +89,8 @@ function normalizeLocale(value){
   return'en';
 }
 function locale(){
-  return normalizeLocale(window.EKODIUserLanguage?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||'ko-KR');
+  const requested=new URLSearchParams(location.search).get('lang');
+  return normalizeLocale(requested||window.EKODIUserLanguage?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||'ko-KR');
 }
 function syncBrand(){
   const brand=document.querySelector('.site-header .brand');

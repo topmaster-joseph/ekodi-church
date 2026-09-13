@@ -5,6 +5,7 @@ import { readFile } from 'node:fs/promises';
 const core=await readFile(new URL('../church-i18n.js',import.meta.url),'utf8');
 const extended=await readFile(new URL('../church-i18n-extended.js',import.meta.url),'utf8');
 const shell=await readFile(new URL('../church-shell-i18n.js',import.meta.url),'utf8');
+const header=await readFile(new URL('../church-header-controls.js',import.meta.url),'utf8');
 
 test('core church i18n honors supported ?lang= values and delegates extended locales',()=>{
   assert.match(core,/new URLSearchParams\(location\.search\)\.get\('lang'\)/);
@@ -23,4 +24,10 @@ test('extended church i18n owns extended ?lang= values during initial render',()
 
 test('language selector is created synchronously before async shell scheduling',()=>{
   assert.match(shell,/ensureLanguageControl\(\);\r?\nwindow\.addEventListener\('ekodi:locale-change'/);
+});
+
+
+test('header focus honors explicit ?lang= before persisted user locale',()=>{
+  assert.match(header,/const requested=new URLSearchParams\(location\.search\)\.get\('lang'\)/);
+  assert.match(header,/normalizeLocale\(requested\|\|window\.EKODIUserLanguage\?\.getLocale/);
 });
