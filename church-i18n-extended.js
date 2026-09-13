@@ -24,6 +24,12 @@ add('메뉴 열기','မီနူးဖွင့်ရန်','Menu hpaw','Mở 
 add('주요 메뉴','အဓိက မီနူး','Main menu','Menu chính','Үндсэн цэс','Menu utama');
 add('예배안내','ဝတ်ပြုခြင်း','Nawku','Thờ phượng','Мөргөл','Ibadah');
 add('온라인','အွန်လိုင်း','Online','Trực tuyến','Онлайн','Online');
+add('말씀으로 오늘 읽기','ယနေ့ကို နှုတ်ကပတ်တော်ဖြင့် ဖတ်ရန်','Dai ni hpe Mungga hte hti','Đọc hôm nay qua Lời Chúa','Өнөөдрийг Үгээр унших','Membaca hari ini melalui Firman');
+add('말씀이 오늘의 삶을 해석하게 합니다.','နှုတ်ကပတ်တော်က ယနေ့ဘဝကို အဓိပ္ပာယ်ဖွင့်စေသည်။','Mungga gaw dai ni asak hpe hkrang shapraw shangun ai.','Hãy để Lời Chúa soi nghĩa cho đời sống hôm nay.','Үг өнөөдрийн амьдралыг тайлбарлана.','Biarkan Firman menafsirkan kehidupan hari ini.');
+add('묵상 · 해석 · 한 걸음','ဆင်ခြင်ခြင်း · အဓိပ္ပာယ်ဖွင့်ခြင်း · ခြေလှမ်းတစ်လှမ်း','Myit yu · hkrang hti · lagaw langai','Suy niệm · Giải nghĩa · Một bước','Бясалгал · Тайлбар · Нэг алхам','Renungan · Tafsir · Satu langkah');
+add('지금 연결하기','ယခု ချိတ်ဆက်ရန်','Ya aten matut','Kết nối ngay','Одоо холбогдох','Terhubung sekarang');
+add('예배와 교제는 일상 속에서 계속됩니다.','ဝတ်ပြုခြင်းနှင့် မိတ်သဟာယသည် နေ့စဉ်ဘဝထဲတွင် ဆက်လက်နေသည်။','Nawku hte htinghpaw gaw shani shagu asak hta matut nga ai.','Sự thờ phượng và thông công tiếp diễn trong đời sống hằng ngày.','Мөргөл ба нөхөрлөл өдөр тутмын амьдралд үргэлжилнэ.','Ibadah dan persekutuan berlanjut dalam keseharian.');
+add('실시간 소통과 온라인 예배 →','တိုက်ရိုက် မိတ်သဟာယနှင့် အွန်လိုင်း ဝတ်ပြုခြင်း →','Live htinghpaw hte online nawku →','Giao lưu trực tiếp và thờ phượng online →','Шууд харилцаа ба онлайн мөргөл →','Persekutuan langsung dan ibadah online →');
 add('방송하기','တိုက်ရိုက်ထုတ်လွှင့်ရန်','Live nhtoi','Phát sóng','Шууд дамжуулах','Siaran');
 add('참여하기','ပါဝင်ရန်','Shang lawm','Tham gia','Оролцох','Ikut');
 add('에코디교회 온라인 연결','EKODI အသင်းတော် အွန်လိုင်း','EKODI online matut mahkai','Kết nối trực tuyến Hội thánh EKODI','EKODI Сүм онлайн','Gereja EKODI online');
