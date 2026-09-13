@@ -54,8 +54,13 @@ add('계좌 복사','အကောင့် နံပါတ် ကူးရန်
 add('복사 완료','ကူးပြီး','Copy ngut sai','Đã sao chép','Хуулсан','Tersalin');
 
 function locale(){
-  const raw=String(window.EKODIUserLanguage?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||'');
+  const requested=new URLSearchParams(location.search).get('lang');
+  const raw=String(requested||window.EKODIUserLanguage?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||'');
   return LANGS.has(raw)?raw:'';
+}
+function translate(source){
+  const lang=locale();
+  return lang?(M[source]?.[lang]||source):source;
 }
 function translateText(root=document.body){
   const lang=locale();
@@ -83,7 +88,8 @@ function translateText(root=document.body){
 }
 let scheduled=false;
 function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;translateText();});}
-window.EKODIChurchPaymentI18n=Object.freeze({refresh:schedule});
+window.EKODIChurchPaymentI18n=Object.freeze({refresh:schedule,t:translate,getLocale:locale});
+window.dispatchEvent(new CustomEvent('ekodi:church-payment-i18n-ready',{detail:{locale:locale()}}));
 window.addEventListener('ekodi:locale-change',schedule);
 window.addEventListener('ekodi:church-extended-i18n-applied',schedule);
 window.addEventListener('ekodi:church-i18n-applied',schedule);
