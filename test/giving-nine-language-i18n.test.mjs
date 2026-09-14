@@ -24,3 +24,12 @@ test('giving static and dynamic copy is covered by all nine Church locales',()=>
     assert.ok(extended.includes(`add('${text}'`),`extended locale gap: ${text}`);
   }
 });
+
+
+test('homepage loads the payment locale patch after extended i18n',async()=>{
+  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+  const extendedScript='<script src="church-i18n-extended.js"></script>';
+  const paymentScript='<script src="church-i18n-payment-patch.js"></script>';
+  assert.ok(html.includes(paymentScript),'homepage must load church-i18n-payment-patch.js');
+  assert.ok(html.indexOf(extendedScript)<html.indexOf(paymentScript),'payment locale patch must load after extended church i18n');
+});
