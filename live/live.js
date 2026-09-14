@@ -27,20 +27,16 @@ function login(){
   return null;
 }
 function liveTitle(){const service=setupParams.get('service')||'';const date=setupParams.get('date')||'';const title=setupParams.get('title')||'';const scripture=setupParams.get('scripture')||'';const parts=[service,date,title,scripture].filter(Boolean);return parts.length?parts.join(' · ').slice(0,180):'에코디교회 실시간 예배'}
+function storedSupabaseSession(){try{return JSON.parse(localStorage.getItem('sb-renzehysxirjilvdxacv-auth-token')||'null')}catch{return null}}
 async function bootstrapCentralAuth(){
   try{
-    const hash=new URLSearchParams(location.hash.replace(/^#/,''));
-    const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-    const sb=createClient(SUPABASE_URL,PUBLISHABLE_KEY,{auth:{detectSessionInUrl:true,persistSession:true}});state.authClient=sb;
-    const handoff=hash.get('ekodi_token');
-    if(handoff){history.replaceState(null,'',location.pathname+location.search);const {error}=await sb.auth.verifyOtp({token_hash:handoff,type:hash.get('ekodi_type')||'email'});if(error)throw error}
-    const {data}=await sb.auth.getSession();
-    if(data?.session?.access_token)sessionStorage.setItem('ekodi-auth-token',data.session.access_token);
-  }catch(error){console.warn('[EKODI Live auth bootstrap]',error?.message||error)}
+    const hash=new URLSearchParams(location.hash.replace(/^#/,''));const handoff=hash.get('ekodi_token');
+    if(handoff){history.replaceState(null,'',location.pathname+location.search);const response=await fetch(`${SUPABASE_URL}/auth/v1/verify`,{method:'POST',headers:{apikey:PUBLISHABLE_KEY,'content-type':'application/json'},body:JSON.stringify({token_hash:handoff,type:hash.get('ekodi_type')||'email'})});const data=await response.json().catch(()=>({}));const access=data?.access_token||data?.session?.access_token||'';if(!response.ok||!access)throw new Error(data?.msg||data?.error_description||'login_handoff_failed');sessionStorage.setItem('ekodi-auth-token',access);return true}
+    const stored=storedSupabaseSession();if(stored?.access_token){sessionStorage.setItem('ekodi-auth-token',stored.access_token);return true}
+  }catch(error){console.warn('[EKODI Live auth bootstrap]',error?.message||error)}return false
 }
 async function refreshAuthToken(){
-  if(!state.authClient)return false;
-  try{const {data,error}=await state.authClient.auth.refreshSession();if(error||!data?.session?.access_token)return false;sessionStorage.setItem('ekodi-auth-token',data.session.access_token);return true}catch{return false}
+  try{const stored=storedSupabaseSession();if(!stored?.refresh_token)return false;const response=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:{apikey:PUBLISHABLE_KEY,'content-type':'application/json'},body:JSON.stringify({refresh_token:stored.refresh_token})});const data=await response.json().catch(()=>({}));if(!response.ok||!data?.access_token)return false;sessionStorage.setItem('ekodi-auth-token',data.access_token);localStorage.setItem('sb-renzehysxirjilvdxacv-auth-token',JSON.stringify({...stored,...data}));return true}catch{return false}
 }
 async function waitIce(pc){if(pc.iceGatheringState==='complete')return;await new Promise(resolve=>{const timer=setTimeout(resolve,2500);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(timer);resolve()}},{once:false})})}
 function providerDescription(data){return data?.provider?.sessionDescription||data?.provider?.data?.sessionDescription||data?.sessionDescription||null}
