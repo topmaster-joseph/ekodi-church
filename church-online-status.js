@@ -133,7 +133,8 @@
   }
 
   async function refresh(){
-    if(!nav||!entry||document.hidden)return;
+    if(document.hidden)return;
+    if(!nav||!entry)return;
     if(inFlight)return inFlight;
     const controller=new AbortController();
     const timeout=setTimeout(()=>controller.abort(),8000);
