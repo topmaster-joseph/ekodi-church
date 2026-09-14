@@ -39,10 +39,11 @@ test('live auth consumes handoff URL before OTP verification can fail',async()=>
   assert.notEqual(end,-1);
   const bootstrap=source.slice(start,end);
   const cleanIndex=bootstrap.indexOf("history.replaceState(null,'',location.pathname+location.search)");
-  const verifyIndex=bootstrap.indexOf('sb.auth.verifyOtp');
+  const verifyIndex=bootstrap.indexOf('/auth/v1/verify');
   assert.ok(cleanIndex>=0,'handoff URL must be cleared');
-  assert.ok(verifyIndex>=0,'OTP verification must still run');
+  assert.ok(verifyIndex>=0,'REST OTP verification must still run');
   assert.ok(cleanIndex<verifyIndex,'handoff URL must be cleared before OTP verification');
+  assert.doesNotMatch(source,/cdn\.jsdelivr\.net|esm\.sh/,'Live auth must not depend on a third-party script CDN');
 });
 
 test('central login redirect always uses the sanitized return target',async()=>{
