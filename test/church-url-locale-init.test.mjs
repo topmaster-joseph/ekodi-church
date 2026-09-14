@@ -31,3 +31,12 @@ test('header focus honors explicit ?lang= before persisted user locale',()=>{
   assert.match(header,/const requested=new URLSearchParams\(location\.search\)\.get\('lang'\)/);
   assert.match(header,/normalizeLocale\(requested\|\|window\.EKODIUserLanguage\?\.getLocale/);
 });
+
+
+test('homepage loads the extended church locale runtime after core i18n',async()=>{
+  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+  const coreScript='<script src="church-i18n.js"></script>';
+  const extendedScript='<script src="church-i18n-extended.js"></script>';
+  assert.ok(html.includes(extendedScript),'homepage must load church-i18n-extended.js');
+  assert.ok(html.indexOf(coreScript)<html.indexOf(extendedScript),'extended runtime must load after core church i18n');
+});
