@@ -7,18 +7,39 @@
   <meta name="robots" content="index,follow">
   <title>에코디교회 실시간 | EKODI CHURCH</title>
   <meta name="description" content="에코디교회 예배와 모임을 실시간으로 방송하고 참여하는 공간입니다.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./live.css">
 </head>
 <body>
-<header class="live-header">
-  <a class="brand" id="churchHomeLink" href="https://ekodi.kr/ekodichurch/" aria-label="에코디교회 홈">
-    <span class="mark">E</span><span><strong>에코디교회</strong><small>LIVE · EKODI CHURCH</small></span>
+<header class="church-shell-header" id="top">
+  <a class="church-shell-brand" id="churchHomeLink" href="https://ekodi.kr/ekodichurch/" aria-label="에코디교회 홈">
+    <span class="church-shell-mark" aria-hidden="true">E</span>
+    <span><strong>에코디교회</strong><small>EKODI CHURCH</small></span>
   </a>
-  <div class="header-actions">
+  <nav class="church-shell-nav" aria-label="에코디교회 주요 메뉴">
+    <a href="https://ekodi.kr/ekodichurch/#life-hub">오늘의 삶</a>
+    <a href="https://ekodi.kr/ekodichurch/#community">공동체</a>
+    <a class="active" href="https://ekodi.kr/ekodichurch/live/" aria-current="page"><span class="nav-live-dot" aria-hidden="true"></span>온라인</a>
+    <a href="https://ekodi.kr/ekodichurch/#location">오시는 길</a>
+    <a href="https://ekodi.kr/my/">My EKODI</a>
+  </nav>
+  <div class="church-shell-actions">
     <span class="live-state" id="liveState">방송 확인 중</span>
     <a href="https://ekodi.kr/ekodichurch/" data-leave-studio>교회 홈</a>
   </div>
 </header>
+
+<section class="live-page-banner" aria-labelledby="livePageTitle">
+  <div class="live-page-banner-copy">
+    <span class="live-page-kicker"><i aria-hidden="true"></i> LIVE · EKODI CHURCH</span>
+    <h1 id="livePageTitle">에코디교회 실시간 예배</h1>
+    <p>예배의 흐름을 방해하지 않도록 필요한 기능만 한곳에 모았습니다. 방송과 참여가 교회 홈페이지 안에서 자연스럽게 이어집니다.</p>
+  </div>
+  <a class="live-page-home" href="https://ekodi.kr/ekodichurch/" data-leave-studio>교회 홈페이지로</a>
+</section>
+
 <main class="live-shell">
   <section class="live-intro" id="entryView">
     <p class="eyebrow">WORSHIP · FELLOWSHIP · LIVE</p>
@@ -75,7 +96,7 @@
       <section class="layout-panel hidden" id="layoutPanel" aria-label="화면 구도 선택">
         <div class="section-heading"><strong>화면 구도</strong><small>방송 중에도 즉시 변경됩니다.</small></div>
         <div class="layout-options" id="layoutOptions">
-          <button type="button" data-layout="pip" class="active" aria-pressed="true"><span class="layout-preview layout-pip"></span><b>화면 + 발표자</b></button>
+          <button type="button" data-layout="pip" class="active" aria-pressed="true"><span class="layout-preview layout-pip"></span><b>발표자+공유(PIP)</b></button>
           <button type="button" data-layout="side"><span class="layout-preview layout-side"></span><b>70 : 30</b></button>
           <button type="button" data-layout="equal"><span class="layout-preview layout-equal"></span><b>1 : 1</b></button>
           <button type="button" data-layout="screen"><span class="layout-preview layout-screen"></span><b>공유화면만</b></button>
@@ -96,8 +117,9 @@
       </details>
 
       <section class="interpretation-box" aria-label="자동 통역 설정">
-        <div class="section-heading"><strong>통역</strong><span class="auto-badge">자동</span></div>
-        <p>원음은 자동으로 인식하고, 가능한 언어를 실시간 통역 대상으로 준비합니다.</p>
+        <div class="section-heading"><strong>통역: 자동</strong><span class="auto-badge">AUTO</span></div>
+        <p>원음을 자동으로 인식하고, 참여자가 선택한 언어에 맞춰 통역 가능한 언어를 준비합니다.</p>
+        <strong class="language-list-title">통역 가능 언어</strong>
         <div class="language-chips" id="languageChips" aria-label="통역 가능 언어"></div>
       </section>
 
@@ -130,6 +152,16 @@
     </aside>
   </section>
 </main>
+
+<footer class="church-shell-footer">
+  <a href="https://ekodi.kr/ekodichurch/" aria-label="에코디교회 홈"><strong>에코디교회</strong><small>EKODI CHURCH</small></a>
+  <p>말씀으로 삶을 읽고, 함께 살아내고 증언하는 공동체</p>
+  <nav aria-label="하단 메뉴">
+    <a href="https://ekodi.kr/privacy">개인정보처리방침</a>
+    <a href="https://ekodi.kr/terms">이용약관</a>
+    <a href="https://ekodi.kr/ekodichurch/#location">오시는 길</a>
+  </nav>
+</footer>
 <script src="./host-intent.js" defer></script>
 <script src="./live.js" defer></script>
 </body>
