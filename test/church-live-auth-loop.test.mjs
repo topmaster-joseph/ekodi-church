@@ -74,3 +74,13 @@ test('broadcast start preserves one explicit intent across login and does not er
   assert.match(startBroadcast,/login\(\)/);
   assert.match(source,/authenticated&&sessionStorage\.getItem\(PENDING_START_KEY\)==='1'/,'successful auth return should resume the single pending start');
 });
+
+test('live auth bootstrap accepts an existing same-tab EKODI token so login return can resume broadcast',async()=>{
+  const source=await liveSource();
+  const start=source.indexOf('async function bootstrapCentralAuth');
+  const end=source.indexOf('async function refreshAuthToken',start);
+  assert.notEqual(start,-1);
+  assert.notEqual(end,-1);
+  const bootstrap=source.slice(start,end);
+  assert.match(bootstrap,/if\(token\(\)\)\{sessionStorage\.removeItem\(AUTH_ATTEMPT_KEY\);return true\}/,'an already-established same-tab token must count as an authenticated return');
+});
