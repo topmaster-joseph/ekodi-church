@@ -44,6 +44,7 @@ async function bootstrapCentralAuth(){
     const hash=new URLSearchParams(location.hash.replace(/^#/,''));const handoff=hash.get('ekodi_token');
     if(handoff){history.replaceState(null,'',location.pathname+location.search);const response=await fetch(`${SUPABASE_URL}/auth/v1/verify`,{method:'POST',headers:{apikey:PUBLISHABLE_KEY,'content-type':'application/json'},body:JSON.stringify({token_hash:handoff,type:hash.get('ekodi_type')||'email'})});const data=await response.json().catch(()=>({}));const access=data?.access_token||data?.session?.access_token||'';if(!response.ok||!access)throw new Error(data?.msg||data?.error_description||'login_handoff_failed');sessionStorage.setItem('ekodi-auth-token',access);sessionStorage.removeItem(AUTH_ATTEMPT_KEY);return true}
     const stored=storedSupabaseSession();if(stored?.access_token){sessionStorage.setItem('ekodi-auth-token',stored.access_token);sessionStorage.removeItem(AUTH_ATTEMPT_KEY);return true}
+    if(token()){sessionStorage.removeItem(AUTH_ATTEMPT_KEY);return true}
   }catch(error){console.warn('[EKODI Live auth bootstrap]',error?.message||error)}return false
 }
 async function refreshAuthToken(){
