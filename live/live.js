@@ -5,6 +5,7 @@ const SUPABASE_URL='https://renzehysxirjilvdxacv.supabase.co';
 const PUBLISHABLE_KEY='sb_publishable_0QjB0WzZbjrd-FJ5D5cR7A_xUkXyOY_';
 const AUTH_ATTEMPT_KEY='ekodi-live-auth-attempt';
 const AUTH_ATTEMPT_WINDOW=120000;
+const PENDING_START_KEY='ekodi-live-pending-start';
 const PROGRAM_WIDTH=1280;
 const PROGRAM_HEIGHT=720;
 const SUPPORTED_LANGUAGES=[
@@ -17,7 +18,7 @@ const SUPPORTED_LANGUAGES=[
 const LAYOUTS=new Set(['presenter','pip','side','equal','screen']);
 const setupParams=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
-const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',startedAt:0,timerId:null};
+const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',startedAt:0,timerId:null,studioPrepared:false};
 
 function token(){try{const central=sessionStorage.getItem('ekodi-auth-token');if(central)return central;const church=JSON.parse(sessionStorage.getItem('ekodi-church-pastor-session')||'null');return church?.accessToken||''}catch{return''}}
 function headers(json=false,session=false){const h=new Headers();if(token())h.set('authorization',`Bearer ${token()}`);if(json)h.set('content-type','application/json');if(session&&state.session?.accessKey)h.set('x-ekodi-session-key',state.session.accessKey);return h}
@@ -29,8 +30,7 @@ function login(){
   const now=Date.now();
   const previous=Number(sessionStorage.getItem(AUTH_ATTEMPT_KEY)||0);
   if(previous&&now-previous<AUTH_ATTEMPT_WINDOW){
-    const clean=new URL(location.href);clean.searchParams.delete('mode');history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
-    state.hosting=false;show('studioView');note('로그인 인증이 방송 권한으로 연결되지 않았습니다. 자동 재로그인을 중단했습니다. 잠시 후 다시 시도해 주세요.');
+    state.hosting=false;show('studioView');setPhase('error');if($('goLiveButton'))$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note('로그인 인증이 방송 권한으로 연결되지 않았습니다. 자동 재로그인은 중단했습니다. 로그인 상태를 확인한 뒤 방송 시작을 다시 눌러 주세요.');
     return null;
   }
   sessionStorage.setItem(AUTH_ATTEMPT_KEY,String(now));
@@ -42,12 +42,12 @@ function storedSupabaseSession(){try{return JSON.parse(localStorage.getItem('sb-
 async function bootstrapCentralAuth(){
   try{
     const hash=new URLSearchParams(location.hash.replace(/^#/,''));const handoff=hash.get('ekodi_token');
-    if(handoff){history.replaceState(null,'',location.pathname+location.search);const response=await fetch(`${SUPABASE_URL}/auth/v1/verify`,{method:'POST',headers:{apikey:PUBLISHABLE_KEY,'content-type':'application/json'},body:JSON.stringify({token_hash:handoff,type:hash.get('ekodi_type')||'email'})});const data=await response.json().catch(()=>({}));const access=data?.access_token||data?.session?.access_token||'';if(!response.ok||!access)throw new Error(data?.msg||data?.error_description||'login_handoff_failed');sessionStorage.setItem('ekodi-auth-token',access);return true}
-    const stored=storedSupabaseSession();if(stored?.access_token){sessionStorage.setItem('ekodi-auth-token',stored.access_token);return true}
+    if(handoff){history.replaceState(null,'',location.pathname+location.search);const response=await fetch(`${SUPABASE_URL}/auth/v1/verify`,{method:'POST',headers:{apikey:PUBLISHABLE_KEY,'content-type':'application/json'},body:JSON.stringify({token_hash:handoff,type:hash.get('ekodi_type')||'email'})});const data=await response.json().catch(()=>({}));const access=data?.access_token||data?.session?.access_token||'';if(!response.ok||!access)throw new Error(data?.msg||data?.error_description||'login_handoff_failed');sessionStorage.setItem('ekodi-auth-token',access);sessionStorage.removeItem(AUTH_ATTEMPT_KEY);return true}
+    const stored=storedSupabaseSession();if(stored?.access_token){sessionStorage.setItem('ekodi-auth-token',stored.access_token);sessionStorage.removeItem(AUTH_ATTEMPT_KEY);return true}
   }catch(error){console.warn('[EKODI Live auth bootstrap]',error?.message||error)}return false
 }
 async function refreshAuthToken(){
-  try{const stored=storedSupabaseSession();if(!stored?.refresh_token)return false;const response=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:{apikey:PUBLISHABLE_KEY,'content-type':'application/json'},body:JSON.stringify({refresh_token:stored.refresh_token})});const data=await response.json().catch(()=>({}));if(!response.ok||!data?.access_token)return false;sessionStorage.setItem('ekodi-auth-token',data.access_token);localStorage.setItem('sb-renzehysxirjilvdxacv-auth-token',JSON.stringify({...stored,...data}));return true}catch{return false}
+  try{const stored=storedSupabaseSession();if(!stored?.refresh_token)return false;const response=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:{apikey:PUBLISHABLE_KEY,'content-type':'application/json'},body:JSON.stringify({refresh_token:stored.refresh_token})});const data=await response.json().catch(()=>({}));if(!response.ok||!data?.access_token)return false;sessionStorage.setItem('ekodi-auth-token',data.access_token);localStorage.setItem('sb-renzehysxirjilvdxacv-auth-token',JSON.stringify({...stored,...data}));sessionStorage.removeItem(AUTH_ATTEMPT_KEY);return true}catch{return false}
 }
 async function waitIce(pc){if(pc.iceGatheringState==='complete')return;await new Promise(resolve=>{const timer=setTimeout(resolve,2500);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(timer);resolve()}},{once:false})})}
 function providerDescription(data){return data?.provider?.sessionDescription||data?.provider?.data?.sessionDescription||data?.sessionDescription||null}
@@ -105,6 +105,7 @@ async function acquireCamera(){
   const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720}},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
   state.local=stream;setSourceVideo('cameraSource',stream);
   $('cameraButton')?.setAttribute('aria-pressed','true');$('micButton')?.setAttribute('aria-pressed','true');
+  if($('cameraButton'))$('cameraButton').textContent='카메라';if($('micButton'))$('micButton').textContent='마이크';
   if($('programPlaceholder'))$('programPlaceholder').classList.add('hidden');
   ensureProgramStream();
   return stream;
@@ -153,7 +154,7 @@ function stopScreenShare(message='화면공유를 종료했습니다.'){
   const stream=state.screen;if(!stream)return;state.screen=null;for(const track of stream.getTracks())if(track.readyState!=='ended')track.stop();setSourceVideo('screenSource',null);state.layout='presenter';$('layoutPanel')?.classList.add('hidden');$('screenButton')?.setAttribute('aria-pressed','false');if($('screenButton'))$('screenButton').textContent='PPT·화면공유';updateSourceRail();note(message);
 }
 async function shareScreen(){
-  if(!state.local){note('먼저 방송을 준비해 주세요.');return}
+  if(!state.local){note('먼저 카메라·마이크를 준비해 주세요.');return}
   if(state.screen){stopScreenShare();return}
   if(!state.canvasStream){note('현재 브라우저는 발표자와 공유화면 합성을 지원하지 않습니다. 최신 Chromium 브라우저에서 다시 시도해 주세요.');return}
   try{
@@ -166,18 +167,38 @@ async function toggleFullscreen(){
 }
 function syncFullscreenLabel(){const active=Boolean(document.fullscreenElement||document.webkitFullscreenElement);if($('fullscreenButton'))$('fullscreenButton').textContent=active?'전체화면 종료':'전체화면'}
 
-async function startHost(){
-  if(state.hosting)return;state.hosting=true;show('studioView');setPhase('preparing');note('방송 준비 중입니다. 카메라와 마이크 권한을 확인합니다.');
+async function prepareStudio(){
+  show('studioView');setPhase('preparing');note('카메라와 마이크를 준비하고 있습니다. 로그인은 방송 시작 시에만 확인합니다.');
   try{
-    const created=await createRoom();if(!created)return;state.room=created.room;$('roomTitle').textContent=state.room.title;$('shareLink').value=`https://ekodi.kr/ekodichurch/live/?room=${encodeURIComponent(state.room.id)}`;$('roomLinks').classList.remove('hidden');
-    const local=await acquireCamera();const program=ensureProgramStream()||local;await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'starting'})});await createSession(state.room.id,'owner');await publishStream(program,'program');setPhase('ready');note('준비 완료. 카메라·마이크·화면 구도를 확인한 뒤 방송을 시작하세요.');$('goLiveButton').disabled=false;setRecordingState(false,'녹화 준비');
-  }catch(error){state.hosting=false;setPhase('error');note(`방송 준비 실패: ${error.message}`)}
+    await acquireCamera();state.studioPrepared=true;setPhase('ready');$('goLiveButton').disabled=false;setRecordingState(false,'녹화 준비');
+    note(token()?'카메라·마이크 준비 완료. 방송 시작을 누르세요.':'카메라·마이크 준비 완료. 방송 시작을 누르면 로그인 후 방송이 시작됩니다.');
+    return true;
+  }catch(error){state.studioPrepared=false;setPhase('error');$('goLiveButton').disabled=true;note(`카메라·마이크 준비 실패: ${error.message}`);return false}
 }
-async function goLive(){if(!state.room)return;try{await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'live'})});state.isLive=true;setPhase('live');startLiveClock();setRecordingState(true,'● 녹화 중');$('goLiveButton').disabled=true;$('endLiveButton').disabled=false;note('방송 중입니다. 화면 구도는 방송을 끊지 않고 변경할 수 있습니다.')}catch(error){note(`방송 시작 실패: ${error.message}`)}}
+async function startHost(){
+  if(state.room&&state.session&&state.pc)return true;
+  if(state.hosting)return false;state.hosting=true;show('studioView');setPhase('preparing');note('방송 서버에 연결하고 있습니다.');
+  try{
+    const created=await createRoom();if(!created){state.hosting=false;return false}state.room=created.room;$('roomTitle').textContent=state.room.title;$('shareLink').value=`https://ekodi.kr/ekodichurch/live/?room=${encodeURIComponent(state.room.id)}`;$('roomLinks').classList.remove('hidden');
+    const local=state.local||await acquireCamera();const program=ensureProgramStream()||local;await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'starting'})});await createSession(state.room.id,'owner');await publishStream(program,'program');setPhase('ready');note('미디어 연결이 완료되었습니다. 방송을 시작합니다.');setRecordingState(false,'녹화 준비');return true;
+  }catch(error){state.hosting=false;setPhase('error');$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 준비 실패: ${error.message}`);return false}
+}
+async function goLive(){if(!state.room)return false;try{await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'live'})});state.isLive=true;setPhase('live');startLiveClock();setRecordingState(true,'● 녹화 중');$('goLiveButton').disabled=true;$('endLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note('방송 중입니다. 화면 구도는 방송을 끊지 않고 변경할 수 있습니다.');return true}catch(error){$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 시작 실패: ${error.message}`);return false}}
+async function startBroadcast(){
+  if(state.isLive)return;
+  sessionStorage.setItem(PENDING_START_KEY,'1');$('goLiveButton').disabled=true;
+  if(!state.studioPrepared){const prepared=await prepareStudio();if(!prepared){sessionStorage.removeItem(PENDING_START_KEY);return}}
+  if(!token()){
+    if(await refreshAuthToken())return startBroadcast();
+    $('goLiveButton').disabled=false;login();return;
+  }
+  const ready=await startHost();if(!ready){if(document.visibilityState!=='hidden')$('goLiveButton').disabled=false;return}
+  await goLive();
+}
 async function endLive(){
   if(!state.room)return;
   try{
-    await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ending'})});if(state.session)await api(`/rooms/${state.room.id}/sessions/${state.session.id}/leave`,{method:'POST',session:true,body:'{}'}).catch(()=>{});state.pc?.close();state.isLive=false;stopLiveClock();setRecordingState(false,'녹화 종료');if(state.screen)stopScreenShare('');state.local?.getTracks().forEach(t=>t.stop());state.canvasStream?.getTracks().forEach(t=>t.stop());cancelAnimationFrame(state.animationFrame);await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ended'})});setPhase('ended');$('endLiveButton').disabled=true;$('goLiveButton').disabled=true;note('방송이 종료되었습니다.');
+    await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ending'})});if(state.session)await api(`/rooms/${state.room.id}/sessions/${state.session.id}/leave`,{method:'POST',session:true,body:'{}'}).catch(()=>{});state.pc?.close();state.isLive=false;stopLiveClock();setRecordingState(false,'녹화 종료');if(state.screen)stopScreenShare('');state.local?.getTracks().forEach(t=>t.stop());state.canvasStream?.getTracks().forEach(t=>t.stop());cancelAnimationFrame(state.animationFrame);await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ended'})});setPhase('ended');$('endLiveButton').disabled=true;$('goLiveButton').disabled=true;sessionStorage.removeItem(PENDING_START_KEY);note('방송이 종료되었습니다.');
   }catch(error){note(`방송 종료 처리 실패: ${error.message}`)}
 }
 
@@ -199,9 +220,14 @@ document.querySelectorAll('[data-layout]').forEach(button=>button.addEventListen
 document.querySelectorAll('[data-leave-studio],.brand').forEach(link=>link.addEventListener('click',guardLiveExit));
 window.addEventListener('beforeunload',guardLiveExit);
 document.addEventListener('fullscreenchange',syncFullscreenLabel);document.addEventListener('webkitfullscreenchange',syncFullscreenLabel);
-$('hostButton').addEventListener('click',startHost);$('joinButton').addEventListener('click',()=>joinViewer());$('goLiveButton').addEventListener('click',goLive);$('endLiveButton').addEventListener('click',endLive);$('screenButton').addEventListener('click',shareScreen);$('fullscreenButton').addEventListener('click',toggleFullscreen);
-$('cameraButton').addEventListener('click',async()=>{try{const stream=await acquireCamera();const track=stream.getVideoTracks()[0];if(!track)return note('사용 가능한 카메라가 없습니다.');track.enabled=!track.enabled;$('cameraButton').setAttribute('aria-pressed',String(track.enabled));$('cameraButton').textContent=track.enabled?'카메라':'카메라 꺼짐';note(track.enabled?'카메라가 켜졌습니다.':'카메라를 껐습니다.')}catch(error){note(`카메라 사용 불가: ${error.message}`)}});
+$('hostButton').addEventListener('click',prepareStudio);$('joinButton').addEventListener('click',()=>joinViewer());$('goLiveButton').addEventListener('click',startBroadcast);$('endLiveButton').addEventListener('click',endLive);$('screenButton').addEventListener('click',shareScreen);$('fullscreenButton').addEventListener('click',toggleFullscreen);
+$('cameraButton').addEventListener('click',async()=>{try{if(!state.local){await acquireCamera();state.studioPrepared=true;setPhase('ready');$('goLiveButton').disabled=false;return note('카메라가 켜졌습니다.')}const track=state.local.getVideoTracks()[0];if(!track)return note('사용 가능한 카메라가 없습니다.');track.enabled=!track.enabled;$('cameraButton').setAttribute('aria-pressed',String(track.enabled));$('cameraButton').textContent=track.enabled?'카메라':'카메라 꺼짐';note(track.enabled?'카메라가 켜졌습니다.':'카메라를 껐습니다.')}catch(error){note(`카메라 사용 불가: ${error.message}`)}});
 $('micButton').addEventListener('click',()=>{const track=state.local?.getAudioTracks?.()[0];if(!track)return note('먼저 카메라·마이크를 준비해 주세요.');track.enabled=!track.enabled;$('micButton').setAttribute('aria-pressed',String(track.enabled));$('micButton').textContent=track.enabled?'마이크':'마이크 꺼짐';note(track.enabled?'마이크가 켜졌습니다.':'마이크를 껐습니다.')});
 $('copyLinkButton').addEventListener('click',async()=>{await navigator.clipboard?.writeText?.($('shareLink').value);note('참여 링크를 복사했습니다.')});$('requestSpeakButton').addEventListener('click',()=>{if(!token())return login();note('발언 참여 승인은 다음 단계에서 제공됩니다.','viewerStatus')});
-void bootstrapCentralAuth().finally(()=>{if(setupParams.get('mode')==='studio')startHost();else if(setupParams.get('room'))joinViewer(setupParams.get('room'));else refreshLive()});
+void bootstrapCentralAuth().then(async authenticated=>{
+  if(setupParams.get('mode')==='studio'){
+    const prepared=await prepareStudio();
+    if(prepared&&authenticated&&sessionStorage.getItem(PENDING_START_KEY)==='1')await startBroadcast();
+  }else if(setupParams.get('room'))joinViewer(setupParams.get('room'));else refreshLive();
+});
 })();
