@@ -1,5 +1,5 @@
 (() => {
-  const endpoint='https://api.ekodi.kr/api/partner-news/public?tenant=ekodi-church&service=church&limit=6';
+  const endpoint='/api/partner-news/public?tenant=ekodi-church&service=church&limit=6';
   const host=document.getElementById('partner-news-feed');
   const status=document.getElementById('partner-news-status');
   const section=document.getElementById('partner-news');
