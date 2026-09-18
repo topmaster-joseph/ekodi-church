@@ -298,7 +298,7 @@ function ensureProgramStream(){
   state.canvasStream=canvas.captureStream(30);state.program=new MediaStream([...state.canvasStream.getVideoTracks(),...state.local.getAudioTracks()]);$('mainVideo').srcObject=state.program;$('mainVideo').play?.().catch(()=>{});cancelAnimationFrame(state.animationFrame);drawProgram();return state.program;
 }
 function overlayDefaults(type,index=0){
-  const video=type!=='chat';const w=video?.26:.34,h=video?.146:.38;
+  const isVideo=type!=='chat';const w=isVideo ? .26 : .34,h=isVideo ? .146 : .38;
   return {x:Math.max(.02,Math.min(.72,.04+(index%3)*.29)),y:Math.max(.04,Math.min(.72,.08+Math.floor(index/3)*.22)),w,h};
 }
 function createHiddenVideo(stream,id){
