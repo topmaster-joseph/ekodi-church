@@ -12,9 +12,10 @@ test('public church partner news is read-only and published-only', async () => {
   assert.ok(html.includes('id="partner-news-feed"'));
   assert.ok(html.includes('partner-news.js'));
   assert.ok(html.includes('partner-news.css'));
-  assert.ok(js.includes('/api/partner-news/public?tenant=ekodi-church&service=church'));
+  assert.ok(js.includes("const endpoint='/api/partner-news/public?tenant=ekodi-church&service=church&limit=6'"));
   assert.ok(js.includes("item.status==='PUBLISHED'"));
   assert.ok(!js.includes('/api/church/admin/partner-news'));
-  assert.ok(headers.includes("connect-src 'self' https://api.ekodi.kr"));
+  assert.ok(headers.includes("connect-src 'self';"));
+  assert.ok(!headers.includes('api.ekodi.kr'));
   assert.ok(css.includes('.partner-news-feed'));
 });
