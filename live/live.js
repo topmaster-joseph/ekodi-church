@@ -9,6 +9,7 @@ const PENDING_START_KEY='ekodi-live-pending-start';
 const PROGRAM_WIDTH=1280;
 const PROGRAM_HEIGHT=720;
 const PIP_SIZE=.25;
+const RECORD_PART_TARGET=6*1024*1024;
 const SUPPORTED_LANGUAGES=[
   {code:'en',label:'English'},
   {code:'zh',label:'中文'},
@@ -19,7 +20,7 @@ const SUPPORTED_LANGUAGES=[
 const LAYOUTS=new Set(['presenter','pip','side','equal','screen']);
 const setupParams=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
-const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,startedAt:0,timerId:null,studioPrepared:false};
+const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,recording:null,startedAt:0,timerId:null,studioPrepared:false};
 
 function token(){try{const central=sessionStorage.getItem('ekodi-auth-token');if(central)return central;const church=JSON.parse(sessionStorage.getItem('ekodi-church-pastor-session')||'null');return church?.accessToken||''}catch{return''}}
 function headers(json=false,session=false){const h=new Headers();if(token())h.set('authorization',`Bearer ${token()}`);if(json)h.set('content-type','application/json');if(session&&state.session?.accessKey)h.set('x-ekodi-session-key',state.session.accessKey);return h}
@@ -97,6 +98,96 @@ function formatElapsed(ms){const seconds=Math.max(0,Math.floor(ms/1000));const h
 function startLiveClock(){state.startedAt=Date.now();clearInterval(state.timerId);const update=()=>{if($('liveTimer'))$('liveTimer').textContent=formatElapsed(Date.now()-state.startedAt)};update();state.timerId=setInterval(update,1000)}
 function stopLiveClock(reset=false){clearInterval(state.timerId);state.timerId=null;if(reset&&$('liveTimer'))$('liveTimer').textContent='00:00:00'}
 function setRecordingState(active,label='녹화 준비'){if(!$('recordingStatus'))return;$('recordingStatus').textContent=label;$('recordingStatus').dataset.recording=active?'true':'false';if($('recordingButton'))$('recordingButton').textContent=active?'● 녹화 중':'녹화 자동'}
+
+function recordingMime(){
+  for(const type of ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'])if(globalThis.MediaRecorder?.isTypeSupported?.(type))return type;
+  return 'video/webm';
+}
+async function uploadRecordingBlob(rec,blob){
+  const response=await fetch(`${API}/rooms/${encodeURIComponent(state.room.id)}/recordings/${encodeURIComponent(rec.id)}/parts/${rec.part++}`,{
+    method:'PUT',
+    headers:{authorization:`Bearer ${token()}`,'content-type':rec.mime},
+    body:blob,
+    cache:'no-store'
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||`recording_part_${response.status}`);
+  return data;
+}
+function flushRecordingPart(rec,force=false){
+  if(!rec||!rec.pending.length||(!force&&rec.pendingBytes<RECORD_PART_TARGET))return;
+  const blob=new Blob(rec.pending,{type:rec.mime});
+  rec.pending=[];rec.pendingBytes=0;
+  rec.queue=rec.queue.then(()=>uploadRecordingBlob(rec,blob)).catch(error=>{
+    rec.failed=true;
+    setRecordingState(false,'녹화 저장 지연');
+    note(`녹화 저장 지연: ${error.message}. 실시간 방송은 계속됩니다.`);
+  });
+}
+async function startManagedRecording(){
+  const source=state.program||state.local;
+  if(!state.room||!source)return false;
+  if(!globalThis.MediaRecorder){
+    setRecordingState(false,'녹화 미지원');
+    note('현재 브라우저는 녹화를 지원하지 않습니다. 실시간 방송은 계속됩니다.');
+    return false;
+  }
+  try{
+    const mime=recordingMime();
+    const created=await api(`/rooms/${state.room.id}/recordings`,{method:'POST',body:JSON.stringify({mimeType:mime,title:liveTitle(),retentionDays:180})});
+    const rec={id:created.recording.id,mime,part:1,pending:[],pendingBytes:0,queue:Promise.resolve(),failed:false,media:null};
+    const media=new MediaRecorder(source,{mimeType:mime});
+    rec.media=media;state.recording=rec;
+    media.ondataavailable=event=>{
+      if(!event.data?.size)return;
+      rec.pending.push(event.data);
+      rec.pendingBytes+=event.data.size;
+      flushRecordingPart(rec,false);
+    };
+    media.onerror=event=>{
+      rec.failed=true;
+      setRecordingState(false,'녹화 오류');
+      note(`녹화 오류: ${event.error?.message||'recording_error'}. 실시간 방송은 계속됩니다.`);
+    };
+    media.start(5000);
+    setRecordingState(true,'● 녹화 중');
+    note('방송 중입니다. 녹화본은 안전 저장 후 EKODI 공유드라이브로 보관됩니다.');
+    return true;
+  }catch(error){
+    state.recording=null;
+    setRecordingState(false,'녹화 준비 실패');
+    note(`방송은 시작됐지만 녹화 준비에 실패했습니다: ${error.message}`);
+    return false;
+  }
+}
+async function stopManagedRecording(){
+  const rec=state.recording;
+  if(!rec)return {ok:false,skipped:true};
+  try{
+    if(rec.media?.state!=='inactive'){
+      await new Promise(resolve=>{
+        rec.media.addEventListener('stop',resolve,{once:true});
+        rec.media.stop();
+      });
+    }
+    flushRecordingPart(rec,true);
+    await rec.queue;
+    if(rec.failed){
+      await api(`/rooms/${state.room.id}/recordings/${rec.id}/abort`,{method:'POST',body:'{}'}).catch(()=>{});
+      setRecordingState(false,'녹화 저장 실패');
+      return {ok:false,failed:true};
+    }
+    const done=await api(`/rooms/${state.room.id}/recordings/${rec.id}/finalize`,{method:'POST',body:'{}'});
+    setRecordingState(false,done.archive?.ok?'공유드라이브 보관 완료':'녹화 저장 완료 · 보관 대기');
+    return {ok:true,...done};
+  }catch(error){
+    setRecordingState(false,'녹화 확정 실패');
+    note(`방송은 종료됐지만 녹화 확정에 실패했습니다: ${error.message}`);
+    return {ok:false,error};
+  }finally{
+    state.recording=null;
+  }
+}
 
 async function createRoom(){
   const body={tenant:TENANT,mode:'worship',title:liveTitle(),interactiveParticipants:6,languages:selectedLanguages(),durationMinutes:180,recording:true,...broadcastSelection(),publicViewers:true,ai:true,metadata:{service:setupParams.get('service')||'',date:setupParams.get('date')||'',scripture:setupParams.get('scripture')||'',messageTitle:setupParams.get('title')||'',preacher:setupParams.get('preacher')||'',notice:setupParams.get('notice')||'',interpretationMode:'auto',sourceLanguage:'auto',supportedLanguages:selectedLanguages()}};
@@ -239,7 +330,7 @@ async function startHost(){
     const local=state.local||await acquireCamera();const program=ensureProgramStream()||local;await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'starting'})});await createSession(state.room.id,'owner');await publishStream(program,'program');setPhase('ready');note('미디어 연결이 완료되었습니다. 방송을 시작합니다.');setRecordingState(false,'녹화 준비');return true;
   }catch(error){state.hosting=false;setPhase('error');$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 준비 실패: ${error.message}`);return false}
 }
-async function goLive(){if(!state.room)return false;try{await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'live'})});state.isLive=true;setPhase('live');startLiveClock();setRecordingState(true,'● 녹화 중');$('goLiveButton').disabled=true;$('endLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note('방송 중입니다. 화면 구도는 방송을 끊지 않고 변경할 수 있습니다.');return true}catch(error){$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 시작 실패: ${error.message}`);return false}}
+async function goLive(){if(!state.room)return false;try{await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'live'})});state.isLive=true;setPhase('live');startLiveClock();$('goLiveButton').disabled=true;$('endLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);setRecordingState(false,'녹화 준비 중');await startManagedRecording();return true}catch(error){$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 시작 실패: ${error.message}`);return false}}
 async function startBroadcast(){
   if(state.isLive)return;
   sessionStorage.setItem(PENDING_START_KEY,'1');$('goLiveButton').disabled=true;
@@ -254,7 +345,16 @@ async function startBroadcast(){
 async function endLive(){
   if(!state.room)return;
   try{
-    await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ending'})});if(state.session)await api(`/rooms/${state.room.id}/sessions/${state.session.id}/leave`,{method:'POST',session:true,body:'{}'}).catch(()=>{});state.pc?.close();state.isLive=false;stopLiveClock();setRecordingState(false,'녹화 종료');if(state.screen)stopScreenShare('');state.local?.getTracks().forEach(t=>t.stop());state.canvasStream?.getTracks().forEach(t=>t.stop());cancelAnimationFrame(state.animationFrame);await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ended'})});setPhase('ended');$('endLiveButton').disabled=true;$('goLiveButton').disabled=true;sessionStorage.removeItem(PENDING_START_KEY);note('방송이 종료되었습니다.');
+    await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ending'})});
+    const recordingResult=await stopManagedRecording();
+    if(state.session)await api(`/rooms/${state.room.id}/sessions/${state.session.id}/leave`,{method:'POST',session:true,body:'{}'}).catch(()=>{});
+    state.pc?.close();state.isLive=false;stopLiveClock();
+    if(state.screen)stopScreenShare('');
+    state.local?.getTracks().forEach(t=>t.stop());state.canvasStream?.getTracks().forEach(t=>t.stop());cancelAnimationFrame(state.animationFrame);
+    await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ended'})});
+    setPhase('ended');$('endLiveButton').disabled=true;$('goLiveButton').disabled=true;sessionStorage.removeItem(PENDING_START_KEY);
+    if(recordingResult?.ok)note(recordingResult.archive?.ok?'방송 종료 · 녹화본 공유드라이브 보관 완료':'방송 종료 · 녹화본 저장 완료, 공유드라이브 보관 대기');
+    else if(!recordingResult?.error)note('방송이 종료되었습니다.');
   }catch(error){note(`방송 종료 처리 실패: ${error.message}`)}
 }
 
