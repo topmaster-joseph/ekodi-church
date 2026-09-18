@@ -20,7 +20,7 @@ const SUPPORTED_LANGUAGES=[
 const LAYOUTS=new Set(['presenter','pip','side','equal','screen']);
 const setupParams=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
-const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
+const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,chatMessages:[],chatTimer:null,participantTimer:null,recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
 
 function token(){try{const central=sessionStorage.getItem('ekodi-auth-token');if(central)return central;const church=JSON.parse(sessionStorage.getItem('ekodi-church-pastor-session')||'null');return church?.accessToken||''}catch{return''}}
 function headers(json=false,session=false){const h=new Headers();if(token())h.set('authorization',`Bearer ${token()}`);if(json)h.set('content-type','application/json');if(session&&state.session?.accessKey)h.set('x-ekodi-session-key',state.session.accessKey);return h}
@@ -94,11 +94,11 @@ async function loadExternalDestinations(){
 }
 function lockDestinationSelection(){document.querySelectorAll('#externalDestinations input[data-destination]').forEach(input=>input.disabled=true);if($('refreshDestinationsButton'))$('refreshDestinationsButton').disabled=true}
 function renderLanguageOptions(){
-  const chips=$('languageChips');
-  if(chips){chips.replaceChildren(...SUPPORTED_LANGUAGES.map(language=>{const span=document.createElement('span');span.textContent=language.label;span.dataset.language=language.code;return span}))}
-  const select=$('viewerLanguage');
-  if(select){for(const language of SUPPORTED_LANGUAGES){if(select.querySelector(`option[value="${language.code}"]`))continue;const option=document.createElement('option');option.value=language.code;option.textContent=language.label;select.append(option)}}
-  if($('interpretationStatus'))$('interpretationStatus').textContent=`통역 자동 · ${SUPPORTED_LANGUAGES.length}개 언어`;
+  const targets=[$('languageChips'),$('viewerLanguageChips')].filter(Boolean);
+  for(const chips of targets){
+    chips.replaceChildren(...SUPPORTED_LANGUAGES.map(language=>{const span=document.createElement('span');span.textContent=language.label;span.dataset.language=language.code;return span}));
+  }
+  if($('interpretationStatus'))$('interpretationStatus').textContent='자동동시통역 가능';
 }
 function setPhase(phase){
   const order=['idle','ready','live','ended'];
@@ -249,6 +249,29 @@ function drawCovered(ctx,video,x,y,w,h){
   if(!video||!video.videoWidth||!video.videoHeight){ctx.fillStyle='#142019';ctx.fillRect(x,y,w,h);return}
   const scale=Math.max(w/video.videoWidth,h/video.videoHeight);const sw=w/scale;const sh=h/scale;const sx=(video.videoWidth-sw)/2;const sy=(video.videoHeight-sh)/2;ctx.drawImage(video,sx,sy,sw,sh,x,y,w,h);
 }
+function drawChatOverlay(ctx,overlay,w,h){
+  const x=Math.round(overlay.x*w),y=Math.round(overlay.y*h),ow=Math.round(overlay.w*w),oh=Math.round(overlay.h*h);
+  ctx.save();ctx.fillStyle='rgba(16,21,18,.82)';ctx.fillRect(x,y,ow,oh);ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=2;ctx.strokeRect(x,y,ow,oh);
+  ctx.fillStyle='#fff';ctx.font='700 22px Pretendard, sans-serif';ctx.fillText('실시간 채팅',x+18,y+30);
+  const rows=state.chatMessages.slice(-6);ctx.font='500 18px Pretendard, sans-serif';let lineY=y+60;
+  for(const row of rows){
+    const name=String(row.displayName||'참여자').slice(0,16),message=String(row.message||'').slice(0,70);
+    ctx.fillStyle='#b9d1c1';ctx.font='700 16px Pretendard, sans-serif';ctx.fillText(name,x+18,lineY);
+    ctx.fillStyle='#fff';ctx.font='500 17px Pretendard, sans-serif';const maxWidth=Math.max(80,ow-36);let text=message;
+    while(ctx.measureText(text).width>maxWidth&&text.length>4)text=text.slice(0,-2);
+    if(text!==message)text+='…';ctx.fillText(text,x+18,lineY+22);lineY+=51;if(lineY>y+oh-20)break;
+  }
+  ctx.restore();
+}
+function drawOverlaySources(ctx,w,h){
+  for(const overlay of state.overlays.values()){
+    if(!overlay.visible)continue;
+    if(overlay.type==='chat'){drawChatOverlay(ctx,overlay,w,h);continue}
+    const video=overlay.video;if(!video||!video.videoWidth)continue;
+    const x=Math.round(overlay.x*w),y=Math.round(overlay.y*h),ow=Math.round(overlay.w*w),oh=Math.round(overlay.h*h);
+    ctx.fillStyle='#f6f1e8';ctx.fillRect(x-3,y-3,ow+6,oh+6);drawCovered(ctx,video,x,y,ow,oh);
+  }
+}
 function drawProgram(){
   if(!state.ctx||!state.canvas)return;
   const ctx=state.ctx;const w=state.canvas.width;const h=state.canvas.height;const camera=$('cameraSource');const screen=$('screenSource');
@@ -263,6 +286,7 @@ function drawProgram(){
   }else if(layout==='pip'){
     drawContained(ctx,screen,0,0,w,h);const pw=Math.round(w*PIP_SIZE);const ph=Math.round(h*PIP_SIZE);const px=Math.round(w*state.presenterPosition.x);const py=Math.round(h*state.presenterPosition.y);ctx.fillStyle='#f6f1e8';ctx.fillRect(px-4,py-4,pw+8,ph+8);drawCovered(ctx,camera,px,py,pw,ph);
   }else drawCovered(ctx,camera,0,0,w,h);
+  drawOverlaySources(ctx,w,h);
   state.animationFrame=requestAnimationFrame(drawProgram);
 }
 function ensureProgramStream(){
@@ -272,6 +296,100 @@ function ensureProgramStream(){
     state.program=state.local;$('mainVideo').srcObject=state.local;$('mainVideo').play?.().catch(()=>{});note('이 브라우저에서는 합성 화면 대신 카메라 원본으로 방송합니다. 최신 Chromium 브라우저 사용을 권장합니다.');return state.program;
   }
   state.canvasStream=canvas.captureStream(30);state.program=new MediaStream([...state.canvasStream.getVideoTracks(),...state.local.getAudioTracks()]);$('mainVideo').srcObject=state.program;$('mainVideo').play?.().catch(()=>{});cancelAnimationFrame(state.animationFrame);drawProgram();return state.program;
+}
+function overlayDefaults(type,index=0){
+  const video=type!=='chat';const w=video?.26:.34,h=video?.146:.38;
+  return {x:Math.max(.02,Math.min(.72,.04+(index%3)*.29)),y:Math.max(.04,Math.min(.72,.08+Math.floor(index/3)*.22)),w,h};
+}
+function createHiddenVideo(stream,id){
+  const video=document.createElement('video');video.id=`overlayVideo-${id.replace(/[^a-z0-9_-]/gi,'-')}`;video.className='source-video';video.autoplay=true;video.playsInline=true;video.muted=true;video.srcObject=stream;$('programScreen')?.append(video);video.play?.().catch(()=>{});return video;
+}
+function ensureOverlay(id,{type='video',label='소스',stream=null,video=null}={}){
+  let overlay=state.overlays.get(id);
+  if(!overlay){overlay={id,type,label,visible:false,...overlayDefaults(type,state.overlays.size),stream:null,video:null};state.overlays.set(id,overlay)}
+  overlay.type=type;overlay.label=label||overlay.label;
+  if(stream&&overlay.stream!==stream){overlay.stream=stream;overlay.video?.remove?.();overlay.video=createHiddenVideo(stream,id)}
+  else if(video)overlay.video=video;
+  syncOverlayHandles();return overlay;
+}
+function overlayHandle(id){
+  const layer=$('programOverlayLayer');if(!layer)return null;
+  let handle=layer.querySelector(`[data-program-overlay="${CSS.escape(id)}"]`);
+  if(handle)return handle;
+  const overlay=state.overlays.get(id);if(!overlay)return null;
+  handle=document.createElement('div');handle.className='program-drag-handle';handle.dataset.programOverlay=id;handle.tabIndex=0;
+  const title=document.createElement('span');title.textContent=overlay.label;
+  const close=document.createElement('button');close.type='button';close.className='overlay-remove';close.textContent='×';close.setAttribute('aria-label',`${overlay.label} 삭제`);close.addEventListener('click',event=>{event.stopPropagation();removeOverlay(id)});
+  handle.append(title,close);layer.append(handle);
+  handle.addEventListener('pointerdown',beginOverlayDrag);handle.addEventListener('pointermove',moveOverlayDrag);handle.addEventListener('pointerup',endOverlayDrag);handle.addEventListener('pointercancel',endOverlayDrag);
+  return handle;
+}
+function syncOverlayHandles(){
+  const box=programContentBox();if(!box)return;
+  for(const overlay of state.overlays.values()){
+    let handle=overlayHandle(overlay.id);if(!handle)continue;
+    handle.classList.toggle('hidden',!overlay.visible);if(!overlay.visible)continue;
+    handle.style.left=`${box.left+overlay.x*box.width}px`;handle.style.top=`${box.top+overlay.y*box.height}px`;handle.style.width=`${overlay.w*box.width}px`;handle.style.height=`${overlay.h*box.height}px`;handle.querySelector('span').textContent=overlay.label;
+  }
+}
+function addOverlay(id){
+  const overlay=state.overlays.get(id);if(!overlay)return false;overlay.visible=true;syncOverlayHandles();renderSourceCards();return true;
+}
+function removeOverlay(id){
+  const overlay=state.overlays.get(id);if(!overlay)return;overlay.visible=false;syncOverlayHandles();renderSourceCards();note(`${overlay.label}을 방송화면에서 제거했습니다.`);
+}
+function beginOverlayDrag(event){
+  if(event.target.closest('.overlay-remove'))return;
+  const id=event.currentTarget.dataset.programOverlay,overlay=state.overlays.get(id),box=programContentBox();if(!overlay||!box)return;
+  const rect=event.currentTarget.getBoundingClientRect();state.overlayDrag={id,pointerId:event.pointerId,offsetX:event.clientX-rect.left,offsetY:event.clientY-rect.top};
+  event.currentTarget.setPointerCapture?.(event.pointerId);event.currentTarget.classList.add('dragging');event.preventDefault();
+}
+function moveOverlayDrag(event){
+  const drag=state.overlayDrag;if(!drag||drag.pointerId!==event.pointerId)return;const overlay=state.overlays.get(drag.id),box=programContentBox();if(!overlay||!box)return;
+  const left=box.screenRect.left+box.left,top=box.screenRect.top+box.top;
+  overlay.x=Math.max(0,Math.min(1-overlay.w,(event.clientX-left-drag.offsetX)/box.width));overlay.y=Math.max(0,Math.min(1-overlay.h,(event.clientY-top-drag.offsetY)/box.height));syncOverlayHandles();
+}
+function endOverlayDrag(event){if(!state.overlayDrag||state.overlayDrag.pointerId!==event.pointerId)return;event.currentTarget.classList.remove('dragging');state.overlayDrag=null}
+function sourceCard(id,label,{subtitle='화면에 추가',onDelete=null}={}){
+  const card=document.createElement('div');card.className='source-card-row';card.draggable=true;card.dataset.overlayId=id;
+  const copy=document.createElement('div');const strong=document.createElement('strong');strong.textContent=label;const small=document.createElement('small');small.textContent=subtitle;copy.append(strong,small);
+  const add=document.createElement('button');add.type='button';add.textContent=state.overlays.get(id)?.visible?'화면에서 빼기':'추가';add.addEventListener('click',()=>state.overlays.get(id)?.visible?removeOverlay(id):addOverlay(id));
+  card.append(copy,add);
+  if(onDelete){const del=document.createElement('button');del.type='button';del.className='source-delete';del.textContent='연결 해제';del.addEventListener('click',onDelete);card.append(del)}
+  card.addEventListener('dragstart',event=>event.dataTransfer?.setData('text/ekodi-overlay',id));return card;
+}
+function renderSourceCards(){
+  const chat=$('chatOverlaySource');if(chat){const active=state.overlays.get('chat')?.visible;chat.querySelector('span').textContent=active?'화면에서 빼기':'화면에 추가';chat.classList.toggle('active',Boolean(active))}
+  const cameras=$('extraCameraSources');if(cameras){cameras.replaceChildren();for(const [id,item] of state.extraCameras)cameras.append(sourceCard(id,item.label,{onDelete:()=>disconnectExtraCamera(id)}))}
+  const participants=$('participantSources');if(participants){participants.replaceChildren();for(const [id,item] of state.participantPulls)participants.append(sourceCard(id,item.label,{subtitle:item.ready?'화면에 추가':'연결 중'}))}
+}
+async function refreshCameraDevices(){
+  if(!navigator.mediaDevices?.enumerateDevices)return;
+  const devices=(await navigator.mediaDevices.enumerateDevices()).filter(device=>device.kind==='videoinput');
+  const primary=state.local?.getVideoTracks?.()[0]?.getSettings?.().deviceId||'';
+  for(const select of [$('extraCameraSelect'),$('participantCameraSelect')].filter(Boolean)){
+    const selected=select.value;select.replaceChildren(new Option(select.id==='extraCameraSelect'?'추가 카메라 선택':'카메라 선택',''));
+    for(const [index,device] of devices.entries()){if(select.id==='extraCameraSelect'&&device.deviceId===primary)continue;const option=new Option(device.label||`카메라 ${index+1}`,device.deviceId);select.append(option)}
+    if([...select.options].some(option=>option.value===selected))select.value=selected;
+  }
+}
+async function connectExtraCamera(){
+  const deviceId=$('extraCameraSelect')?.value;if(!deviceId)return note('추가할 카메라를 선택해 주세요.');
+  const existing=[...state.extraCameras.values()].find(item=>item.deviceId===deviceId);if(existing){addOverlay(existing.id);return}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{deviceId:{exact:deviceId},width:{ideal:1280},height:{ideal:720}},audio:false});
+    const label=$('extraCameraSelect').selectedOptions?.[0]?.textContent||'추가 카메라',id=`camera:${crypto.randomUUID()}`;
+    const overlay=ensureOverlay(id,{type:'video',label,stream});state.extraCameras.set(id,{id,deviceId,label,stream,overlay});renderSourceCards();note(`${label} 연결 완료. 끌어서 방송화면에 추가할 수 있습니다.`);
+  }catch(error){note(`추가 카메라 연결 실패: ${error.message}`)}
+}
+function disconnectExtraCamera(id){
+  const item=state.extraCameras.get(id);if(!item)return;item.stream.getTracks().forEach(track=>track.stop());item.overlay?.video?.remove?.();state.extraCameras.delete(id);state.overlays.delete(id);syncOverlayHandles();renderSourceCards();note(`${item.label} 연결을 해제했습니다.`);
+}
+function setupProgramDrop(){
+  const screen=$('programScreen');if(!screen)return;
+  screen.addEventListener('dragover',event=>{if(event.dataTransfer?.types?.includes('text/ekodi-overlay')){event.preventDefault();screen.classList.add('drop-ready')}});
+  screen.addEventListener('dragleave',()=>screen.classList.remove('drop-ready'));
+  screen.addEventListener('drop',event=>{event.preventDefault();screen.classList.remove('drop-ready');const id=event.dataTransfer?.getData('text/ekodi-overlay');if(id)addOverlay(id)});
 }
 function sourceThumb(stream,label){const wrap=document.createElement('div');wrap.className='source-thumb';const video=document.createElement('video');video.autoplay=true;video.playsInline=true;video.muted=true;video.srcObject=stream;const text=document.createElement('span');text.textContent=label;wrap.append(video,text);return wrap}
 function updateSourceRail(){const rail=$('thumbnailRail');if(!rail)return;rail.replaceChildren();if(!state.screen){rail.classList.add('hidden');return}if(state.local)rail.append(sourceThumb(state.local,'발표자'));rail.append(sourceThumb(state.screen,'공유화면'));rail.classList.remove('hidden')}
