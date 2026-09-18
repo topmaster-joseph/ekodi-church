@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="church-life-hub.css">
   <link rel="stylesheet" href="church-footer.css">
   <link rel="stylesheet" href="church-live-entry.css">
+  <link rel="stylesheet" href="partner-news.css">
 </head>
 <body data-ekodi-footer-mode="service">
   <header class="site-header" id="top">
@@ -31,6 +32,7 @@
     <nav id="main-nav" aria-label="주요 메뉴">
       <a href="#life-hub">오늘의 삶</a>
       <a href="#community">공동체</a>
+      <a href="#partner-news">협력소식</a>
       <a class="nav-online" href="#online"><span class="nav-online-dot" aria-hidden="true"></span>온라인</a>
       <a href="#location">오시는 길</a>
       <a class="shell-my" href="https://ekodi.kr/my/">My EKODI</a>
@@ -61,8 +63,9 @@
           <a href="#life-hub"><span>02</span><strong>오늘의 삶</strong><small>말씀으로 해석하고 기록하기</small></a>
           <a href="#community"><span>03</span><strong>공동체 활동</strong><small>교회·선교회·찬양·이웃·모임</small></a>
           <a href="#worship"><span>04</span><strong>예배</strong><small>함께 모이는 시간</small></a>
-          <a href="#online"><span>05</span><strong>실시간 연결</strong><small>예배·영상·화상 교제</small></a>
-          <a href="#location"><span>06</span><strong>함께하기</strong><small>주소와 연락처</small></a>
+          <a href="#partner-news"><span>05</span><strong>협력 소식</strong><small>함께하는 기관·단체의 이야기</small></a>
+          <a href="#online"><span>06</span><strong>실시간 연결</strong><small>예배·영상·화상 교제</small></a>
+          <a href="#location"><span>07</span><strong>함께하기</strong><small>주소와 연락처</small></a>
         </div>
       </div>
       <p class="scroll-cue">SCROLL <span></span></p>
@@ -206,8 +209,19 @@
       </div>
     </section>
 
+    <section class="partner-news-section section" id="partner-news" aria-labelledby="partner-news-title">
+      <div class="section-label reveal">06 · PARTNER NEWS</div>
+      <div class="partner-news-head reveal">
+        <div><p class="eyebrow">TOGETHER · WITH OUR NEIGHBORS</p><h2 id="partner-news-title">함께 걷는 이들의 소식</h2></div>
+        <div><p>에코디교회와 함께 섬기고 배우며 협력하는 기관·단체의 소식 가운데 확인·승인된 내용만 나눕니다.</p><span class="partner-news-status" id="partner-news-status" role="status">협력 소식 확인 중</span></div>
+      </div>
+      <div class="partner-news-feed" id="partner-news-feed" aria-live="polite">
+        <p class="partner-news-empty">협력 소식을 불러오고 있습니다.</p>
+      </div>
+    </section>
+
     <section class="online section" id="online">
-      <div class="section-label reveal">06 · ONLINE</div>
+      <div class="section-label reveal">07 · ONLINE</div>
       <div class="online-head reveal"><p class="eyebrow">WORSHIP · MEDITATION · LIVE</p><h2>흩어져 있어도,<br><em>말씀과 얼굴로 연결됩니다.</em></h2><p>예배를 보고, 말씀을 묵상하고, 얼굴을 마주하며 교제하는 세 개의 입구를 한 화면에 담았습니다.</p></div>
 
       <div class="online-triad" id="youtube">
@@ -265,7 +279,7 @@
 
     <section class="community-visit" id="location">
       <div class="community-visit-copy reveal">
-        <div class="section-label">07 · TOGETHER</div>
+        <div class="section-label">08 · TOGETHER</div>
         <p class="eyebrow">COME AS YOU ARE</p>
         <h2>함께 예배하고,<br><em>함께 살아냅니다.</em></h2>
         <p>교회는 건물보다 사람에 가깝습니다. 처음 오시는 분도, 다시 시작하는 분도 한 식탁과 한 걸음에서 자연스럽게 연결될 수 있도록 열어 둡니다.</p>
@@ -311,5 +325,6 @@
   <script src="church-shell-i18n.js"></script>
   <script src="church-life-hub-i18n.js"></script>
   <script src="giving.js"></script>
+  <script src="partner-news.js"></script>
 </body>
 </html>
