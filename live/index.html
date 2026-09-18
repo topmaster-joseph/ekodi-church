@@ -104,17 +104,21 @@
         </div>
       </section>
 
-      <details class="broadcast-settings">
-        <summary>송출 설정 <span>에코디 기본</span></summary>
-        <fieldset class="field broadcast-mode"><legend>방송 방식</legend>
-          <label><input type="radio" name="broadcastMode" value="ekodi" checked> 에코디 홈페이지에서만 방송</label>
-          <label><input type="radio" name="broadcastMode" value="multistream"> 유튜브 등 외부 플랫폼에도 동시방송</label>
-          <div id="externalDestinations" class="destination-options hidden">
-            <label><input type="checkbox" value="youtube" checked> YouTube</label>
-            <label><input type="checkbox" value="rtmp"> 기타 RTMP</label>
-            <small>외부 채널 연결 실패 시에도 에코디 방송은 계속됩니다.</small>
+      <details class="broadcast-settings" open>
+        <summary>송출 · 저장 설정 <span>내부 저장 기본</span></summary>
+        <section class="delivery-settings" aria-label="송출 및 저장 설정">
+          <div class="delivery-fixed">
+            <span class="delivery-check" aria-hidden="true">✓</span>
+            <div><strong>EKODI 내부 방송 · 자동 저장</strong><small>방송 시작과 동시에 내부 녹화가 기본으로 실행됩니다.</small></div>
+            <span class="delivery-default">기본</span>
           </div>
-        </fieldset>
+          <div class="external-head">
+            <div><strong>외부 동시방송</strong><small>연결된 채널 중 준비된 채널만 선택합니다.</small></div>
+            <button id="refreshDestinationsButton" type="button">채널 확인</button>
+          </div>
+          <div id="externalDestinations" class="destination-options"><small>로그인 후 외부 방송 채널을 불러옵니다.</small></div>
+          <p class="delivery-note">외부 채널에 문제가 생겨도 EKODI 내부 방송과 녹화는 계속됩니다.</p>
+        </section>
       </details>
 
       <section class="interpretation-box" aria-label="자동 통역 설정">
