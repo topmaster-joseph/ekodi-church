@@ -101,3 +101,11 @@ test('interpretation UI is concise and only shows automatic simultaneous interpr
   assert.doesNotMatch(html,/원음을 자동으로 인식/);
   assert.doesNotMatch(html,/class="auto-badge"/);
 });
+
+
+test('presenter PIP can be removed from the composed program without ending screen share',async()=>{
+  const [html,js]=await Promise.all([read('live/index.html'),read('live/live.js')]);
+  assert.match(html,/id="presenterRemoveButton"/);
+  assert.match(js,/presenterRemoveButton/);
+  assert.match(js,/setLayout\('screen'\)/);
+});
