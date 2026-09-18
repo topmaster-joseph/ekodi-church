@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const API='https://api.ekodi.kr/api/realtime';
+const API='https://ekodi.kr/api/realtime';
 const TENANT='ekodichurch';
 const $=id=>document.getElementById(id);
 const state={room:null,pc:null,session:null,local:null,screen:null,remote:new MediaStream(),hosting:false};
@@ -8,7 +8,7 @@ function headers(json=false,session=false){const h=new Headers();if(token())h.se
 async function api(path,options={}){const h=headers(Boolean(options.body),Boolean(options.session));const r=await fetch(`${API}${path}`,{...options,headers:h,cache:'no-store'});const data=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(data.error||`HTTP ${r.status}`);e.status=r.status;e.data=data;throw e}return data}
 function show(id){for(const key of ['entryView','studioView','viewerView'])$(key)?.classList.add('hidden');$(id)?.classList.remove('hidden')}
 function note(message,target='statusLog'){$(target).textContent=message}
-function login(){const back='https://ekodi.kr/ekodichurch/live/?mode=studio';location.href=`https://ekodi.kr/auth/?site=church&return_to=${encodeURIComponent(back)}`}
+function login(){const back='https://ekodi.kr/ekodichurch/live/admin';location.href=`https://ekodi.kr/auth/?site=church&return_to=${encodeURIComponent(back)}`}
 async function waitIce(pc){if(pc.iceGatheringState==='complete')return;await new Promise(resolve=>{const timer=setTimeout(resolve,2500);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(timer);resolve()}},{once:false})})}
 function providerDescription(data){return data?.provider?.sessionDescription||data?.provider?.data?.sessionDescription||data?.sessionDescription||null}
 function selectedLanguages(){return [...$('languageSelect').selectedOptions].map(x=>x.value)}
@@ -52,5 +52,6 @@ async function joinViewer(roomId=''){
 }
 async function refreshLive(){try{const live=await api(`/live?tenant=${TENANT}`);$('liveState').textContent=live.live?'현재 LIVE':'현재 대기';if(live.live)$('joinButton').textContent='현재 방송 참여하기'}catch{$('liveState').textContent='상태 확인 필요'}}
 $('hostButton').addEventListener('click',startHost);$('joinButton').addEventListener('click',()=>joinViewer());$('goLiveButton').addEventListener('click',goLive);$('endLiveButton').addEventListener('click',endLive);$('screenButton').addEventListener('click',shareScreen);$('cameraButton').addEventListener('click',async()=>{try{await acquireCamera();note('카메라가 준비되었습니다.')}catch(error){note(`카메라 사용 불가: ${error.message}`)}});$('micButton').addEventListener('click',()=>{const track=state.local?.getAudioTracks?.()[0];if(!track)return note('먼저 카메라·마이크를 준비해 주세요.');track.enabled=!track.enabled;$('micButton').textContent=track.enabled?'마이크':'마이크 꺼짐'});$('copyLinkButton').addEventListener('click',async()=>{await navigator.clipboard?.writeText?.($('shareLink').value);note('참여 링크를 복사했습니다.')});$('requestSpeakButton').addEventListener('click',()=>{if(!token())return login();note('발언 참여 승인은 다음 단계에서 제공됩니다.','viewerStatus')});
-const params=new URLSearchParams(location.search);if(params.get('mode')==='studio')startHost();else if(params.get('room'))joinViewer(params.get('room'));else refreshLive();
+window.EKODIChurchLive={getState:()=>state,api,token,note};
+const params=new URLSearchParams(location.search);if(location.pathname.replace(/\/$/,'').endsWith('/live/admin')||params.get('mode')==='studio')startHost();else if(params.get('room'))joinViewer(params.get('room'));else refreshLive();
 })();
