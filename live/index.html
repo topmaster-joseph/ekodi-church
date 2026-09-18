@@ -58,6 +58,7 @@
         <video id="mainVideo" autoplay playsinline muted></video>
         <video id="cameraSource" class="source-video" autoplay playsinline muted aria-hidden="true"></video>
         <video id="screenSource" class="source-video" autoplay playsinline muted aria-hidden="true"></video>
+        <div class="presenter-drag-handle hidden" id="presenterDragHandle" role="button" aria-label="발표자 화면 위치 이동"><span>발표자 위치 이동</span></div>
         <div class="program-placeholder" id="programPlaceholder">
           <strong>EKODI CHURCH LIVE</strong>
           <span>카메라 또는 화면공유를 시작해 주세요.</span>
@@ -94,7 +95,7 @@
       </div>
 
       <section class="layout-panel hidden" id="layoutPanel" aria-label="화면 구도 선택">
-        <div class="section-heading"><strong>화면 구도</strong><small>방송 중에도 즉시 변경됩니다.</small></div>
+        <div class="section-heading"><strong>화면 구도</strong><small>PIP 발표자는 화면에서 마우스로 이동할 수 있습니다.</small></div>
         <div class="layout-options" id="layoutOptions">
           <button type="button" data-layout="pip" class="active" aria-pressed="true"><span class="layout-preview layout-pip"></span><b>발표자+공유(PIP)</b></button>
           <button type="button" data-layout="side"><span class="layout-preview layout-side"></span><b>70 : 30</b></button>

@@ -84,3 +84,17 @@ test('live auth bootstrap accepts an existing same-tab EKODI token so login retu
   const bootstrap=source.slice(start,end);
   assert.match(bootstrap,/if\(token\(\)\)\{sessionStorage\.removeItem\(AUTH_ATTEMPT_KEY\);return true\}/,'an already-established same-tab token must count as an authenticated return');
 });
+
+
+test('failed one-time handoff falls back to the persisted same-origin EKODI session instead of stopping the broadcast start',async()=>{
+  const source=await liveSource();
+  const start=source.indexOf('async function bootstrapCentralAuth');
+  const end=source.indexOf('async function refreshAuthToken',start);
+  const bootstrap=source.slice(start,end);
+  const verifyIndex=bootstrap.indexOf('/auth/v1/verify');
+  const fallbackIndex=bootstrap.indexOf('const stored=storedSupabaseSession()',verifyIndex);
+  assert.ok(verifyIndex>=0);
+  assert.ok(fallbackIndex>verifyIndex,'persisted EKODI session fallback must run after a failed one-time handoff');
+  assert.match(bootstrap,/\[EKODI Live auth handoff\]/);
+  assert.match(bootstrap,/stored\?\.refresh_token&&await refreshAuthToken\(\)/);
+});

@@ -49,3 +49,20 @@ test('live studio guards accidental navigation while broadcasting',async()=>{
   assert.match(js,/beforeunload/);
   assert.match(js,/if\(!state\.isLive\)return/);
 });
+
+
+test('presenter PIP can be repositioned by pointer without republishing the live stream',async()=>{
+  const [html,js,css]=await Promise.all([read('live/index.html'),read('live/live.js'),read('live/live.css')]);
+  assert.match(html,/id="presenterDragHandle"/);
+  assert.match(html,/PIP 발표자는 화면에서 마우스로 이동/);
+  assert.match(js,/presenterPosition:\{x:/);
+  assert.match(js,/function beginPresenterDrag\(event\)/);
+  assert.match(js,/function movePresenterDrag\(event\)/);
+  assert.match(js,/state\.presenterPosition\.x=/);
+  assert.match(js,/state\.presenterPosition\.y=/);
+  assert.match(js,/drawCovered\(ctx,camera,px,py,pw,ph\)/);
+  assert.match(css,/\.presenter-drag-handle/);
+  const start=js.indexOf('function beginPresenterDrag');
+  const end=js.indexOf('function setLayout',start);
+  assert.doesNotMatch(js.slice(start,end),/publishStream\(|addTrack\(/);
+});
