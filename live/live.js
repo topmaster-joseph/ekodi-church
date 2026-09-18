@@ -499,6 +499,110 @@ async function endLive(){
   }catch(error){note(`방송 종료 처리 실패: ${error.message}`)}
 }
 
+function renderChatMessages(){
+  for(const id of ['studioChatMessages','viewerChatMessages']){
+    const root=$(id);if(!root)continue;root.replaceChildren();
+    for(const row of state.chatMessages.slice(-80)){
+      const item=document.createElement('div');item.className='chat-message';
+      const meta=document.createElement('span');meta.textContent=row.displayName||'참여자';
+      const text=document.createElement('p');text.textContent=row.message||'';item.append(meta,text);root.append(item);
+    }
+    root.scrollTop=root.scrollHeight;
+  }
+}
+async function refreshChat(){
+  if(!state.room)return;
+  try{
+    const data=await api(`/rooms/${encodeURIComponent(state.room.id)}/chat`);
+    state.chatMessages=data.messages||[];renderChatMessages();
+    if($('studioChatState'))$('studioChatState').textContent='연결';if($('viewerChatState'))$('viewerChatState').textContent='연결';
+  }catch(error){
+    if($('studioChatState'))$('studioChatState').textContent='확인 필요';if($('viewerChatState'))$('viewerChatState').textContent='확인 필요';
+  }
+}
+function startChatPolling(){clearInterval(state.chatTimer);void refreshChat();state.chatTimer=setInterval(refreshChat,2000)}
+async function sendChat(inputId,roleLabel){
+  const input=$(inputId);const message=input?.value?.trim();if(!message||!state.room)return;
+  input.disabled=true;
+  try{await api(`/rooms/${encodeURIComponent(state.room.id)}/chat`,{method:'POST',body:JSON.stringify({message,displayName:roleLabel})});input.value='';await refreshChat()}
+  catch(error){note(`채팅 전송 실패: ${error.message}`,inputId.startsWith('viewer')?'viewerStatus':'statusLog')}
+  finally{input.disabled=false;input.focus()}
+}
+async function decideParticipation(id,status){
+  if(!state.room)return;
+  try{await api(`/rooms/${encodeURIComponent(state.room.id)}/participation-requests/${encodeURIComponent(id)}`,{method:'PATCH',body:JSON.stringify({status})});await refreshParticipantSources()}
+  catch(error){note(`참여 요청 처리 실패: ${error.message}`)}
+}
+function renderParticipationRequests(rows=[]){
+  const root=$('participantRequests');if(!root)return;root.replaceChildren();
+  const pending=rows.filter(row=>row.status==='pending');
+  if(!pending.length){const empty=document.createElement('small');empty.textContent='대기 중인 카메라 참여 요청이 없습니다.';root.append(empty);return}
+  for(const row of pending){
+    const item=document.createElement('div');item.className='participant-request';
+    const name=document.createElement('strong');name.textContent=row.displayName||'참여자';
+    const actions=document.createElement('div');
+    const approve=document.createElement('button');approve.type='button';approve.textContent='승인';approve.addEventListener('click',()=>decideParticipation(row.id,'approved'));
+    const reject=document.createElement('button');reject.type='button';reject.textContent='거절';reject.addEventListener('click',()=>decideParticipation(row.id,'rejected'));
+    actions.append(approve,reject);item.append(name,actions);root.append(item);
+  }
+}
+async function ensureParticipantPull(source){
+  const id=`participant:${source.actorKey}`;if(state.participantPulls.has(id))return state.participantPulls.get(id);
+  const created=await api(`/rooms/${encodeURIComponent(state.room.id)}/sessions`,{method:'POST',body:JSON.stringify({role:'viewer'})});
+  const session=created.session,pc=new RTCPeerConnection({iceServers:created.iceServers||[]}),stream=new MediaStream();
+  const label=source.displayName||'참여자 카메라';
+  const overlay=ensureOverlay(id,{type:'video',label,stream});const item={id,label,source,session,pc,stream,overlay,ready:false};state.participantPulls.set(id,item);renderSourceCards();
+  pc.ontrack=event=>{for(const track of event.streams?.[0]?.getTracks?.()||[event.track])if(!stream.getTracks().some(x=>x.id===track.id))stream.addTrack(track);item.ready=true;overlay.video?.play?.().catch(()=>{});renderSourceCards()};
+  const pulled=await sessionApi(`/rooms/${encodeURIComponent(state.room.id)}/sessions/${encodeURIComponent(session.id)}/pull`,session.accessKey,{method:'POST',body:JSON.stringify({tracks:(source.tracks||[]).map(track=>({trackName:track.trackName}))})});
+  if(!pulled.empty){const offer=providerDescription(pulled);if(offer?.sdp){await pc.setRemoteDescription(offer);const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await waitIce(pc);await sessionApi(`/rooms/${encodeURIComponent(state.room.id)}/sessions/${encodeURIComponent(session.id)}/renegotiate`,session.accessKey,{method:'PUT',body:JSON.stringify({sessionDescription:pc.localDescription})})}}
+  return item;
+}
+async function refreshParticipantSources(){
+  if(!state.room||!token())return;
+  try{
+    const [requests,sources]=await Promise.all([
+      api(`/rooms/${encodeURIComponent(state.room.id)}/participation-requests`),
+      api(`/rooms/${encodeURIComponent(state.room.id)}/participant-sources`)
+    ]);
+    renderParticipationRequests(requests.requests||[]);
+    for(const source of (sources.sources||[]).slice(0,6))if(!state.participantPulls.has(`participant:${source.actorKey}`))await ensureParticipantPull(source).catch(error=>note(`참여자 카메라 연결 실패: ${error.message}`));
+    renderSourceCards();
+  }catch(error){if(error.status!==404)note(`참여자 상태 확인 실패: ${error.message}`)}
+}
+function startParticipantMonitoring(){clearInterval(state.participantTimer);void refreshParticipantSources();state.participantTimer=setInterval(refreshParticipantSources,2500)}
+async function requestCameraParticipation(){
+  if(!state.room)return;
+  if(!token())return login(false);
+  try{
+    await api(`/rooms/${encodeURIComponent(state.room.id)}/participation-requests`,{method:'POST',body:JSON.stringify({displayName:'참여자'})});
+    if($('participantCameraState'))$('participantCameraState').textContent='승인 대기';note('카메라 참여 요청을 보냈습니다.','viewerStatus');startParticipantApprovalPolling();
+  }catch(error){note(`카메라 참여 요청 실패: ${error.message}`,'viewerStatus')}
+}
+function startParticipantApprovalPolling(){
+  if(state.participantTimer)clearInterval(state.participantTimer);
+  const poll=async()=>{if(!state.room||!token())return;try{const data=await api(`/rooms/${encodeURIComponent(state.room.id)}/participation-request/me`);const status=data.request?.status;if($('participantCameraState'))$('participantCameraState').textContent=status==='approved'?'승인됨':status==='rejected'?'거절됨':status==='pending'?'승인 대기':'대기';if(status==='approved'&&!state.participantPublish)await startParticipantCameraPublish()}catch{}};
+  void poll();state.participantTimer=setInterval(poll,2000);
+}
+async function startParticipantCameraPublish(){
+  if(state.participantPublish||!state.room)return;
+  try{
+    const deviceId=$('participantCameraSelect')?.value;
+    const constraints={video:deviceId?{deviceId:{exact:deviceId},width:{ideal:1280},height:{ideal:720}}:{width:{ideal:1280},height:{ideal:720}},audio:false};
+    const stream=await navigator.mediaDevices.getUserMedia(constraints),preview=$('participantCameraPreview');if(preview){preview.srcObject=stream;preview.classList.remove('hidden');preview.play?.().catch(()=>{})}
+    const created=await api(`/rooms/${encodeURIComponent(state.room.id)}/sessions`,{method:'POST',body:JSON.stringify({role:'presenter'})}),session=created.session,pc=new RTCPeerConnection({iceServers:created.iceServers||[]});
+    for(const track of stream.getTracks())pc.addTrack(track,stream);
+    const offer=await pc.createOffer();await pc.setLocalDescription(offer);await waitIce(pc);const tracks=trackPayload(pc,stream,'camera');
+    const published=await sessionApi(`/rooms/${encodeURIComponent(state.room.id)}/sessions/${encodeURIComponent(session.id)}/publish`,session.accessKey,{method:'POST',body:JSON.stringify({sessionDescription:pc.localDescription,tracks})});
+    const answer=providerDescription(published);if(!answer?.sdp)throw new Error('media_server_answer_missing');await pc.setRemoteDescription(answer);
+    state.participantPublish={pc,session,stream};if($('participantCameraState'))$('participantCameraState').textContent='카메라 송출 중';note('카메라가 방송자에게 연결되었습니다.','viewerStatus');
+  }catch(error){if($('participantCameraState'))$('participantCameraState').textContent='연결 실패';note(`카메라 연결 실패: ${error.message}`,'viewerStatus')}
+}
+function cleanupCollaboration(){
+  clearInterval(state.chatTimer);clearInterval(state.participantTimer);state.chatTimer=null;state.participantTimer=null;
+  for(const item of state.participantPulls.values()){item.pc?.close();item.stream?.getTracks?.().forEach(track=>track.stop());item.overlay?.video?.remove?.()}
+  state.participantPulls.clear();
+  if(state.participantPublish){state.participantPublish.pc?.close();state.participantPublish.stream?.getTracks?.().forEach(track=>track.stop());state.participantPublish=null}
+}
 async function joinViewer(roomId=''){
   show('viewerView');note('현재 방송을 찾고 있습니다.','viewerStatus');
   try{let id=roomId;if(!id){const live=await api(`/live?tenant=${TENANT}`);if(!live.live||!live.room){$('viewerEmpty').querySelector('strong').textContent='현재 생방송이 없습니다';$('viewerEmpty').querySelector('span').textContent='예정된 예배 시간에 다시 참여해 주세요.';note('현재 진행 중인 공개 방송이 없습니다.','viewerStatus');return}id=live.room.id}
