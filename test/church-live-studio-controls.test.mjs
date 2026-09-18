@@ -34,7 +34,7 @@ test('screen layout changes reuse the program stream instead of republishing tra
 test('interpretation targets are automatic and displayed as supported languages',async()=>{
   const [html,js]=await Promise.all([read('live/index.html'),read('live/live.js')]);
   assert.match(html,/통역/);
-  assert.match(html,/class="auto-badge">자동</);
+  assert.match(html,/자동동시통역 가능/);
   assert.match(html,/id="languageChips"/);
   assert.doesNotMatch(html,/id="languageSelect"/);
   assert.match(js,/const SUPPORTED_LANGUAGES=/);
