@@ -66,3 +66,38 @@ test('presenter PIP can be repositioned by pointer without republishing the live
   const end=js.indexOf('function setLayout',start);
   assert.doesNotMatch(js.slice(start,end),/publishStream\(|addTrack\(/);
 });
+
+
+test('all auxiliary program sources are movable, removable, and composed into the program stream',async()=>{
+  const [html,js,css]=await Promise.all([read('live/index.html'),read('live/live.js'),read('live/live.css')]);
+  assert.match(html,/id="programOverlayLayer"/);
+  assert.match(html,/id="chatOverlaySource"/);
+  assert.match(html,/id="extraCameraSelect"/);
+  assert.match(html,/id="participantSources"/);
+  assert.match(js,/function ensureOverlay\(/);
+  assert.match(js,/function beginOverlayDrag\(event\)/);
+  assert.match(js,/function moveOverlayDrag\(event\)/);
+  assert.match(js,/function removeOverlay\(id\)/);
+  assert.match(js,/drawOverlaySources\(ctx,w,h\)/);
+  assert.match(css,/\.program-drag-handle/);
+  assert.match(css,/\.overlay-remove/);
+});
+
+test('live collaboration includes chat and moderated participant camera publishing',async()=>{
+  const [html,js]=await Promise.all([read('live/index.html'),read('live/live.js')]);
+  assert.match(html,/id="studioChatMessages"/);
+  assert.match(html,/id="viewerChatMessages"/);
+  assert.match(html,/id="participantCameraSelect"/);
+  assert.match(js,/\/chat/);
+  assert.match(js,/participation-requests/);
+  assert.match(js,/participant-sources/);
+  assert.match(js,/role:'presenter'/);
+});
+
+test('interpretation UI is concise and only shows automatic simultaneous interpretation with language list',async()=>{
+  const html=await read('live/index.html');
+  assert.match(html,/자동동시통역 가능/);
+  assert.match(html,/id="languageChips"/);
+  assert.doesNotMatch(html,/원음을 자동으로 인식/);
+  assert.doesNotMatch(html,/class="auto-badge"/);
+});
