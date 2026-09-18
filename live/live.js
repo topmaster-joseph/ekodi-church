@@ -457,7 +457,7 @@ function syncFullscreenLabel(){const active=Boolean(document.fullscreenElement||
 async function prepareStudio(){
   show('studioView');setPhase('preparing');note('카메라와 마이크를 준비하고 있습니다. 로그인은 방송 시작 시에만 확인합니다.');
   try{
-    await acquireCamera();state.studioPrepared=true;setPhase('ready');$('goLiveButton').disabled=false;setRecordingState(false,'녹화 준비');
+    await acquireCamera();await refreshCameraDevices();state.studioPrepared=true;setPhase('ready');$('goLiveButton').disabled=false;setRecordingState(false,'녹화 준비');
     await loadExternalDestinations();
     note(token()?'준비 완료. 내부 방송·자동 저장은 기본이며, 필요하면 외부 채널을 선택한 뒤 방송을 시작하세요.':'준비 완료. 내부 방송·자동 저장은 기본입니다. 외부 채널 선택은 로그인 후 사용할 수 있습니다.');
     return true;
@@ -468,7 +468,7 @@ async function startHost(){
   if(state.hosting)return false;state.hosting=true;show('studioView');setPhase('preparing');note('방송 서버에 연결하고 있습니다.');
   try{
     const created=await createRoom();if(!created){state.hosting=false;return false}state.room=created.room;$('roomTitle').textContent=state.room.title;$('shareLink').value=`https://ekodi.kr/ekodichurch/live/?room=${encodeURIComponent(state.room.id)}`;$('roomLinks').classList.remove('hidden');
-    const local=state.local||await acquireCamera();const program=ensureProgramStream()||local;await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'starting'})});await createSession(state.room.id,'owner');await publishStream(program,'program');setPhase('ready');note('미디어 연결이 완료되었습니다. 방송을 시작합니다.');setRecordingState(false,'녹화 준비');return true;
+    const local=state.local||await acquireCamera();const program=ensureProgramStream()||local;await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'starting'})});await createSession(state.room.id,'owner');await publishStream(program,'program');startChatPolling();startParticipantMonitoring();setPhase('ready');note('미디어 연결이 완료되었습니다. 방송을 시작합니다.');setRecordingState(false,'녹화 준비');return true;
   }catch(error){state.hosting=false;setPhase('error');$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 준비 실패: ${error.message}`);return false}
 }
 async function goLive(){if(!state.room)return false;try{await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'live'})});state.isLive=true;setPhase('live');startLiveClock();$('goLiveButton').disabled=true;$('endLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);lockDestinationSelection();setRecordingState(false,'녹화 준비 중');await startManagedRecording();return true}catch(error){$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 시작 실패: ${error.message}`);return false}}
@@ -494,6 +494,7 @@ async function endLive(){
     state.local?.getTracks().forEach(t=>t.stop());state.canvasStream?.getTracks().forEach(t=>t.stop());cancelAnimationFrame(state.animationFrame);
     await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ended'})});
     setPhase('ended');$('endLiveButton').disabled=true;$('goLiveButton').disabled=true;sessionStorage.removeItem(PENDING_START_KEY);
+    cleanupCollaboration();for(const id of [...state.extraCameras.keys()])disconnectExtraCamera(id);
     if(recordingResult?.ok)note(recordingResult.archive?.ok?'방송 종료 · 녹화본 공유드라이브 보관 완료':'방송 종료 · 녹화본 저장 완료, 공유드라이브 보관 대기');
     else if(!recordingResult?.error)note('방송이 종료되었습니다.');
   }catch(error){note(`방송 종료 처리 실패: ${error.message}`)}
@@ -606,7 +607,7 @@ function cleanupCollaboration(){
 async function joinViewer(roomId=''){
   show('viewerView');note('현재 방송을 찾고 있습니다.','viewerStatus');
   try{let id=roomId;if(!id){const live=await api(`/live?tenant=${TENANT}`);if(!live.live||!live.room){$('viewerEmpty').querySelector('strong').textContent='현재 생방송이 없습니다';$('viewerEmpty').querySelector('span').textContent='예정된 예배 시간에 다시 참여해 주세요.';note('현재 진행 중인 공개 방송이 없습니다.','viewerStatus');return}id=live.room.id}
-    const detail=await api(`/rooms/${encodeURIComponent(id)}`);state.room=detail.room;$('viewerTitle').textContent=state.room.title||'에코디교회 실시간';await createSession(id,'viewer');state.pc.ontrack=event=>{for(const track of event.streams?.[0]?.getTracks?.()||[event.track])if(!state.remote.getTracks().some(x=>x.id===track.id))state.remote.addTrack(track);$('viewerVideo').srcObject=state.remote;$('viewerEmpty').classList.add('hidden')};
+    const detail=await api(`/rooms/${encodeURIComponent(id)}`);state.room=detail.room;$('viewerTitle').textContent=state.room.title||'에코디교회 실시간';startChatPolling();await refreshCameraDevices().catch(()=>{});if(token())startParticipantApprovalPolling();await createSession(id,'viewer');state.pc.ontrack=event=>{for(const track of event.streams?.[0]?.getTracks?.()||[event.track])if(!state.remote.getTracks().some(x=>x.id===track.id))state.remote.addTrack(track);$('viewerVideo').srcObject=state.remote;$('viewerEmpty').classList.add('hidden')};
     const pulled=await api(`/rooms/${id}/sessions/${state.session.id}/pull`,{method:'POST',session:true,body:JSON.stringify({tracks:(detail.tracks||[]).map(track=>({trackName:track.track_name||track.trackName}))})});
     if(pulled.empty){note('방송방은 열려 있지만 아직 영상 트랙이 없습니다.','viewerStatus');return}
     const offer=providerDescription(pulled);if(!offer?.sdp)throw new Error('미디어 서버의 수신 제안이 없습니다.');await state.pc.setRemoteDescription(offer);const answer=await state.pc.createAnswer();await state.pc.setLocalDescription(answer);await waitIce(state.pc);await api(`/rooms/${id}/sessions/${state.session.id}/renegotiate`,{method:'PUT',session:true,body:JSON.stringify({sessionDescription:state.pc.localDescription})});note('실시간 방송에 연결되었습니다.','viewerStatus');
@@ -616,16 +617,24 @@ async function refreshLive(){try{const live=await api(`/live?tenant=${TENANT}`);
 function guardLiveExit(event){if(!state.isLive)return;const message='현재 방송 중입니다. 교회 홈으로 이동하면 이 브라우저의 송출이 종료될 수 있습니다. 이동하시겠습니까?';if(event?.type==='beforeunload'){event.preventDefault();event.returnValue='';return}if(!confirm(message))event.preventDefault()}
 
 renderLanguageOptions();
+ensureOverlay('chat',{type:'chat',label:'실시간 채팅'});
+setupProgramDrop();
+$('chatOverlaySource')?.addEventListener('dragstart',event=>event.dataTransfer?.setData('text/ekodi-overlay','chat'));
+$('chatOverlaySource')?.addEventListener('click',()=>state.overlays.get('chat')?.visible?removeOverlay('chat'):addOverlay('chat'));
+$('connectExtraCameraButton')?.addEventListener('click',connectExtraCamera);
+$('refreshParticipantSourcesButton')?.addEventListener('click',refreshParticipantSources);
+$('studioChatForm')?.addEventListener('submit',event=>{event.preventDefault();void sendChat('studioChatInput','방송자')});
+$('viewerChatForm')?.addEventListener('submit',event=>{event.preventDefault();void sendChat('viewerChatInput','참여자')});
 $('refreshDestinationsButton')?.addEventListener('click',()=>{if(!token())return login(true);loadExternalDestinations()});
 document.querySelectorAll('[data-layout]').forEach(button=>button.addEventListener('click',()=>setLayout(button.dataset.layout)));
 document.querySelectorAll('[data-leave-studio],.brand').forEach(link=>link.addEventListener('click',guardLiveExit));
 window.addEventListener('beforeunload',guardLiveExit);
-document.addEventListener('fullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle()});document.addEventListener('webkitfullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle()});window.addEventListener('resize',syncPresenterDragHandle);
+document.addEventListener('fullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});document.addEventListener('webkitfullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});window.addEventListener('resize',()=>{syncPresenterDragHandle();syncOverlayHandles()});
 $('presenterDragHandle')?.addEventListener('pointerdown',beginPresenterDrag);$('presenterDragHandle')?.addEventListener('pointermove',movePresenterDrag);$('presenterDragHandle')?.addEventListener('pointerup',endPresenterDrag);$('presenterDragHandle')?.addEventListener('pointercancel',endPresenterDrag);
 $('hostButton').addEventListener('click',prepareStudio);$('joinButton').addEventListener('click',()=>joinViewer());$('goLiveButton').addEventListener('click',startBroadcast);$('endLiveButton').addEventListener('click',endLive);$('screenButton').addEventListener('click',shareScreen);$('fullscreenButton').addEventListener('click',toggleFullscreen);
 $('cameraButton').addEventListener('click',async()=>{try{if(!state.local){await acquireCamera();state.studioPrepared=true;setPhase('ready');$('goLiveButton').disabled=false;return note('카메라가 켜졌습니다.')}const track=state.local.getVideoTracks()[0];if(!track)return note('사용 가능한 카메라가 없습니다.');track.enabled=!track.enabled;$('cameraButton').setAttribute('aria-pressed',String(track.enabled));$('cameraButton').textContent=track.enabled?'카메라':'카메라 꺼짐';note(track.enabled?'카메라가 켜졌습니다.':'카메라를 껐습니다.')}catch(error){note(`카메라 사용 불가: ${error.message}`)}});
 $('micButton').addEventListener('click',()=>{const track=state.local?.getAudioTracks?.()[0];if(!track)return note('먼저 카메라·마이크를 준비해 주세요.');track.enabled=!track.enabled;$('micButton').setAttribute('aria-pressed',String(track.enabled));$('micButton').textContent=track.enabled?'마이크':'마이크 꺼짐';note(track.enabled?'마이크가 켜졌습니다.':'마이크를 껐습니다.')});
-$('copyLinkButton').addEventListener('click',async()=>{await navigator.clipboard?.writeText?.($('shareLink').value);note('참여 링크를 복사했습니다.')});$('requestSpeakButton').addEventListener('click',()=>{if(!token())return login(false);note('발언 참여 승인은 다음 단계에서 제공됩니다.','viewerStatus')});
+$('copyLinkButton').addEventListener('click',async()=>{await navigator.clipboard?.writeText?.($('shareLink').value);note('참여 링크를 복사했습니다.')});$('requestSpeakButton').addEventListener('click',requestCameraParticipation);
 void bootstrapCentralAuth().then(async authenticated=>{
   if(setupParams.get('mode')==='studio'){
     const prepared=await prepareStudio();
