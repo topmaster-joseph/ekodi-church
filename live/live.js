@@ -415,6 +415,7 @@ function syncPresenterDragHandle(){
   handle.style.height=`${PIP_SIZE*box.height}px`;
 }
 function beginPresenterDrag(event){
+  if(event.target.closest?.('.overlay-remove'))return;
   if(!state.screen||state.layout!=='pip')return;
   const handle=$('presenterDragHandle');const box=programContentBox();if(!handle||!box)return;
   const rect=handle.getBoundingClientRect();state.presenterDrag={pointerId:event.pointerId,offsetX:event.clientX-rect.left,offsetY:event.clientY-rect.top};
