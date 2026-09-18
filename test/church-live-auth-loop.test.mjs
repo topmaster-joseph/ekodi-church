@@ -49,7 +49,7 @@ test('live auth consumes handoff URL before OTP verification can fail',async()=>
 
 test('central login redirect always uses the sanitized return target',async()=>{
   const source=await liveSource();
-  assert.match(source,/return_to=\$\{encodeURIComponent\(safeReturnTo\(\)\)\}/);
+  assert.match(source,/return_to=\$\{encodeURIComponent\(safeReturnTo\(studio\)\)\}/);
   assert.doesNotMatch(source,/const back=location\.href;location\.href=`https:\/\/ekodi\.kr\/auth/);
 });
 
@@ -71,7 +71,7 @@ test('broadcast start preserves one explicit intent across login and does not er
   assert.doesNotMatch(loginSource,/searchParams\.delete\('mode'\)/,'login guard must not erase studio intent');
   assert.match(startBroadcast,/sessionStorage\.setItem\(PENDING_START_KEY,'1'\)/);
   assert.match(startBroadcast,/if\(!token\(\)\)/);
-  assert.match(startBroadcast,/login\(\)/);
+  assert.match(startBroadcast,/login\(true\)/);
   assert.match(source,/authenticated&&sessionStorage\.getItem\(PENDING_START_KEY\)==='1'/,'successful auth return should resume the single pending start');
 });
 
