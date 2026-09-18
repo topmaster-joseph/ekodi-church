@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="community-visual.css">
   <link rel="stylesheet" href="church-life-hub.css">
   <link rel="stylesheet" href="church-footer.css">
-  <link rel="stylesheet" href="church-live-entry.css">
+  <link rel="stylesheet" href="church-live-embed.css">
 </head>
 <body data-ekodi-footer-mode="service">
   <header class="site-header" id="top">
@@ -66,14 +66,6 @@
         </div>
       </div>
       <p class="scroll-cue">SCROLL <span></span></p>
-    </section>
-
-    <section class="church-live-entry" data-ekodi-church-live-entry aria-label="에코디교회 실시간 방송">
-      <div><span>EKODI LIVE · CHURCH FIRST</span><strong>예배와 모임을 홈페이지에서 바로 방송하고 참여하세요.</strong><small>카메라·마이크·PPT/화면공유·참여자·녹화·다국어 통역을 하나의 Live Room에서 연결합니다.</small></div>
-      <div class="church-live-entry-actions">
-        <a class="church-live-host" href="https://ekodi.kr/ekodichurch/live/?mode=studio">방송하기</a>
-        <a class="church-live-join" href="https://ekodi.kr/ekodichurch/live/">참여하기</a>
-      </div>
     </section>
 
     <section class="intro section" id="about">
@@ -203,9 +195,9 @@
 
     <section class="online section" id="online">
       <div class="section-label reveal">06 · ONLINE</div>
-      <div class="online-head reveal"><p class="eyebrow">WORSHIP · MEDITATION · LIVE</p><h2>흩어져 있어도,<br><em>말씀과 얼굴로 연결됩니다.</em></h2><p>예배를 보고, 말씀을 묵상하고, 얼굴을 마주하며 교제하는 세 개의 입구를 한 화면에 담았습니다.</p></div>
+      <div class="online-head reveal"><p class="eyebrow">WORSHIP · LIVE</p><h2>흩어져 있어도,<br><em>예배와 얼굴로 연결됩니다.</em></h2><p>지난 예배는 유튜브로 보고, 지금 진행되는 예배와 모임은 같은 화면에서 바로 시청하고 참여합니다.</p></div>
 
-      <div class="online-triad" id="youtube">
+      <div class="online-triad online-live-grid" id="youtube">
         <article class="ministry-card media-card reveal">
           <div class="ministry-kicker"><span>01</span><small>WORSHIP</small></div>
           <h3>유튜브 예배</h3>
@@ -217,25 +209,22 @@
             <a class="button primary youtube-worship-link" href="https://www.youtube.com/@ekodichurch/videos" target="_blank" rel="noreferrer noopener">유튜브에서 예배 보기 ↗</a>
             <a class="button text" href="https://www.youtube.com/@ekodichurch" target="_blank" rel="noreferrer noopener">에코디교회 채널 ↗</a>
           </div>
-          <div class="channel-links"><a href="https://www.youtube.com/@ekodichurch" target="_blank" rel="noreferrer noopener">에코디교회 채널 ↗</a><a href="https://www.youtube.com/@ekodicommunity" target="_blank" rel="noreferrer noopener">에코디커뮤니티 채널 ↗</a></div>
         </article>
 
-        <article class="ministry-card devotion-card reveal" id="daily-devotion">
-          <div class="ministry-kicker"><span>02</span><small>MEDITATION</small></div>
-          <h3>묵상</h3>
-          <p>말씀을 읽고, 한 가지 질문을 품고, 오늘의 자리에서 한 걸음 살아냅니다.</p>
-          <div class="devotion-pulse"><strong>읽고</strong><i></i><strong>해석하고</strong><i></i><strong>살아내기</strong></div>
-          <blockquote>“오늘 이 말씀은 내 삶과 우리 공동체를 어떻게 다시 보게 하는가?”</blockquote>
-          <a class="button primary" href="#life-hub">오늘의 삶 기록하기</a>
-        </article>
-
-        <article class="ministry-card live-card reveal">
-          <div class="ministry-kicker"><span>03</span><small>LIVE</small></div>
-          <h3>실시간 화상</h3>
-          <p>멀리 있어도 얼굴을 마주하고 기도와 나눔에 참여할 수 있는 온라인 교제실입니다.</p>
-          <div class="live-orbit" aria-hidden="true"><span></span><span></span><span></span><b>LIVE</b></div>
-          <a class="button primary" href="https://meet.jit.si/EKODIChurchLive" target="_blank" rel="noreferrer">실시간 화상 참여</a>
-          <small>브라우저에서 바로 참여할 수 있습니다.</small>
+        <article class="ministry-card live-card online-live-embed reveal" data-ekodi-live-embed>
+          <div class="ministry-kicker"><span>02</span><small>EKODI LIVE</small></div>
+          <h3>실시간 예배 · 모임</h3>
+          <p>별도 방송사이트로 이동하지 않고 이 화면에서 바로 시청하고 참여합니다.</p>
+          <div class="online-live-stage">
+            <video data-live-video autoplay playsinline controls></video>
+            <div class="online-live-empty" data-live-empty><strong>현재 방송을 확인하고 있습니다.</strong><span>방송이 시작되면 이 화면에서 바로 연결됩니다.</span></div>
+            <span class="online-live-badge" data-live-state>방송 확인 중</span>
+          </div>
+          <div class="online-live-actions">
+            <button class="button primary" type="button" data-live-join>방송 참여</button>
+            <a class="button text" href="#life-hub">말씀과 삶 기록</a>
+          </div>
+          <a class="online-live-admin" href="/ekodichurch/live/admin" data-live-admin>방송 관리자 →</a>
         </article>
       </div>
 
@@ -303,5 +292,6 @@
   <script src="church-shell-i18n.js"></script>
   <script src="church-life-hub-i18n.js"></script>
   <script src="giving.js"></script>
+  <script src="church-live-embed.js"></script>
 </body>
 </html>
