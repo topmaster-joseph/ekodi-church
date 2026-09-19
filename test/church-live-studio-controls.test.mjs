@@ -118,3 +118,10 @@ test('compact viewer keeps interpretation display-only with no language selector
   assert.doesNotMatch(html,/id="viewerLanguageSelect"/);
   assert.doesNotMatch(js,/ekodi-live-interpretation-language/);
 });
+
+
+test('recording link recognizes shared-drive archive response shape',async()=>{
+  const js=await read('live/live.js');
+  assert.match(js,/recording\?\.driveWebViewLink/);
+  assert.match(js,/archive\?\.file\?\.webViewLink/);
+});
