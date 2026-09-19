@@ -107,3 +107,7 @@
 .program-screen{overflow:hidden}
 .participant-request.auto-queued{border-color:#b8cabe;background:rgba(238,245,240,.76)}
 .participant-request .request-state{font-size:10px;color:#5c7465;font-weight:800}
+
+.participant-policy-note{display:block;margin:5px 0 8px;color:#6f7d74;font-size:10px;line-height:1.45}
+.participant-request{grid-template-columns:minmax(0,1fr) auto}
+.participant-request .request-state{white-space:nowrap}
