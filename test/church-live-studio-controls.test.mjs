@@ -109,3 +109,12 @@ test('presenter PIP can be removed from the composed program without ending scre
   assert.match(js,/presenterRemoveButton/);
   assert.match(js,/setLayout\('screen'\)/);
 });
+
+
+test('compact viewer keeps interpretation display-only with no language selector',async()=>{
+  const [html,js]=await Promise.all([read('live/index.html'),read('live/live.js')]);
+  assert.match(html,/자동동시통역 가능/);
+  assert.match(html,/id="viewerLanguageChips"/);
+  assert.doesNotMatch(html,/id="viewerLanguageSelect"/);
+  assert.doesNotMatch(js,/ekodi-live-interpretation-language/);
+});
