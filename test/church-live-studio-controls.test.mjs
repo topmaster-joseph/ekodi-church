@@ -54,7 +54,7 @@ test('live studio guards accidental navigation while broadcasting',async()=>{
 test('presenter PIP can be repositioned by pointer without republishing the live stream',async()=>{
   const [html,js,css]=await Promise.all([read('live/index.html'),read('live/live.js'),read('live/live.css')]);
   assert.match(html,/id="presenterDragHandle"/);
-  assert.match(html,/PIP 발표자는 화면에서 마우스로 이동/);
+  assert.match(html,/PIP 설교자는 화면에서 마우스로 이동/);
   assert.match(js,/presenterPosition:\{x:/);
   assert.match(js,/function beginPresenterDrag\(event\)/);
   assert.match(js,/function movePresenterDrag\(event\)/);
@@ -108,4 +108,25 @@ test('presenter PIP can be removed from the composed program without ending scre
   assert.match(html,/id="presenterRemoveButton"/);
   assert.match(js,/presenterRemoveButton/);
   assert.match(js,/setLayout\('screen'\)/);
+});
+
+
+test('mobile browsers fall back to local visual sharing when native screen capture is unavailable',async()=>{
+  const [html,js]=await Promise.all([read('live/index.html'),read('live/live.js')]);
+  assert.match(html,/id="mobileShareInput"/);
+  assert.match(html,/accept="image\/\*,video\/\*"/);
+  assert.match(js,/function isLikelyMobile\(\)/);
+  assert.match(js,/function canNativeScreenShare\(\)/);
+  assert.match(js,/function loadMobileShareFile\(file\)/);
+  assert.match(js,/file\.type\.startsWith\('image\/'\)/);
+  assert.match(js,/file\.type\.startsWith\('video\/'\)/);
+  assert.match(js,/state\.sharedVisual\|\|screen/);
+  assert.match(js,/PPT·자료공유/);
+});
+
+test('church live copy uses worship-specific presenter wording',async()=>{
+  const [html,js]=await Promise.all([read('live/index.html'),read('live/live.js')]);
+  assert.match(html,/설교자\+공유\(PIP\)/);
+  assert.match(html,/PIP 설교자는 화면에서 마우스로 이동/);
+  assert.match(js,/화면 \+ 설교자/);
 });
