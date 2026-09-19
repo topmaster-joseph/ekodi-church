@@ -454,16 +454,34 @@ function setLayout(layout){
   syncPresenterDragHandle();
   const label={pip:'화면 + 설교자',side:'70 : 30',equal:'1 : 1',screen:'공유화면만',presenter:'설교자'}[layout]||'화면 + 설교자';note(`화면 구도를 '${label}'로 전환했습니다.`);
 }
-function stopScreenShare(message='화면공유를 종료했습니다.'){
-  const stream=state.screen;if(!stream)return;state.screen=null;for(const track of stream.getTracks())if(track.readyState!=='ended')track.stop();setSourceVideo('screenSource',null);state.layout='presenter';$('layoutPanel')?.classList.add('hidden');$('screenButton')?.setAttribute('aria-pressed','false');if($('screenButton'))$('screenButton').textContent='PPT·화면공유';updateSourceRail();syncPresenterDragHandle();note(message);
+function clearSharedVisual(message='공유를 종료했습니다.'){
+  if(state.screen){const stream=state.screen;state.screen=null;for(const track of stream.getTracks())if(track.readyState!=='ended')track.stop()}
+  if(state.sharedVisual){try{if(state.sharedVisual.tagName==='VIDEO'){state.sharedVisual.pause();state.sharedVisual.removeAttribute('src');state.sharedVisual.load?.()}}catch{}state.sharedVisual=null}
+  if(state.sharedObjectUrl){URL.revokeObjectURL(state.sharedObjectUrl);state.sharedObjectUrl=''}
+  setSourceVideo('screenSource',null);state.layout='presenter';$('layoutPanel')?.classList.add('hidden');$('screenButton')?.setAttribute('aria-pressed','false');updateSourceRail();syncPresenterDragHandle();if(message)note(message);
 }
+async function loadMobileShareFile(file){
+  if(!file)return;
+  clearSharedVisual('');
+  const url=URL.createObjectURL(file);state.sharedObjectUrl=url;
+  try{
+    let media;
+    if(file.type.startsWith('image/')){media=new Image();media.decoding='async';media.src=url;await media.decode()}
+    else if(file.type.startsWith('video/')){media=document.createElement('video');media.src=url;media.muted=true;media.loop=true;media.autoplay=true;media.playsInline=true;await media.play()}
+    else throw new Error('unsupported');
+    state.sharedVisual=media;state.layout='pip';$('layoutPanel')?.classList.remove('hidden');$('screenButton')?.setAttribute('aria-pressed','true');$('screenButton').textContent='자료공유 종료';setLayout('pip');syncPresenterDragHandle();note('모바일 자료를 방송 화면에 추가했습니다.');
+  }catch(error){clearSharedVisual('이미지나 영상 파일을 선택해 주세요.');syncShareCapability()}
+}
+function openMobileSharePicker(){const input=$('mobileShareInput');if(!input)return note('모바일 자료공유를 준비할 수 없습니다.');input.value='';input.click()}
+function syncShareCapability(){if(!$('screenButton'))return;const fallback=!canNativeScreenShare();$('screenButton').dataset.mobileFallback=fallback?'true':'false';if(!state.screen&&!state.sharedVisual)$('screenButton').textContent=fallback?'PPT·자료공유':'PPT·화면공유'}
 async function shareScreen(){
   if(!state.local){note('먼저 카메라·마이크를 준비해 주세요.');return}
-  if(state.screen){stopScreenShare();return}
-  if(!state.canvasStream){note('현재 브라우저는 발표자와 공유화면 합성을 지원하지 않습니다. 최신 Chromium 브라우저에서 다시 시도해 주세요.');return}
+  if(state.screen||state.sharedVisual){clearSharedVisual();syncShareCapability();return}
+  if(!state.canvasStream){note('현재 브라우저는 화면 합성을 지원하지 않습니다.');return}
+  if(!canNativeScreenShare()){openMobileSharePicker();return}
   try{
-    const stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:15,max:30}},audio:false});state.screen=stream;setSourceVideo('screenSource',stream);state.layout='pip';$('layoutPanel')?.classList.remove('hidden');$('screenButton')?.setAttribute('aria-pressed','true');if($('screenButton'))$('screenButton').textContent='화면공유 종료';setLayout('pip');updateSourceRail();stream.getVideoTracks()[0]?.addEventListener('ended',()=>stopScreenShare('브라우저에서 화면공유가 종료되었습니다.'),{once:true});note('PPT·화면공유를 방송 화면에 합성했습니다. 방송 중에도 화면 구도를 바꿀 수 있습니다.');
-  }catch(error){if(error.name!=='NotAllowedError')note(`화면공유 실패: ${error.message}`)}
+    const stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:15,max:30}},audio:false});state.screen=stream;setSourceVideo('screenSource',stream);state.layout='pip';$('layoutPanel')?.classList.remove('hidden');$('screenButton')?.setAttribute('aria-pressed','true');$('screenButton').textContent='화면공유 종료';setLayout('pip');updateSourceRail();stream.getVideoTracks()[0]?.addEventListener('ended',()=>{clearSharedVisual('브라우저에서 화면공유가 종료되었습니다.');syncShareCapability()},{once:true});note('PPT·화면공유를 방송 화면에 합성했습니다.')
+  }catch(error){if(['NotSupportedError','TypeError'].includes(error.name)){openMobileSharePicker();return}if(error.name!=='NotAllowedError')note(`화면공유 실패: ${error.message}`)}
 }
 async function toggleFullscreen(){
   const stage=$('programStage');if(!stage)return;
