@@ -54,7 +54,7 @@ test('live studio guards accidental navigation while broadcasting',async()=>{
 test('presenter PIP can be repositioned by pointer without republishing the live stream',async()=>{
   const [html,js,css]=await Promise.all([read('live/index.html'),read('live/live.js'),read('live/live.css')]);
   assert.match(html,/id="presenterDragHandle"/);
-  assert.match(html,/PIP 설교자는 화면에서 마우스로 이동/);
+  assert.match(html,/PIP 발표자는 화면에서 마우스로 이동/);
   assert.match(js,/presenterPosition:\{x:/);
   assert.match(js,/function beginPresenterDrag\(event\)/);
   assert.match(js,/function movePresenterDrag\(event\)/);
@@ -124,38 +124,4 @@ test('recording link recognizes shared-drive archive response shape',async()=>{
   const js=await read('live/live.js');
   assert.match(js,/recording\?\.driveWebViewLink/);
   assert.match(js,/archive\?\.file\?\.webViewLink/);
-});
-
-
-test('mobile browsers fall back to local visual sharing when native screen capture is unavailable',async()=>{
-  const [html,js]=await Promise.all([read('live/index.html'),read('live/live.js')]);
-  assert.match(html,/id="mobileShareInput"/);
-  assert.match(html,/accept="image\/\*,video\/\*"/);
-  assert.match(js,/function isLikelyMobile\(\)/);
-  assert.match(js,/function canNativeScreenShare\(\)/);
-  assert.match(js,/function loadMobileShareFile\(file\)/);
-  assert.match(js,/file\.type\.startsWith\('image\/'\)/);
-  assert.match(js,/file\.type\.startsWith\('video\/'\)/);
-  assert.match(js,/state\.sharedVisual\|\|screen/);
-  assert.match(js,/PPT·자료공유/);
-});
-
-test('church live wording is worship-specific while keeping the same studio controls',async()=>{
-  const html=await read('live/index.html');
-  assert.match(html,/예배 방송하기/);
-  assert.match(html,/예배 참여하기/);
-  assert.match(html,/예배 방송실/);
-  assert.match(html,/설교자\+공유\(PIP\)/);
-  assert.match(html,/PIP 설교자는 화면에서 마우스로 이동/);
-});
-
-
-test('live publisher heartbeat stays active only while broadcasting',async()=>{
-  const js=await read('live/live.js');
-  assert.match(js,/hostHeartbeatTimer:null/);
-  assert.match(js,/\/heartbeat/);
-  assert.match(js,/setInterval\(\(\)=>void sendHostHeartbeat\(\),20000\)/);
-  assert.match(js,/state\.isLive=true;startHostHeartbeat\(\)/);
-  assert.match(js,/async function endLive\(\)\{[\s\S]*?stopHostHeartbeat\(\)/);
-  assert.match(js,/pagehide',hostExitCleanup/);
 });

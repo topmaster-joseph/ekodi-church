@@ -20,8 +20,13 @@ const SUPPORTED_LANGUAGES=[
 const LAYOUTS=new Set(['presenter','pip','side','equal','screen']);
 const setupParams=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
-const state={room:null,pc:null,session:null,local:null,screen:null,sharedVisual:null,sharedObjectUrl:'',program:null,remote:new MediaStream(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,chatMessages:[],chatTimer:null,participantTimer:null,recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false,hostHeartbeatTimer:null,hostHeartbeatFailures:0};
+const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),viewerIdentity:null,participantRequests:new Map(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,chatMessages:[],chatTimer:null,participantTimer:null,recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
 
+function viewerIdentity(){
+  if(state.viewerIdentity)return state.viewerIdentity;
+  let id=sessionStorage.getItem('ekodi-live-viewer-id');if(!id){id=crypto.randomUUID();sessionStorage.setItem('ekodi-live-viewer-id',id)}
+  const suffix=id.replace(/-/g,'').slice(-4).toUpperCase();state.viewerIdentity={id,displayName:`참여자 ${suffix}`};return state.viewerIdentity;
+}
 function token(){try{const central=sessionStorage.getItem('ekodi-auth-token');if(central)return central;const church=JSON.parse(sessionStorage.getItem('ekodi-church-pastor-session')||'null');return church?.accessToken||''}catch{return''}}
 function headers(json=false,session=false){const h=new Headers();if(token())h.set('authorization',`Bearer ${token()}`);if(json)h.set('content-type','application/json');if(session&&state.session?.accessKey)h.set('x-ekodi-session-key',state.session.accessKey);return h}
 async function api(path,options={}){const h=headers(Boolean(options.body),Boolean(options.session));const r=await fetch(`${API}${path}`,{...options,headers:h,cache:'no-store'});const data=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(data.error||`HTTP ${r.status}`);e.status=r.status;e.data=data;throw e}return data}
@@ -30,23 +35,8 @@ async function sessionApi(path,accessKey,options={}){
   const r=await fetch(`${API}${path}`,{...options,headers:h,cache:'no-store'});
   const data=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(data.error||`HTTP ${r.status}`);e.status=r.status;e.data=data;throw e}return data;
 }
-function stopHostHeartbeat(){if(state.hostHeartbeatTimer)clearInterval(state.hostHeartbeatTimer);state.hostHeartbeatTimer=null;state.hostHeartbeatFailures=0}
-async function sendHostHeartbeat(){
-  if(!state.isLive||!state.room||!state.session)return;
-  try{
-    await sessionApi(`/rooms/${encodeURIComponent(state.room.id)}/sessions/${encodeURIComponent(state.session.id)}/heartbeat`,state.session.accessKey,{method:'POST',body:'{}'});
-    state.hostHeartbeatFailures=0;
-  }catch(error){
-    if(error?.status===404||error?.status===405)return;
-    state.hostHeartbeatFailures++;
-    if(state.hostHeartbeatFailures===3)note('방송 연결 상태 확인이 지연되고 있습니다. 송출 화면을 유지한 채 네트워크를 확인해 주세요.');
-  }
-}
-function startHostHeartbeat(){stopHostHeartbeat();void sendHostHeartbeat();state.hostHeartbeatTimer=setInterval(()=>void sendHostHeartbeat(),20000)}
 function show(id){for(const key of ['entryView','studioView','viewerView'])$(key)?.classList.add('hidden');$(id)?.classList.remove('hidden')}
 function note(message,target='statusLog'){$(target).textContent=message}
-function isLikelyMobile(){return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent||'')||((matchMedia?.('(pointer: coarse)')?.matches)&&Math.min(innerWidth||9999,innerHeight||9999)<1000)}
-function canNativeScreenShare(){return typeof navigator.mediaDevices?.getDisplayMedia==='function'&&!isLikelyMobile()}
 function safeReturnTo(studio=false){const back=new URL(location.href);const hash=new URLSearchParams(back.hash.replace(/^#/,''));if(['ekodi_token','ekodi_type','access_token','refresh_token'].some(key=>hash.has(key)))back.hash='';for(const key of ['ekodi_token','ekodi_type'])back.searchParams.delete(key);if(studio)back.searchParams.set('mode','studio');return back.toString()}
 function login(studio=false){
   const now=Date.now();
@@ -264,7 +254,15 @@ async function publishStream(stream,source='program'){
 function setSourceVideo(id,stream){const video=$(id);if(!video)return;video.srcObject=stream;video.play?.().catch(()=>{})}
 async function acquireCamera(){
   if(state.local)return state.local;
-  const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720}},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  const mobile=matchMedia('(max-width: 640px)').matches;
+  const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},facingMode:{ideal:'user'},...(mobile?{resizeMode:'none'}:{})},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  const cameraTrack=stream.getVideoTracks()[0];
+  if(mobile&&cameraTrack?.getCapabilities){
+    const caps=cameraTrack.getCapabilities(),settings=cameraTrack.getSettings?.()||{};
+    if(caps.zoom&&typeof cameraTrack.applyConstraints==='function'){
+      const min=Number(caps.zoom.min);if(Number.isFinite(min)&&settings.zoom!==min)await cameraTrack.applyConstraints({advanced:[{zoom:min}]}).catch(()=>{});
+    }
+  }
   state.local=stream;setSourceVideo('cameraSource',stream);
   $('cameraButton')?.setAttribute('aria-pressed','true');$('micButton')?.setAttribute('aria-pressed','true');
   if($('cameraButton'))$('cameraButton').textContent='카메라';if($('micButton'))$('micButton').textContent='마이크';
@@ -272,15 +270,14 @@ async function acquireCamera(){
   ensureProgramStream();
   return stream;
 }
-function mediaSize(media){return {width:Number(media?.videoWidth||media?.naturalWidth||0),height:Number(media?.videoHeight||media?.naturalHeight||0)}}
-function drawContained(ctx,media,x,y,w,h,fill='#090b0a'){
+function drawContained(ctx,video,x,y,w,h,fill='#090b0a'){
   ctx.fillStyle=fill;ctx.fillRect(x,y,w,h);
-  const size=mediaSize(media);if(!size.width||!size.height)return;
-  const scale=Math.min(w/size.width,h/size.height);const dw=size.width*scale;const dh=size.height*scale;ctx.drawImage(media,x+(w-dw)/2,y+(h-dh)/2,dw,dh);
+  if(!video||!video.videoWidth||!video.videoHeight)return;
+  const scale=Math.min(w/video.videoWidth,h/video.videoHeight);const dw=video.videoWidth*scale;const dh=video.videoHeight*scale;ctx.drawImage(video,x+(w-dw)/2,y+(h-dh)/2,dw,dh);
 }
-function drawCovered(ctx,media,x,y,w,h){
-  const size=mediaSize(media);if(!size.width||!size.height){ctx.fillStyle='#142019';ctx.fillRect(x,y,w,h);return}
-  const scale=Math.max(w/size.width,h/size.height);const sw=w/scale;const sh=h/scale;const sx=(size.width-sw)/2;const sy=(size.height-sh)/2;ctx.drawImage(media,sx,sy,sw,sh,x,y,w,h);
+function drawCovered(ctx,video,x,y,w,h){
+  if(!video||!video.videoWidth||!video.videoHeight){ctx.fillStyle='#142019';ctx.fillRect(x,y,w,h);return}
+  const scale=Math.max(w/video.videoWidth,h/video.videoHeight);const sw=w/scale;const sh=h/scale;const sx=(video.videoWidth-sw)/2;const sy=(video.videoHeight-sh)/2;ctx.drawImage(video,sx,sy,sw,sh,x,y,w,h);
 }
 function drawChatOverlay(ctx,overlay,w,h){
   const x=Math.round(overlay.x*w),y=Math.round(overlay.y*h),ow=Math.round(overlay.w*w),oh=Math.round(overlay.h*h);
@@ -307,18 +304,18 @@ function drawOverlaySources(ctx,w,h){
 }
 function drawProgram(){
   if(!state.ctx||!state.canvas)return;
-  const ctx=state.ctx;const w=state.canvas.width;const h=state.canvas.height;const camera=$('cameraSource');const screen=$('screenSource');const shared=state.sharedVisual||screen;
+  const ctx=state.ctx;const w=state.canvas.width;const h=state.canvas.height;const camera=$('cameraSource');const screen=$('screenSource');
   ctx.fillStyle='#090b0a';ctx.fillRect(0,0,w,h);
-  const sharedSize=mediaSize(shared);const hasScreen=Boolean((state.screen||state.sharedVisual)&&sharedSize.width);
+  const hasScreen=Boolean(state.screen&&screen?.videoWidth);
   const layout=hasScreen?state.layout:'presenter';
-  if(layout==='screen')drawContained(ctx,shared,0,0,w,h);
+  if(layout==='screen')drawContained(ctx,screen,0,0,w,h);
   else if(layout==='side'){
-    const split=Math.round(w*.70);drawContained(ctx,shared,0,0,split,h);drawCovered(ctx,camera,split,0,w-split,h);
+    const split=Math.round(w*.70);drawContained(ctx,screen,0,0,split,h);drawCovered(ctx,camera,split,0,w-split,h);
   }else if(layout==='equal'){
-    const split=Math.round(w*.5);drawContained(ctx,shared,0,0,split,h);drawCovered(ctx,camera,split,0,w-split,h);
+    const split=Math.round(w*.5);drawContained(ctx,screen,0,0,split,h);drawCovered(ctx,camera,split,0,w-split,h);
   }else if(layout==='pip'){
-    drawContained(ctx,shared,0,0,w,h);const pw=Math.round(w*PIP_SIZE);const ph=Math.round(h*PIP_SIZE);const px=Math.round(w*state.presenterPosition.x);const py=Math.round(h*state.presenterPosition.y);ctx.fillStyle='#f6f1e8';ctx.fillRect(px-4,py-4,pw+8,ph+8);drawCovered(ctx,camera,px,py,pw,ph);
-  }else drawCovered(ctx,camera,0,0,w,h);
+    drawContained(ctx,screen,0,0,w,h);const pw=Math.round(w*PIP_SIZE);const ph=Math.round(h*PIP_SIZE);const px=Math.round(w*state.presenterPosition.x);const py=Math.round(h*state.presenterPosition.y);ctx.fillStyle='#f6f1e8';ctx.fillRect(px-4,py-4,pw+8,ph+8);drawCovered(ctx,camera,px,py,pw,ph);
+  }else drawContained(ctx,camera,0,0,w,h,'#142019');
   drawOverlaySources(ctx,w,h);
   state.animationFrame=requestAnimationFrame(drawProgram);
 }
@@ -386,7 +383,7 @@ function endOverlayDrag(event){if(!state.overlayDrag||state.overlayDrag.pointerI
 function sourceCard(id,label,{subtitle='화면에 추가',onDelete=null}={}){
   const card=document.createElement('div');card.className='source-card-row';card.draggable=true;card.dataset.overlayId=id;
   const copy=document.createElement('div');const strong=document.createElement('strong');strong.textContent=label;const small=document.createElement('small');small.textContent=subtitle;copy.append(strong,small);
-  const add=document.createElement('button');add.type='button';add.textContent=state.overlays.get(id)?.visible?'화면에서 빼기':'추가';add.addEventListener('click',()=>state.overlays.get(id)?.visible?removeOverlay(id):addOverlay(id));
+  const add=document.createElement('button');add.type='button';add.textContent=state.overlays.get(id)?.visible?'화면에서 빼기':'방송화면에 추가';add.addEventListener('click',()=>state.overlays.get(id)?.visible?removeOverlay(id):addOverlay(id));
   card.append(copy,add);
   if(onDelete){const del=document.createElement('button');del.type='button';del.className='source-delete';del.textContent='연결 해제';del.addEventListener('click',onDelete);card.append(del)}
   card.addEventListener('dragstart',event=>event.dataTransfer?.setData('text/ekodi-overlay',id));return card;
@@ -394,7 +391,13 @@ function sourceCard(id,label,{subtitle='화면에 추가',onDelete=null}={}){
 function renderSourceCards(){
   const chat=$('chatOverlaySource');if(chat){const active=state.overlays.get('chat')?.visible;chat.querySelector('span').textContent=active?'화면에서 빼기':'화면에 추가';chat.classList.toggle('active',Boolean(active))}
   const cameras=$('extraCameraSources');if(cameras){cameras.replaceChildren();for(const [id,item] of state.extraCameras)cameras.append(sourceCard(id,item.label,{onDelete:()=>disconnectExtraCamera(id)}))}
-  const participants=$('participantSources');if(participants){participants.replaceChildren();for(const [id,item] of state.participantPulls)participants.append(sourceCard(id,item.label,{subtitle:item.ready?'화면에 추가':'연결 중'}))}
+  const participants=$('participantSources');if(participants){participants.replaceChildren();for(const [id,item] of state.participantPulls){
+    const visible=state.overlays.get(id)?.visible;
+    const request=state.participantRequests.get(String(item.source?.actorKey||''));const requestedAt=request?.requestedAt||request?.createdAt||request?.created_at;
+    const when=requestedAt?new Date(requestedAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):'';
+    const subtitle=visible?`공개 방송 노출 중${when?' · 요청 '+when:''}`:item.ready?`비공개 대기${when?' · 요청 '+when:''}`:'연결 중';
+    participants.append(sourceCard(id,item.label,{subtitle}));
+  }}
 }
 async function refreshCameraDevices(){
   if(!navigator.mediaDevices?.enumerateDevices)return;
@@ -408,8 +411,8 @@ async function refreshCameraDevices(){
 }
 async function connectExtraCamera(){
   const deviceId=$('extraCameraSelect')?.value;if(!deviceId)return note('추가할 카메라를 선택해 주세요.');
-  if(state.extraCameras.size>=2)return note('추가 카메라는 최대 2대까지 연결할 수 있습니다. 기존 카메라를 연결 해제한 뒤 다시 시도해 주세요.');
   const existing=[...state.extraCameras.values()].find(item=>item.deviceId===deviceId);if(existing){addOverlay(existing.id);return}
+  if(state.extraCameras.size>=2)return note('추가 카메라는 최대 2대까지 연결할 수 있습니다. 기존 카메라를 연결 해제한 뒤 다시 시도해 주세요.');
   try{
     const stream=await navigator.mediaDevices.getUserMedia({video:{deviceId:{exact:deviceId},width:{ideal:1280},height:{ideal:720}},audio:false});
     const label=$('extraCameraSelect').selectedOptions?.[0]?.textContent||'추가 카메라',id=`camera:${crypto.randomUUID()}`;
@@ -426,7 +429,7 @@ function setupProgramDrop(){
   screen.addEventListener('drop',event=>{event.preventDefault();screen.classList.remove('drop-ready');const id=event.dataTransfer?.getData('text/ekodi-overlay');if(id)addOverlay(id)});
 }
 function sourceThumb(stream,label){const wrap=document.createElement('div');wrap.className='source-thumb';const video=document.createElement('video');video.autoplay=true;video.playsInline=true;video.muted=true;video.srcObject=stream;const text=document.createElement('span');text.textContent=label;wrap.append(video,text);return wrap}
-function updateSourceRail(){const rail=$('thumbnailRail');if(!rail)return;rail.replaceChildren();if(!state.screen){rail.classList.add('hidden');return}if(state.local)rail.append(sourceThumb(state.local,'설교자'));rail.append(sourceThumb(state.screen,'공유화면'));rail.classList.remove('hidden')}
+function updateSourceRail(){const rail=$('thumbnailRail');if(!rail)return;rail.replaceChildren();if(!state.screen){rail.classList.add('hidden');return}if(state.local)rail.append(sourceThumb(state.local,'발표자'));rail.append(sourceThumb(state.screen,'공유화면'));rail.classList.remove('hidden')}
 function programContentBox(){
   const screen=$('programScreen');if(!screen)return null;
   const rect=screen.getBoundingClientRect();if(!rect.width||!rect.height)return null;
@@ -459,42 +462,24 @@ function movePresenterDrag(event){
 }
 function endPresenterDrag(event){
   if(!state.presenterDrag||state.presenterDrag.pointerId!==event.pointerId)return;
-  $('presenterDragHandle')?.classList.remove('dragging');state.presenterDrag=null;note('설교자 위치를 방송 화면에 반영했습니다.');
+  $('presenterDragHandle')?.classList.remove('dragging');state.presenterDrag=null;note('발표자 위치를 방송 화면에 반영했습니다.');
 }
 function setLayout(layout){
   if(!LAYOUTS.has(layout))return;if(layout!=='presenter'&&!state.screen)return;state.layout=layout;
   document.querySelectorAll('[data-layout]').forEach(button=>{const active=button.dataset.layout===layout;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});
   syncPresenterDragHandle();
-  const label={pip:'화면 + 설교자',side:'70 : 30',equal:'1 : 1',screen:'공유화면만',presenter:'설교자'}[layout]||'화면 + 설교자';note(`화면 구도를 '${label}'로 전환했습니다.`);
+  const label={pip:'화면 + 발표자',side:'70 : 30',equal:'1 : 1',screen:'공유화면만',presenter:'발표자'}[layout]||'화면 + 발표자';note(`화면 구도를 '${label}'로 전환했습니다.`);
 }
-function clearSharedVisual(message='공유를 종료했습니다.'){
-  if(state.screen){const stream=state.screen;state.screen=null;for(const track of stream.getTracks())if(track.readyState!=='ended')track.stop()}
-  if(state.sharedVisual){try{if(state.sharedVisual.tagName==='VIDEO'){state.sharedVisual.pause();state.sharedVisual.removeAttribute('src');state.sharedVisual.load?.()}}catch{}state.sharedVisual=null}
-  if(state.sharedObjectUrl){URL.revokeObjectURL(state.sharedObjectUrl);state.sharedObjectUrl=''}
-  setSourceVideo('screenSource',null);state.layout='presenter';$('layoutPanel')?.classList.add('hidden');$('screenButton')?.setAttribute('aria-pressed','false');updateSourceRail();syncPresenterDragHandle();if(message)note(message);
+function stopScreenShare(message='화면공유를 종료했습니다.'){
+  const stream=state.screen;if(!stream)return;state.screen=null;for(const track of stream.getTracks())if(track.readyState!=='ended')track.stop();setSourceVideo('screenSource',null);state.layout='presenter';$('layoutPanel')?.classList.add('hidden');$('screenButton')?.setAttribute('aria-pressed','false');if($('screenButton'))$('screenButton').textContent='화면공유';updateSourceRail();syncPresenterDragHandle();note(message);
 }
-async function loadMobileShareFile(file){
-  if(!file)return;
-  clearSharedVisual('');
-  const url=URL.createObjectURL(file);state.sharedObjectUrl=url;
-  try{
-    let media;
-    if(file.type.startsWith('image/')){media=new Image();media.decoding='async';media.src=url;await media.decode()}
-    else if(file.type.startsWith('video/')){media=document.createElement('video');media.src=url;media.muted=true;media.loop=true;media.autoplay=true;media.playsInline=true;await media.play()}
-    else throw new Error('unsupported');
-    state.sharedVisual=media;state.layout='pip';$('layoutPanel')?.classList.remove('hidden');$('screenButton')?.setAttribute('aria-pressed','true');$('screenButton').textContent='자료공유 종료';setLayout('pip');syncPresenterDragHandle();note('모바일 자료를 방송 화면에 추가했습니다.');
-  }catch(error){clearSharedVisual('이미지나 영상 파일을 선택해 주세요.');syncShareCapability()}
-}
-function openMobileSharePicker(){const input=$('mobileShareInput');if(!input)return note('모바일 자료공유를 준비할 수 없습니다.');input.value='';input.click()}
-function syncShareCapability(){if(!$('screenButton'))return;const fallback=!canNativeScreenShare();$('screenButton').dataset.mobileFallback=fallback?'true':'false';if(!state.screen&&!state.sharedVisual)$('screenButton').textContent=fallback?'PPT·자료공유':'PPT·화면공유'}
 async function shareScreen(){
   if(!state.local){note('먼저 카메라·마이크를 준비해 주세요.');return}
-  if(state.screen||state.sharedVisual){clearSharedVisual();syncShareCapability();return}
-  if(!state.canvasStream){note('현재 브라우저는 화면 합성을 지원하지 않습니다.');return}
-  if(!canNativeScreenShare()){openMobileSharePicker();return}
+  if(state.screen){stopScreenShare();return}
+  if(!state.canvasStream){note('현재 브라우저는 발표자와 공유화면 합성을 지원하지 않습니다. 최신 Chromium 브라우저에서 다시 시도해 주세요.');return}
   try{
-    const stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:15,max:30}},audio:false});state.screen=stream;setSourceVideo('screenSource',stream);state.layout='pip';$('layoutPanel')?.classList.remove('hidden');$('screenButton')?.setAttribute('aria-pressed','true');$('screenButton').textContent='화면공유 종료';setLayout('pip');updateSourceRail();stream.getVideoTracks()[0]?.addEventListener('ended',()=>{clearSharedVisual('브라우저에서 화면공유가 종료되었습니다.');syncShareCapability()},{once:true});note('PPT·화면공유를 방송 화면에 합성했습니다.')
-  }catch(error){if(['NotSupportedError','TypeError'].includes(error.name)){openMobileSharePicker();return}if(error.name!=='NotAllowedError')note(`화면공유 실패: ${error.message}`)}
+    const stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:15,max:30}},audio:false});state.screen=stream;setSourceVideo('screenSource',stream);state.layout='pip';$('layoutPanel')?.classList.remove('hidden');$('screenButton')?.setAttribute('aria-pressed','true');if($('screenButton'))$('screenButton').textContent='화면공유 종료';setLayout('pip');updateSourceRail();stream.getVideoTracks()[0]?.addEventListener('ended',()=>stopScreenShare('브라우저에서 화면공유가 종료되었습니다.'),{once:true});note('화면공유를 방송 화면에 합성했습니다. 방송 중에도 화면 구도를 바꿀 수 있습니다.');
+  }catch(error){if(error.name!=='NotAllowedError')note(`화면공유 실패: ${error.message}`)}
 }
 async function toggleFullscreen(){
   const stage=$('programStage');if(!stage)return;
@@ -519,7 +504,7 @@ async function startHost(){
     const local=state.local||await acquireCamera();const program=ensureProgramStream()||local;await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'starting'})});await createSession(state.room.id,'owner');await publishStream(program,'program');startChatPolling();startParticipantMonitoring();setPhase('ready');note('미디어 연결이 완료되었습니다. 방송을 시작합니다.');setRecordingState(false,'녹화 준비');return true;
   }catch(error){state.hosting=false;setPhase('error');$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 준비 실패: ${error.message}`);return false}
 }
-async function goLive(){if(!state.room)return false;try{await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'live'})});state.isLive=true;startHostHeartbeat();setPhase('live');startLiveClock();$('goLiveButton').disabled=true;$('endLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);lockDestinationSelection();setRecordingState(false,'녹화 준비 중');await startManagedRecording();return true}catch(error){stopHostHeartbeat();$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 시작 실패: ${error.message}`);return false}}
+async function goLive(){if(!state.room)return false;try{await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'live'})});state.isLive=true;setPhase('live');startLiveClock();$('goLiveButton').disabled=true;$('endLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);lockDestinationSelection();setRecordingState(false,'녹화 준비 중');await startManagedRecording();return true}catch(error){$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 시작 실패: ${error.message}`);return false}}
 async function startBroadcast(){
   if(state.isLive)return;
   sessionStorage.setItem(PENDING_START_KEY,'1');$('goLiveButton').disabled=true;
@@ -533,13 +518,12 @@ async function startBroadcast(){
 }
 async function endLive(){
   if(!state.room)return;
-  stopHostHeartbeat();
   try{
     await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ending'})});
     const recordingResult=await stopManagedRecording();
     if(state.session)await api(`/rooms/${state.room.id}/sessions/${state.session.id}/leave`,{method:'POST',session:true,body:'{}'}).catch(()=>{});
     state.pc?.close();state.isLive=false;stopLiveClock();
-    if(state.screen||state.sharedVisual)clearSharedVisual('');
+    if(state.screen)stopScreenShare('');
     state.local?.getTracks().forEach(t=>t.stop());state.canvasStream?.getTracks().forEach(t=>t.stop());cancelAnimationFrame(state.animationFrame);
     await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ended'})});
     setPhase('ended');$('endLiveButton').disabled=true;$('goLiveButton').disabled=true;sessionStorage.removeItem(PENDING_START_KEY);
@@ -585,15 +569,16 @@ async function decideParticipation(id,status){
 }
 function renderParticipationRequests(rows=[]){
   const root=$('participantRequests');if(!root)return;root.replaceChildren();
+  state.participantRequests=new Map(rows.map(row=>[String(row.actorKey||row.id),row]));
   const pending=rows.filter(row=>row.status==='pending');
   if(!pending.length){const empty=document.createElement('small');empty.textContent='대기 중인 카메라 참여 요청이 없습니다.';root.append(empty);return}
   for(const row of pending){
     const item=document.createElement('div');item.className='participant-request';
     const name=document.createElement('strong');name.textContent=row.displayName||'참여자';
-    const actions=document.createElement('div');
-    const approve=document.createElement('button');approve.type='button';approve.textContent='승인';approve.addEventListener('click',()=>decideParticipation(row.id,'approved'));
-    const reject=document.createElement('button');reject.type='button';reject.textContent='거절';reject.addEventListener('click',()=>decideParticipation(row.id,'rejected'));
-    actions.append(approve,reject);item.append(name,actions);root.append(item);
+    const stateLabel=document.createElement('span');stateLabel.className='request-state';
+    const requestedAt=row.requestedAt||row.createdAt||row.created_at;
+    stateLabel.textContent=`비공개 대기 · ${requestedAt?new Date(requestedAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):'요청 시각 확인 중'}`;
+    item.classList.add('auto-queued');item.append(name,stateLabel);root.append(item);
   }
 }
 async function ensureParticipantPull(source){
@@ -624,13 +609,17 @@ async function requestCameraParticipation(){
   if(!state.room)return;
   if(!token())return login(false);
   try{
-    await api(`/rooms/${encodeURIComponent(state.room.id)}/participation-requests`,{method:'POST',body:JSON.stringify({displayName:'참여자'})});
-    if($('participantCameraState'))$('participantCameraState').textContent='승인 대기';note('카메라 참여 요청을 보냈습니다.','viewerStatus');startParticipantApprovalPolling();
+    const identity=viewerIdentity();
+    await api(`/rooms/${encodeURIComponent(state.room.id)}/participation-requests`,{method:'POST',body:JSON.stringify({displayName:identity.displayName,actorKey:identity.id,autoQueue:true})});
+    if($('participantCameraState'))$('participantCameraState').textContent='발표자 대기화면 연결 중';
+    note(`${identity.displayName} 카메라를 발표자 대기화면에 연결합니다.`,'viewerStatus');
+    await startParticipantCameraPublish();
+    startParticipantApprovalPolling();
   }catch(error){note(`카메라 참여 요청 실패: ${error.message}`,'viewerStatus')}
 }
 function startParticipantApprovalPolling(){
   if(state.participantTimer)clearInterval(state.participantTimer);
-  const poll=async()=>{if(!state.room||!token())return;try{const data=await api(`/rooms/${encodeURIComponent(state.room.id)}/participation-request/me`);const status=data.request?.status;if($('participantCameraState'))$('participantCameraState').textContent=status==='approved'?'승인됨':status==='rejected'?'거절됨':status==='pending'?'승인 대기':'대기';if(status==='approved'&&!state.participantPublish)await startParticipantCameraPublish()}catch{}};
+  const poll=async()=>{if(!state.room||!token())return;try{const data=await api(`/rooms/${encodeURIComponent(state.room.id)}/participation-request/me`);const status=data.request?.status;if($('participantCameraState'))$('participantCameraState').textContent=state.participantPublish?'발표자 대기화면 연결됨':status==='rejected'?'연결 종료':status==='pending'?'발표자 대기화면 연결 중':'대기';if(status!=='rejected'&&!state.participantPublish)await startParticipantCameraPublish()}catch{}};
   void poll();state.participantTimer=setInterval(poll,2000);
 }
 async function startParticipantCameraPublish(){
@@ -639,7 +628,7 @@ async function startParticipantCameraPublish(){
     const deviceId=$('participantCameraSelect')?.value;
     const constraints={video:deviceId?{deviceId:{exact:deviceId},width:{ideal:1280},height:{ideal:720}}:{width:{ideal:1280},height:{ideal:720}},audio:false};
     const stream=await navigator.mediaDevices.getUserMedia(constraints),preview=$('participantCameraPreview');if(preview){preview.srcObject=stream;preview.classList.remove('hidden');preview.play?.().catch(()=>{})}
-    const created=await api(`/rooms/${encodeURIComponent(state.room.id)}/sessions`,{method:'POST',body:JSON.stringify({role:'presenter'})}),session=created.session,pc=new RTCPeerConnection({iceServers:created.iceServers||[]});
+    const created=await api(`/rooms/${encodeURIComponent(state.room.id)}/sessions`,{method:'POST',body:JSON.stringify({role:'presenter',displayName:viewerIdentity().displayName,actorKey:viewerIdentity().id})}),session=created.session,pc=new RTCPeerConnection({iceServers:created.iceServers||[]});
     for(const track of stream.getTracks())pc.addTrack(track,stream);
     const offer=await pc.createOffer();await pc.setLocalDescription(offer);await waitIce(pc);const tracks=trackPayload(pc,stream,'camera');
     const published=await sessionApi(`/rooms/${encodeURIComponent(state.room.id)}/sessions/${encodeURIComponent(session.id)}/publish`,session.accessKey,{method:'POST',body:JSON.stringify({sessionDescription:pc.localDescription,tracks})});
@@ -650,7 +639,7 @@ async function startParticipantCameraPublish(){
 function cleanupCollaboration(){
   clearInterval(state.chatTimer);clearInterval(state.participantTimer);state.chatTimer=null;state.participantTimer=null;
   for(const item of state.participantPulls.values()){item.pc?.close();item.stream?.getTracks?.().forEach(track=>track.stop());item.overlay?.video?.remove?.()}
-  state.participantPulls.clear();
+  state.participantPulls.clear();state.participantRequests.clear();
   if(state.participantPublish){state.participantPublish.pc?.close();state.participantPublish.stream?.getTracks?.().forEach(track=>track.stop());state.participantPublish=null}
 }
 async function joinViewer(roomId=''){
@@ -663,7 +652,6 @@ async function joinViewer(roomId=''){
   }catch(error){note(`참여 연결 실패: ${error.message}`,'viewerStatus')}
 }
 async function refreshLive(){try{const live=await api(`/live?tenant=${TENANT}`);$('liveState').textContent=live.live?'현재 LIVE':'현재 대기';$('liveState').dataset.phase=live.live?'live':'idle';if(live.live)$('joinButton').textContent='현재 방송 참여하기'}catch{$('liveState').textContent='상태 확인 필요'}}
-function hostExitCleanup(){if(!state.isLive||!state.room)return;stopHostHeartbeat()}
 function guardLiveExit(event){if(!state.isLive)return;const message='현재 방송 중입니다. 교회 홈으로 이동하면 이 브라우저의 송출이 종료될 수 있습니다. 이동하시겠습니까?';if(event?.type==='beforeunload'){event.preventDefault();event.returnValue='';return}if(!confirm(message))event.preventDefault()}
 
 renderLanguageOptions();
@@ -679,10 +667,9 @@ $('refreshDestinationsButton')?.addEventListener('click',()=>{if(!token())return
 document.querySelectorAll('[data-layout]').forEach(button=>button.addEventListener('click',()=>setLayout(button.dataset.layout)));
 document.querySelectorAll('[data-leave-studio],.brand').forEach(link=>link.addEventListener('click',guardLiveExit));
 window.addEventListener('beforeunload',guardLiveExit);
-window.addEventListener('pagehide',hostExitCleanup);
-document.addEventListener('fullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});document.addEventListener('webkitfullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});window.addEventListener('resize',()=>{syncPresenterDragHandle();syncOverlayHandles();syncShareCapability()});syncShareCapability();
+document.addEventListener('fullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});document.addEventListener('webkitfullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});window.addEventListener('resize',()=>{syncPresenterDragHandle();syncOverlayHandles()});
 $('presenterDragHandle')?.addEventListener('pointerdown',beginPresenterDrag);$('presenterDragHandle')?.addEventListener('pointermove',movePresenterDrag);$('presenterDragHandle')?.addEventListener('pointerup',endPresenterDrag);$('presenterDragHandle')?.addEventListener('pointercancel',endPresenterDrag);$('presenterRemoveButton')?.addEventListener('click',event=>{event.stopPropagation();setLayout('screen')});
-$('hostButton').addEventListener('click',prepareStudio);$('joinButton').addEventListener('click',()=>joinViewer());$('goLiveButton').addEventListener('click',startBroadcast);$('endLiveButton').addEventListener('click',endLive);$('screenButton').addEventListener('click',shareScreen);$('mobileShareInput')?.addEventListener('change',event=>void loadMobileShareFile(event.target.files?.[0]));$('fullscreenButton').addEventListener('click',toggleFullscreen);
+$('hostButton').addEventListener('click',prepareStudio);$('joinButton').addEventListener('click',()=>joinViewer());$('goLiveButton').addEventListener('click',startBroadcast);$('endLiveButton').addEventListener('click',endLive);$('screenButton').addEventListener('click',shareScreen);$('fullscreenButton').addEventListener('click',toggleFullscreen);
 $('cameraButton').addEventListener('click',async()=>{try{if(!state.local){await acquireCamera();state.studioPrepared=true;setPhase('ready');$('goLiveButton').disabled=false;return note('카메라가 켜졌습니다.')}const track=state.local.getVideoTracks()[0];if(!track)return note('사용 가능한 카메라가 없습니다.');track.enabled=!track.enabled;$('cameraButton').setAttribute('aria-pressed',String(track.enabled));$('cameraButton').textContent=track.enabled?'카메라':'카메라 꺼짐';note(track.enabled?'카메라가 켜졌습니다.':'카메라를 껐습니다.')}catch(error){note(`카메라 사용 불가: ${error.message}`)}});
 $('micButton').addEventListener('click',()=>{const track=state.local?.getAudioTracks?.()[0];if(!track)return note('먼저 카메라·마이크를 준비해 주세요.');track.enabled=!track.enabled;$('micButton').setAttribute('aria-pressed',String(track.enabled));$('micButton').textContent=track.enabled?'마이크':'마이크 꺼짐';note(track.enabled?'마이크가 켜졌습니다.':'마이크를 껐습니다.')});
 $('copyLinkButton').addEventListener('click',async()=>{await navigator.clipboard?.writeText?.($('shareLink').value);note('참여 링크를 복사했습니다.')});
