@@ -66,11 +66,11 @@
         </div>
         <div class="program-badge" id="programBadge">대기</div>
         <button class="stage-fullscreen" id="fullscreenButton" type="button" aria-label="방송 화면 전체화면">전체화면</button>
-        <div class="program-status" aria-label="방송 상태">
-          <span id="liveTimer">00:00:00</span>
-          <span id="interpretationStatus">통역 자동</span>
-          <span id="recordingStatus">녹화 준비</span>
-        </div>
+      </div>
+      <div class="program-status-bar" aria-label="방송 상태">
+        <span id="liveTimer">00:00:00</span>
+        <span id="interpretationStatus">통역 자동</span>
+        <span id="recordingStatus">녹화 준비</span>
       </div>
       <div class="thumbnail-rail hidden" id="thumbnailRail" aria-label="방송 소스 미리보기"></div>
     </div>
@@ -91,7 +91,7 @@
       <div class="control-grid" aria-label="방송 제어">
         <button id="cameraButton" type="button" aria-pressed="true">카메라</button>
         <button id="micButton" type="button" aria-pressed="true">마이크</button>
-        <button id="screenButton" type="button" aria-pressed="false">PPT·화면공유</button>
+        <button id="screenButton" type="button" aria-pressed="false">화면공유</button>
         <button id="recordingButton" type="button" disabled>녹화 자동</button>
       </div>
 
@@ -114,6 +114,7 @@
           <select id="extraCameraSelect" aria-label="추가 카메라"><option value="">추가 카메라 선택</option></select>
           <button id="connectExtraCameraButton" type="button">카메라 연결</button>
         </div>
+        <small class="camera-limit-note">방송자 추가 카메라는 최대 2대까지 연결할 수 있습니다.</small>
         <div class="source-list" id="extraCameraSources" aria-label="추가 카메라 목록"></div>
         <div class="participant-source-head"><strong>참여자 카메라</strong><button id="refreshParticipantSourcesButton" type="button">새로고침</button></div>
         <div class="participant-requests" id="participantRequests" aria-label="카메라 참여 요청"></div>
@@ -172,16 +173,17 @@
       <small>LIVE PARTICIPATION</small>
       <h2 id="viewerTitle">에코디교회 실시간</h2>
       <section class="viewer-interpretation">
-        <strong>자동동시통역 가능</strong>
+        <strong>동시통역 언어</strong>
+        <select id="viewerLanguageSelect" aria-label="동시통역 언어 선택"></select>
         <div class="language-chips" id="viewerLanguageChips" aria-label="가능 언어"></div>
       </section>
-      <section class="viewer-camera-box">
+      <section class="viewer-camera-box resizable-panel">
         <div class="section-heading"><strong>카메라 참여</strong><span id="participantCameraState">대기</span></div>
         <select id="participantCameraSelect" aria-label="참여 카메라"><option value="">카메라 선택</option></select>
         <button id="requestSpeakButton" type="button">카메라 참여 요청</button>
         <video id="participantCameraPreview" class="participant-camera-preview hidden" autoplay playsinline muted></video>
       </section>
-      <section class="live-chat-box viewer-chat" aria-label="실시간 채팅">
+      <section class="live-chat-box viewer-chat resizable-panel" aria-label="실시간 채팅">
         <div class="section-heading"><strong>실시간 채팅</strong><span id="viewerChatState">대기</span></div>
         <div class="chat-messages" id="viewerChatMessages"></div>
         <form class="chat-form" id="viewerChatForm">
