@@ -259,14 +259,15 @@ async function acquireCamera(){
   ensureProgramStream();
   return stream;
 }
-function drawContained(ctx,video,x,y,w,h,fill='#090b0a'){
+function mediaSize(media){return {width:Number(media?.videoWidth||media?.naturalWidth||0),height:Number(media?.videoHeight||media?.naturalHeight||0)}}
+function drawContained(ctx,media,x,y,w,h,fill='#090b0a'){
   ctx.fillStyle=fill;ctx.fillRect(x,y,w,h);
-  if(!video||!video.videoWidth||!video.videoHeight)return;
-  const scale=Math.min(w/video.videoWidth,h/video.videoHeight);const dw=video.videoWidth*scale;const dh=video.videoHeight*scale;ctx.drawImage(video,x+(w-dw)/2,y+(h-dh)/2,dw,dh);
+  const size=mediaSize(media);if(!size.width||!size.height)return;
+  const scale=Math.min(w/size.width,h/size.height);const dw=size.width*scale;const dh=size.height*scale;ctx.drawImage(media,x+(w-dw)/2,y+(h-dh)/2,dw,dh);
 }
-function drawCovered(ctx,video,x,y,w,h){
-  if(!video||!video.videoWidth||!video.videoHeight){ctx.fillStyle='#142019';ctx.fillRect(x,y,w,h);return}
-  const scale=Math.max(w/video.videoWidth,h/video.videoHeight);const sw=w/scale;const sh=h/scale;const sx=(video.videoWidth-sw)/2;const sy=(video.videoHeight-sh)/2;ctx.drawImage(video,sx,sy,sw,sh,x,y,w,h);
+function drawCovered(ctx,media,x,y,w,h){
+  const size=mediaSize(media);if(!size.width||!size.height){ctx.fillStyle='#142019';ctx.fillRect(x,y,w,h);return}
+  const scale=Math.max(w/size.width,h/size.height);const sw=w/scale;const sh=h/scale;const sx=(size.width-sw)/2;const sy=(size.height-sh)/2;ctx.drawImage(media,sx,sy,sw,sh,x,y,w,h);
 }
 function drawChatOverlay(ctx,overlay,w,h){
   const x=Math.round(overlay.x*w),y=Math.round(overlay.y*h),ow=Math.round(overlay.w*w),oh=Math.round(overlay.h*h);
