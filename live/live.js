@@ -103,6 +103,11 @@ function renderLanguageOptions(){
   for(const chips of targets){
     chips.replaceChildren(...SUPPORTED_LANGUAGES.map(language=>{const span=document.createElement('span');span.textContent=language.label;span.dataset.language=language.code;return span}));
   }
+  const select=$('viewerLanguageSelect');
+  if(select){
+    select.replaceChildren(new Option('원음','original'),...SUPPORTED_LANGUAGES.map(language=>new Option(language.label,language.code)));
+    select.value=sessionStorage.getItem('ekodi-live-interpretation-language')||'original';
+  }
   if($('interpretationStatus'))$('interpretationStatus').textContent='자동동시통역 가능';
 }
 function setPhase(phase){
@@ -380,6 +385,7 @@ async function refreshCameraDevices(){
 }
 async function connectExtraCamera(){
   const deviceId=$('extraCameraSelect')?.value;if(!deviceId)return note('추가할 카메라를 선택해 주세요.');
+  if(state.extraCameras.size>=2)return note('추가 카메라는 최대 2대까지 연결할 수 있습니다. 기존 카메라를 연결 해제한 뒤 다시 시도해 주세요.');
   const existing=[...state.extraCameras.values()].find(item=>item.deviceId===deviceId);if(existing){addOverlay(existing.id);return}
   try{
     const stream=await navigator.mediaDevices.getUserMedia({video:{deviceId:{exact:deviceId},width:{ideal:1280},height:{ideal:720}},audio:false});
@@ -623,6 +629,13 @@ setupProgramDrop();
 $('chatOverlaySource')?.addEventListener('dragstart',event=>event.dataTransfer?.setData('text/ekodi-overlay','chat'));
 $('chatOverlaySource')?.addEventListener('click',()=>state.overlays.get('chat')?.visible?removeOverlay('chat'):addOverlay('chat'));
 $('connectExtraCameraButton')?.addEventListener('click',connectExtraCamera);
+$('viewerLanguageSelect')?.addEventListener('change',event=>{
+  const code=event.target.value;
+  sessionStorage.setItem('ekodi-live-interpretation-language',code);
+  const label=code==='original'?'원음':SUPPORTED_LANGUAGES.find(language=>language.code===code)?.label||code;
+  note(`동시통역 언어: ${label}`,'viewerStatus');
+  document.dispatchEvent(new CustomEvent('ekodi:interpretation-language-change',{detail:{language:code,roomId:state.room?.id||''}}));
+});
 $('refreshParticipantSourcesButton')?.addEventListener('click',refreshParticipantSources);
 $('studioChatForm')?.addEventListener('submit',event=>{event.preventDefault();void sendChat('studioChatInput','방송자')});
 $('viewerChatForm')?.addEventListener('submit',event=>{event.preventDefault();void sendChat('viewerChatInput','참여자')});
