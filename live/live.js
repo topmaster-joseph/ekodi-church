@@ -121,7 +121,7 @@ function startLiveClock(){state.startedAt=Date.now();clearInterval(state.timerId
 function stopLiveClock(reset=false){clearInterval(state.timerId);state.timerId=null;if(reset&&$('liveTimer'))$('liveTimer').textContent='00:00:00'}
 function setRecordingState(active,label='녹화 준비'){if(!$('recordingStatus'))return;$('recordingStatus').textContent=label;$('recordingStatus').dataset.recording=active?'true':'false';if($('recordingButton'))$('recordingButton').textContent=active?'● 녹화 중':'녹화 자동'}
 function recordingUrlFrom(result){
-  const values=[result?.url,result?.recording?.url,result?.recording?.playbackUrl,result?.recording?.downloadUrl,result?.archive?.url,result?.archive?.webViewLink,result?.archive?.webContentLink,result?.archive?.downloadUrl];
+  const values=[result?.url,result?.recording?.url,result?.recording?.playbackUrl,result?.recording?.downloadUrl,result?.recording?.driveWebViewLink,result?.archive?.url,result?.archive?.webViewLink,result?.archive?.file?.webViewLink,result?.archive?.webContentLink,result?.archive?.downloadUrl];
   return values.find(value=>typeof value==='string'&&/^https?:\/\//i.test(value))||'';
 }
 function showRecordingLink(result){
