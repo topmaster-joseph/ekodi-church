@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>에코디교회 방송 · 녹화 관리</title>
+  <link rel="stylesheet" href="/tenant-live-admin.css">
+</head>
+<body data-tenant="ekodichurch" data-auth-site="church" data-name="에코디교회" data-live-path="/ekodichurch/live/" data-admin-home="/ekodichurch/admin">
+  <header class="top">
+    <a class="brand" href="/ekodichurch/admin">에코디교회</a>
+    <nav>
+      <a href="/ekodichurch/live/?mode=studio">라이브 스튜디오</a>
+      <a href="/ekodichurch/admin">사이트 관리자</a>
+    </nav>
+  </header>
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">LIVE ADMIN</p>
+        <h1>방송 · 녹화 관리</h1>
+        <p>방송 기록과 녹화본을 한곳에서 재생·다운로드·공개·보존·게시합니다.</p>
+      </div>
+      <span id="authState">권한 확인 중</span>
+    </section>
+    <section class="cards">
+      <article><span>방송 기록</span><strong id="broadcastCount">-</strong></article>
+      <article><span>녹화 영상</span><strong id="totalCount">-</strong></article>
+      <article><span>보관 완료</span><strong id="archivedCount">-</strong></article>
+      <article><span>공개</span><strong id="publicCount">-</strong></article>
+      <article><span>저장 용량</span><strong id="totalBytes">-</strong></article>
+    </section>
+    <section class="panel">
+      <div class="toolbar">
+        <div><strong>녹화 영상</strong><small>기본값은 비공개입니다. 공개 전 직접 확인하세요.</small></div>
+        <button id="refreshButton" type="button">새로고침</button>
+      </div>
+      <div id="flash" class="flash"></div>
+      <div id="recordingList" class="list"><p class="empty">녹화 기록을 불러오고 있습니다.</p></div>
+    </section>
+    <section class="panel history-panel">
+      <div class="toolbar"><div><strong>방송 기록</strong><small>녹화 성공 여부와 관계없이 방송방 이력을 표시합니다.</small></div></div>
+      <div id="broadcastList" class="list"><p class="empty">방송 기록을 불러오고 있습니다.</p></div>
+    </section>
+  </main>
+  <dialog id="playerDialog">
+    <form method="dialog"><button class="close" aria-label="닫기">×</button></form>
+    <h2 id="playerTitle">녹화 재생</h2>
+    <video id="player" controls playsinline></video>
+  </dialog>
+  <script src="/tenant-live-admin.js" defer></script>
+</body>
+</html>
