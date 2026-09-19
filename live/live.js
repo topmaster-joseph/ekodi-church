@@ -294,17 +294,17 @@ function drawOverlaySources(ctx,w,h){
 }
 function drawProgram(){
   if(!state.ctx||!state.canvas)return;
-  const ctx=state.ctx;const w=state.canvas.width;const h=state.canvas.height;const camera=$('cameraSource');const screen=$('screenSource');
+  const ctx=state.ctx;const w=state.canvas.width;const h=state.canvas.height;const camera=$('cameraSource');const screen=$('screenSource');const shared=state.sharedVisual||screen;
   ctx.fillStyle='#090b0a';ctx.fillRect(0,0,w,h);
-  const hasScreen=Boolean(state.screen&&screen?.videoWidth);
+  const sharedSize=mediaSize(shared);const hasScreen=Boolean((state.screen||state.sharedVisual)&&sharedSize.width);
   const layout=hasScreen?state.layout:'presenter';
-  if(layout==='screen')drawContained(ctx,screen,0,0,w,h);
+  if(layout==='screen')drawContained(ctx,shared,0,0,w,h);
   else if(layout==='side'){
-    const split=Math.round(w*.70);drawContained(ctx,screen,0,0,split,h);drawCovered(ctx,camera,split,0,w-split,h);
+    const split=Math.round(w*.70);drawContained(ctx,shared,0,0,split,h);drawCovered(ctx,camera,split,0,w-split,h);
   }else if(layout==='equal'){
-    const split=Math.round(w*.5);drawContained(ctx,screen,0,0,split,h);drawCovered(ctx,camera,split,0,w-split,h);
+    const split=Math.round(w*.5);drawContained(ctx,shared,0,0,split,h);drawCovered(ctx,camera,split,0,w-split,h);
   }else if(layout==='pip'){
-    drawContained(ctx,screen,0,0,w,h);const pw=Math.round(w*PIP_SIZE);const ph=Math.round(h*PIP_SIZE);const px=Math.round(w*state.presenterPosition.x);const py=Math.round(h*state.presenterPosition.y);ctx.fillStyle='#f6f1e8';ctx.fillRect(px-4,py-4,pw+8,ph+8);drawCovered(ctx,camera,px,py,pw,ph);
+    drawContained(ctx,shared,0,0,w,h);const pw=Math.round(w*PIP_SIZE);const ph=Math.round(h*PIP_SIZE);const px=Math.round(w*state.presenterPosition.x);const py=Math.round(h*state.presenterPosition.y);ctx.fillStyle='#f6f1e8';ctx.fillRect(px-4,py-4,pw+8,ph+8);drawCovered(ctx,camera,px,py,pw,ph);
   }else drawCovered(ctx,camera,0,0,w,h);
   drawOverlaySources(ctx,w,h);
   state.animationFrame=requestAnimationFrame(drawProgram);
@@ -413,7 +413,7 @@ function setupProgramDrop(){
   screen.addEventListener('drop',event=>{event.preventDefault();screen.classList.remove('drop-ready');const id=event.dataTransfer?.getData('text/ekodi-overlay');if(id)addOverlay(id)});
 }
 function sourceThumb(stream,label){const wrap=document.createElement('div');wrap.className='source-thumb';const video=document.createElement('video');video.autoplay=true;video.playsInline=true;video.muted=true;video.srcObject=stream;const text=document.createElement('span');text.textContent=label;wrap.append(video,text);return wrap}
-function updateSourceRail(){const rail=$('thumbnailRail');if(!rail)return;rail.replaceChildren();if(!state.screen){rail.classList.add('hidden');return}if(state.local)rail.append(sourceThumb(state.local,'발표자'));rail.append(sourceThumb(state.screen,'공유화면'));rail.classList.remove('hidden')}
+function updateSourceRail(){const rail=$('thumbnailRail');if(!rail)return;rail.replaceChildren();if(!state.screen){rail.classList.add('hidden');return}if(state.local)rail.append(sourceThumb(state.local,'설교자'));rail.append(sourceThumb(state.screen,'공유화면'));rail.classList.remove('hidden')}
 function programContentBox(){
   const screen=$('programScreen');if(!screen)return null;
   const rect=screen.getBoundingClientRect();if(!rect.width||!rect.height)return null;
@@ -446,13 +446,13 @@ function movePresenterDrag(event){
 }
 function endPresenterDrag(event){
   if(!state.presenterDrag||state.presenterDrag.pointerId!==event.pointerId)return;
-  $('presenterDragHandle')?.classList.remove('dragging');state.presenterDrag=null;note('발표자 위치를 방송 화면에 반영했습니다.');
+  $('presenterDragHandle')?.classList.remove('dragging');state.presenterDrag=null;note('설교자 위치를 방송 화면에 반영했습니다.');
 }
 function setLayout(layout){
   if(!LAYOUTS.has(layout))return;if(layout!=='presenter'&&!state.screen)return;state.layout=layout;
   document.querySelectorAll('[data-layout]').forEach(button=>{const active=button.dataset.layout===layout;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});
   syncPresenterDragHandle();
-  const label={pip:'화면 + 발표자',side:'70 : 30',equal:'1 : 1',screen:'공유화면만',presenter:'발표자'}[layout]||'화면 + 발표자';note(`화면 구도를 '${label}'로 전환했습니다.`);
+  const label={pip:'화면 + 설교자',side:'70 : 30',equal:'1 : 1',screen:'공유화면만',presenter:'설교자'}[layout]||'화면 + 설교자';note(`화면 구도를 '${label}'로 전환했습니다.`);
 }
 function stopScreenShare(message='화면공유를 종료했습니다.'){
   const stream=state.screen;if(!stream)return;state.screen=null;for(const track of stream.getTracks())if(track.readyState!=='ended')track.stop();setSourceVideo('screenSource',null);state.layout='presenter';$('layoutPanel')?.classList.add('hidden');$('screenButton')?.setAttribute('aria-pressed','false');if($('screenButton'))$('screenButton').textContent='PPT·화면공유';updateSourceRail();syncPresenterDragHandle();note(message);
