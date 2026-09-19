@@ -58,7 +58,7 @@
         <video id="mainVideo" autoplay playsinline muted></video>
         <video id="cameraSource" class="source-video" autoplay playsinline muted aria-hidden="true"></video>
         <video id="screenSource" class="source-video" autoplay playsinline muted aria-hidden="true"></video>
-        <div class="presenter-drag-handle hidden" id="presenterDragHandle" role="button" aria-label="발표자 화면 위치 이동"><span>발표자</span><button class="overlay-remove" id="presenterRemoveButton" type="button" aria-label="발표자 화면에서 제거">×</button></div>
+        <div class="presenter-drag-handle hidden" id="presenterDragHandle" role="button" aria-label="설교자 화면 위치 이동"><span>설교자</span><button class="overlay-remove" id="presenterRemoveButton" type="button" aria-label="설교자 화면에서 제거">×</button></div>
         <div class="program-overlay-layer" id="programOverlayLayer" aria-label="방송 화면 추가 소스"></div>
         <div class="program-placeholder" id="programPlaceholder">
           <strong>EKODI CHURCH LIVE</strong>
@@ -91,14 +91,14 @@
       <div class="control-grid" aria-label="방송 제어">
         <button id="cameraButton" type="button" aria-pressed="true">카메라</button>
         <button id="micButton" type="button" aria-pressed="true">마이크</button>
-        <button id="screenButton" type="button" aria-pressed="false">PPT·화면공유</button>
+        <button id="screenButton" type="button" aria-pressed="false">PPT·화면공유</button><input id="mobileShareInput" type="file" accept="image/*,video/*" hidden>
         <button id="recordingButton" type="button" disabled>녹화 자동</button>
       </div>
 
       <section class="layout-panel hidden" id="layoutPanel" aria-label="화면 구도 선택">
-        <div class="section-heading"><strong>화면 구도</strong><small>PIP 발표자는 화면에서 마우스로 이동할 수 있습니다.</small></div>
+        <div class="section-heading"><strong>화면 구도</strong><small>PIP 설교자는 화면에서 마우스로 이동할 수 있습니다.</small></div>
         <div class="layout-options" id="layoutOptions">
-          <button type="button" data-layout="pip" class="active" aria-pressed="true"><span class="layout-preview layout-pip"></span><b>발표자+공유(PIP)</b></button>
+          <button type="button" data-layout="pip" class="active" aria-pressed="true"><span class="layout-preview layout-pip"></span><b>설교자+공유(PIP)</b></button>
           <button type="button" data-layout="side"><span class="layout-preview layout-side"></span><b>70 : 30</b></button>
           <button type="button" data-layout="equal"><span class="layout-preview layout-equal"></span><b>1 : 1</b></button>
           <button type="button" data-layout="screen"><span class="layout-preview layout-screen"></span><b>공유화면만</b></button>
