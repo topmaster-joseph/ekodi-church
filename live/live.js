@@ -125,6 +125,16 @@ function formatElapsed(ms){const seconds=Math.max(0,Math.floor(ms/1000));const h
 function startLiveClock(){state.startedAt=Date.now();clearInterval(state.timerId);const update=()=>{if($('liveTimer'))$('liveTimer').textContent=formatElapsed(Date.now()-state.startedAt)};update();state.timerId=setInterval(update,1000)}
 function stopLiveClock(reset=false){clearInterval(state.timerId);state.timerId=null;if(reset&&$('liveTimer'))$('liveTimer').textContent='00:00:00'}
 function setRecordingState(active,label='녹화 준비'){if(!$('recordingStatus'))return;$('recordingStatus').textContent=label;$('recordingStatus').dataset.recording=active?'true':'false';if($('recordingButton'))$('recordingButton').textContent=active?'● 녹화 중':'녹화 자동'}
+function recordingUrlFrom(result){
+  const values=[result?.url,result?.recording?.url,result?.recording?.playbackUrl,result?.recording?.downloadUrl,result?.archive?.url,result?.archive?.webViewLink,result?.archive?.webContentLink,result?.archive?.downloadUrl];
+  return values.find(value=>typeof value==='string'&&/^https?:\/\//i.test(value))||'';
+}
+function showRecordingLink(result){
+  const url=recordingUrlFrom(result),box=$('recordingLinkBox'),input=$('recordingLink'),open=$('openRecordingLink');
+  if(!box)return false;
+  if(!url){box.classList.add('hidden');return false}
+  input.value=url;open.href=url;box.classList.remove('hidden');return true;
+}
 
 function recordingMime(){
   for(const type of ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'])if(globalThis.MediaRecorder?.isTypeSupported?.(type))return type;
@@ -205,7 +215,9 @@ async function stopManagedRecording(){
       return {ok:false,failed:true};
     }
     const done=await api(`/rooms/${state.room.id}/recordings/${rec.id}/finalize`,{method:'POST',body:'{}'});
+    const hasLink=showRecordingLink(done);
     setRecordingState(false,done.archive?.ok?'공유드라이브 보관 완료':'녹화 저장 완료 · 보관 대기');
+    if(!hasLink)note('녹화 저장은 완료됐지만 재생 가능한 링크가 응답에 없습니다. 저장 API의 링크 반환 상태를 확인해야 합니다.');
     return {ok:true,...done};
   }catch(error){
     setRecordingState(false,'녹화 확정 실패');
@@ -648,7 +660,9 @@ $('presenterDragHandle')?.addEventListener('pointerdown',beginPresenterDrag);$('
 $('hostButton').addEventListener('click',prepareStudio);$('joinButton').addEventListener('click',()=>joinViewer());$('goLiveButton').addEventListener('click',startBroadcast);$('endLiveButton').addEventListener('click',endLive);$('screenButton').addEventListener('click',shareScreen);$('fullscreenButton').addEventListener('click',toggleFullscreen);
 $('cameraButton').addEventListener('click',async()=>{try{if(!state.local){await acquireCamera();state.studioPrepared=true;setPhase('ready');$('goLiveButton').disabled=false;return note('카메라가 켜졌습니다.')}const track=state.local.getVideoTracks()[0];if(!track)return note('사용 가능한 카메라가 없습니다.');track.enabled=!track.enabled;$('cameraButton').setAttribute('aria-pressed',String(track.enabled));$('cameraButton').textContent=track.enabled?'카메라':'카메라 꺼짐';note(track.enabled?'카메라가 켜졌습니다.':'카메라를 껐습니다.')}catch(error){note(`카메라 사용 불가: ${error.message}`)}});
 $('micButton').addEventListener('click',()=>{const track=state.local?.getAudioTracks?.()[0];if(!track)return note('먼저 카메라·마이크를 준비해 주세요.');track.enabled=!track.enabled;$('micButton').setAttribute('aria-pressed',String(track.enabled));$('micButton').textContent=track.enabled?'마이크':'마이크 꺼짐';note(track.enabled?'마이크가 켜졌습니다.':'마이크를 껐습니다.')});
-$('copyLinkButton').addEventListener('click',async()=>{await navigator.clipboard?.writeText?.($('shareLink').value);note('참여 링크를 복사했습니다.')});$('requestSpeakButton').addEventListener('click',requestCameraParticipation);
+$('copyLinkButton').addEventListener('click',async()=>{await navigator.clipboard?.writeText?.($('shareLink').value);note('참여 링크를 복사했습니다.')});
+$('copyRecordingLinkButton')?.addEventListener('click',async()=>{const value=$('recordingLink')?.value;if(!value)return;await navigator.clipboard?.writeText?.(value);note('녹화본 링크를 복사했습니다.')});
+$('requestSpeakButton').addEventListener('click',requestCameraParticipation);
 void bootstrapCentralAuth().then(async authenticated=>{
   if(setupParams.get('mode')==='studio'){
     const prepared=await prepareStudio();
