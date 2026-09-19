@@ -20,7 +20,7 @@ const SUPPORTED_LANGUAGES=[
 const LAYOUTS=new Set(['presenter','pip','side','equal','screen']);
 const setupParams=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
-const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,chatMessages:[],chatTimer:null,participantTimer:null,recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
+const state={room:null,pc:null,session:null,local:null,screen:null,sharedVisual:null,sharedObjectUrl:'',program:null,remote:new MediaStream(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,chatMessages:[],chatTimer:null,participantTimer:null,recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
 
 function token(){try{const central=sessionStorage.getItem('ekodi-auth-token');if(central)return central;const church=JSON.parse(sessionStorage.getItem('ekodi-church-pastor-session')||'null');return church?.accessToken||''}catch{return''}}
 function headers(json=false,session=false){const h=new Headers();if(token())h.set('authorization',`Bearer ${token()}`);if(json)h.set('content-type','application/json');if(session&&state.session?.accessKey)h.set('x-ekodi-session-key',state.session.accessKey);return h}
@@ -32,6 +32,8 @@ async function sessionApi(path,accessKey,options={}){
 }
 function show(id){for(const key of ['entryView','studioView','viewerView'])$(key)?.classList.add('hidden');$(id)?.classList.remove('hidden')}
 function note(message,target='statusLog'){$(target).textContent=message}
+function isLikelyMobile(){return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent||'')||((matchMedia?.('(pointer: coarse)')?.matches)&&Math.min(innerWidth||9999,innerHeight||9999)<1000)}
+function canNativeScreenShare(){return typeof navigator.mediaDevices?.getDisplayMedia==='function'&&!isLikelyMobile()}
 function safeReturnTo(studio=false){const back=new URL(location.href);const hash=new URLSearchParams(back.hash.replace(/^#/,''));if(['ekodi_token','ekodi_type','access_token','refresh_token'].some(key=>hash.has(key)))back.hash='';for(const key of ['ekodi_token','ekodi_type'])back.searchParams.delete(key);if(studio)back.searchParams.set('mode','studio');return back.toString()}
 function login(studio=false){
   const now=Date.now();
@@ -257,14 +259,15 @@ async function acquireCamera(){
   ensureProgramStream();
   return stream;
 }
-function drawContained(ctx,video,x,y,w,h,fill='#090b0a'){
+function mediaSize(media){return {width:Number(media?.videoWidth||media?.naturalWidth||0),height:Number(media?.videoHeight||media?.naturalHeight||0)}}
+function drawContained(ctx,media,x,y,w,h,fill='#090b0a'){
   ctx.fillStyle=fill;ctx.fillRect(x,y,w,h);
-  if(!video||!video.videoWidth||!video.videoHeight)return;
-  const scale=Math.min(w/video.videoWidth,h/video.videoHeight);const dw=video.videoWidth*scale;const dh=video.videoHeight*scale;ctx.drawImage(video,x+(w-dw)/2,y+(h-dh)/2,dw,dh);
+  const size=mediaSize(media);if(!size.width||!size.height)return;
+  const scale=Math.min(w/size.width,h/size.height);const dw=size.width*scale;const dh=size.height*scale;ctx.drawImage(media,x+(w-dw)/2,y+(h-dh)/2,dw,dh);
 }
-function drawCovered(ctx,video,x,y,w,h){
-  if(!video||!video.videoWidth||!video.videoHeight){ctx.fillStyle='#142019';ctx.fillRect(x,y,w,h);return}
-  const scale=Math.max(w/video.videoWidth,h/video.videoHeight);const sw=w/scale;const sh=h/scale;const sx=(video.videoWidth-sw)/2;const sy=(video.videoHeight-sh)/2;ctx.drawImage(video,sx,sy,sw,sh,x,y,w,h);
+function drawCovered(ctx,media,x,y,w,h){
+  const size=mediaSize(media);if(!size.width||!size.height){ctx.fillStyle='#142019';ctx.fillRect(x,y,w,h);return}
+  const scale=Math.max(w/size.width,h/size.height);const sw=w/scale;const sh=h/scale;const sx=(size.width-sw)/2;const sy=(size.height-sh)/2;ctx.drawImage(media,sx,sy,sw,sh,x,y,w,h);
 }
 function drawChatOverlay(ctx,overlay,w,h){
   const x=Math.round(overlay.x*w),y=Math.round(overlay.y*h),ow=Math.round(overlay.w*w),oh=Math.round(overlay.h*h);
@@ -291,17 +294,17 @@ function drawOverlaySources(ctx,w,h){
 }
 function drawProgram(){
   if(!state.ctx||!state.canvas)return;
-  const ctx=state.ctx;const w=state.canvas.width;const h=state.canvas.height;const camera=$('cameraSource');const screen=$('screenSource');
+  const ctx=state.ctx;const w=state.canvas.width;const h=state.canvas.height;const camera=$('cameraSource');const screen=$('screenSource');const shared=state.sharedVisual||screen;
   ctx.fillStyle='#090b0a';ctx.fillRect(0,0,w,h);
-  const hasScreen=Boolean(state.screen&&screen?.videoWidth);
+  const sharedSize=mediaSize(shared);const hasScreen=Boolean((state.screen||state.sharedVisual)&&sharedSize.width);
   const layout=hasScreen?state.layout:'presenter';
-  if(layout==='screen')drawContained(ctx,screen,0,0,w,h);
+  if(layout==='screen')drawContained(ctx,shared,0,0,w,h);
   else if(layout==='side'){
-    const split=Math.round(w*.70);drawContained(ctx,screen,0,0,split,h);drawCovered(ctx,camera,split,0,w-split,h);
+    const split=Math.round(w*.70);drawContained(ctx,shared,0,0,split,h);drawCovered(ctx,camera,split,0,w-split,h);
   }else if(layout==='equal'){
-    const split=Math.round(w*.5);drawContained(ctx,screen,0,0,split,h);drawCovered(ctx,camera,split,0,w-split,h);
+    const split=Math.round(w*.5);drawContained(ctx,shared,0,0,split,h);drawCovered(ctx,camera,split,0,w-split,h);
   }else if(layout==='pip'){
-    drawContained(ctx,screen,0,0,w,h);const pw=Math.round(w*PIP_SIZE);const ph=Math.round(h*PIP_SIZE);const px=Math.round(w*state.presenterPosition.x);const py=Math.round(h*state.presenterPosition.y);ctx.fillStyle='#f6f1e8';ctx.fillRect(px-4,py-4,pw+8,ph+8);drawCovered(ctx,camera,px,py,pw,ph);
+    drawContained(ctx,shared,0,0,w,h);const pw=Math.round(w*PIP_SIZE);const ph=Math.round(h*PIP_SIZE);const px=Math.round(w*state.presenterPosition.x);const py=Math.round(h*state.presenterPosition.y);ctx.fillStyle='#f6f1e8';ctx.fillRect(px-4,py-4,pw+8,ph+8);drawCovered(ctx,camera,px,py,pw,ph);
   }else drawCovered(ctx,camera,0,0,w,h);
   drawOverlaySources(ctx,w,h);
   state.animationFrame=requestAnimationFrame(drawProgram);
@@ -410,7 +413,7 @@ function setupProgramDrop(){
   screen.addEventListener('drop',event=>{event.preventDefault();screen.classList.remove('drop-ready');const id=event.dataTransfer?.getData('text/ekodi-overlay');if(id)addOverlay(id)});
 }
 function sourceThumb(stream,label){const wrap=document.createElement('div');wrap.className='source-thumb';const video=document.createElement('video');video.autoplay=true;video.playsInline=true;video.muted=true;video.srcObject=stream;const text=document.createElement('span');text.textContent=label;wrap.append(video,text);return wrap}
-function updateSourceRail(){const rail=$('thumbnailRail');if(!rail)return;rail.replaceChildren();if(!state.screen){rail.classList.add('hidden');return}if(state.local)rail.append(sourceThumb(state.local,'발표자'));rail.append(sourceThumb(state.screen,'공유화면'));rail.classList.remove('hidden')}
+function updateSourceRail(){const rail=$('thumbnailRail');if(!rail)return;rail.replaceChildren();if(!state.screen){rail.classList.add('hidden');return}if(state.local)rail.append(sourceThumb(state.local,'설교자'));rail.append(sourceThumb(state.screen,'공유화면'));rail.classList.remove('hidden')}
 function programContentBox(){
   const screen=$('programScreen');if(!screen)return null;
   const rect=screen.getBoundingClientRect();if(!rect.width||!rect.height)return null;
@@ -443,24 +446,42 @@ function movePresenterDrag(event){
 }
 function endPresenterDrag(event){
   if(!state.presenterDrag||state.presenterDrag.pointerId!==event.pointerId)return;
-  $('presenterDragHandle')?.classList.remove('dragging');state.presenterDrag=null;note('발표자 위치를 방송 화면에 반영했습니다.');
+  $('presenterDragHandle')?.classList.remove('dragging');state.presenterDrag=null;note('설교자 위치를 방송 화면에 반영했습니다.');
 }
 function setLayout(layout){
   if(!LAYOUTS.has(layout))return;if(layout!=='presenter'&&!state.screen)return;state.layout=layout;
   document.querySelectorAll('[data-layout]').forEach(button=>{const active=button.dataset.layout===layout;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});
   syncPresenterDragHandle();
-  const label={pip:'화면 + 발표자',side:'70 : 30',equal:'1 : 1',screen:'공유화면만',presenter:'발표자'}[layout]||'화면 + 발표자';note(`화면 구도를 '${label}'로 전환했습니다.`);
+  const label={pip:'화면 + 설교자',side:'70 : 30',equal:'1 : 1',screen:'공유화면만',presenter:'설교자'}[layout]||'화면 + 설교자';note(`화면 구도를 '${label}'로 전환했습니다.`);
 }
-function stopScreenShare(message='화면공유를 종료했습니다.'){
-  const stream=state.screen;if(!stream)return;state.screen=null;for(const track of stream.getTracks())if(track.readyState!=='ended')track.stop();setSourceVideo('screenSource',null);state.layout='presenter';$('layoutPanel')?.classList.add('hidden');$('screenButton')?.setAttribute('aria-pressed','false');if($('screenButton'))$('screenButton').textContent='PPT·화면공유';updateSourceRail();syncPresenterDragHandle();note(message);
+function clearSharedVisual(message='공유를 종료했습니다.'){
+  if(state.screen){const stream=state.screen;state.screen=null;for(const track of stream.getTracks())if(track.readyState!=='ended')track.stop()}
+  if(state.sharedVisual){try{if(state.sharedVisual.tagName==='VIDEO'){state.sharedVisual.pause();state.sharedVisual.removeAttribute('src');state.sharedVisual.load?.()}}catch{}state.sharedVisual=null}
+  if(state.sharedObjectUrl){URL.revokeObjectURL(state.sharedObjectUrl);state.sharedObjectUrl=''}
+  setSourceVideo('screenSource',null);state.layout='presenter';$('layoutPanel')?.classList.add('hidden');$('screenButton')?.setAttribute('aria-pressed','false');updateSourceRail();syncPresenterDragHandle();if(message)note(message);
 }
+async function loadMobileShareFile(file){
+  if(!file)return;
+  clearSharedVisual('');
+  const url=URL.createObjectURL(file);state.sharedObjectUrl=url;
+  try{
+    let media;
+    if(file.type.startsWith('image/')){media=new Image();media.decoding='async';media.src=url;await media.decode()}
+    else if(file.type.startsWith('video/')){media=document.createElement('video');media.src=url;media.muted=true;media.loop=true;media.autoplay=true;media.playsInline=true;await media.play()}
+    else throw new Error('unsupported');
+    state.sharedVisual=media;state.layout='pip';$('layoutPanel')?.classList.remove('hidden');$('screenButton')?.setAttribute('aria-pressed','true');$('screenButton').textContent='자료공유 종료';setLayout('pip');syncPresenterDragHandle();note('모바일 자료를 방송 화면에 추가했습니다.');
+  }catch(error){clearSharedVisual('이미지나 영상 파일을 선택해 주세요.');syncShareCapability()}
+}
+function openMobileSharePicker(){const input=$('mobileShareInput');if(!input)return note('모바일 자료공유를 준비할 수 없습니다.');input.value='';input.click()}
+function syncShareCapability(){if(!$('screenButton'))return;const fallback=!canNativeScreenShare();$('screenButton').dataset.mobileFallback=fallback?'true':'false';if(!state.screen&&!state.sharedVisual)$('screenButton').textContent=fallback?'PPT·자료공유':'PPT·화면공유'}
 async function shareScreen(){
   if(!state.local){note('먼저 카메라·마이크를 준비해 주세요.');return}
-  if(state.screen){stopScreenShare();return}
-  if(!state.canvasStream){note('현재 브라우저는 발표자와 공유화면 합성을 지원하지 않습니다. 최신 Chromium 브라우저에서 다시 시도해 주세요.');return}
+  if(state.screen||state.sharedVisual){clearSharedVisual();syncShareCapability();return}
+  if(!state.canvasStream){note('현재 브라우저는 화면 합성을 지원하지 않습니다.');return}
+  if(!canNativeScreenShare()){openMobileSharePicker();return}
   try{
-    const stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:15,max:30}},audio:false});state.screen=stream;setSourceVideo('screenSource',stream);state.layout='pip';$('layoutPanel')?.classList.remove('hidden');$('screenButton')?.setAttribute('aria-pressed','true');if($('screenButton'))$('screenButton').textContent='화면공유 종료';setLayout('pip');updateSourceRail();stream.getVideoTracks()[0]?.addEventListener('ended',()=>stopScreenShare('브라우저에서 화면공유가 종료되었습니다.'),{once:true});note('PPT·화면공유를 방송 화면에 합성했습니다. 방송 중에도 화면 구도를 바꿀 수 있습니다.');
-  }catch(error){if(error.name!=='NotAllowedError')note(`화면공유 실패: ${error.message}`)}
+    const stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:15,max:30}},audio:false});state.screen=stream;setSourceVideo('screenSource',stream);state.layout='pip';$('layoutPanel')?.classList.remove('hidden');$('screenButton')?.setAttribute('aria-pressed','true');$('screenButton').textContent='화면공유 종료';setLayout('pip');updateSourceRail();stream.getVideoTracks()[0]?.addEventListener('ended',()=>{clearSharedVisual('브라우저에서 화면공유가 종료되었습니다.');syncShareCapability()},{once:true});note('PPT·화면공유를 방송 화면에 합성했습니다.')
+  }catch(error){if(['NotSupportedError','TypeError'].includes(error.name)){openMobileSharePicker();return}if(error.name!=='NotAllowedError')note(`화면공유 실패: ${error.message}`)}
 }
 async function toggleFullscreen(){
   const stage=$('programStage');if(!stage)return;
@@ -504,7 +525,7 @@ async function endLive(){
     const recordingResult=await stopManagedRecording();
     if(state.session)await api(`/rooms/${state.room.id}/sessions/${state.session.id}/leave`,{method:'POST',session:true,body:'{}'}).catch(()=>{});
     state.pc?.close();state.isLive=false;stopLiveClock();
-    if(state.screen)stopScreenShare('');
+    if(state.screen||state.sharedVisual)clearSharedVisual('');
     state.local?.getTracks().forEach(t=>t.stop());state.canvasStream?.getTracks().forEach(t=>t.stop());cancelAnimationFrame(state.animationFrame);
     await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ended'})});
     setPhase('ended');$('endLiveButton').disabled=true;$('goLiveButton').disabled=true;sessionStorage.removeItem(PENDING_START_KEY);
@@ -643,9 +664,9 @@ $('refreshDestinationsButton')?.addEventListener('click',()=>{if(!token())return
 document.querySelectorAll('[data-layout]').forEach(button=>button.addEventListener('click',()=>setLayout(button.dataset.layout)));
 document.querySelectorAll('[data-leave-studio],.brand').forEach(link=>link.addEventListener('click',guardLiveExit));
 window.addEventListener('beforeunload',guardLiveExit);
-document.addEventListener('fullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});document.addEventListener('webkitfullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});window.addEventListener('resize',()=>{syncPresenterDragHandle();syncOverlayHandles()});
+document.addEventListener('fullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});document.addEventListener('webkitfullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});window.addEventListener('resize',()=>{syncPresenterDragHandle();syncOverlayHandles();syncShareCapability()});syncShareCapability();
 $('presenterDragHandle')?.addEventListener('pointerdown',beginPresenterDrag);$('presenterDragHandle')?.addEventListener('pointermove',movePresenterDrag);$('presenterDragHandle')?.addEventListener('pointerup',endPresenterDrag);$('presenterDragHandle')?.addEventListener('pointercancel',endPresenterDrag);$('presenterRemoveButton')?.addEventListener('click',event=>{event.stopPropagation();setLayout('screen')});
-$('hostButton').addEventListener('click',prepareStudio);$('joinButton').addEventListener('click',()=>joinViewer());$('goLiveButton').addEventListener('click',startBroadcast);$('endLiveButton').addEventListener('click',endLive);$('screenButton').addEventListener('click',shareScreen);$('fullscreenButton').addEventListener('click',toggleFullscreen);
+$('hostButton').addEventListener('click',prepareStudio);$('joinButton').addEventListener('click',()=>joinViewer());$('goLiveButton').addEventListener('click',startBroadcast);$('endLiveButton').addEventListener('click',endLive);$('screenButton').addEventListener('click',shareScreen);$('mobileShareInput')?.addEventListener('change',event=>void loadMobileShareFile(event.target.files?.[0]));$('fullscreenButton').addEventListener('click',toggleFullscreen);
 $('cameraButton').addEventListener('click',async()=>{try{if(!state.local){await acquireCamera();state.studioPrepared=true;setPhase('ready');$('goLiveButton').disabled=false;return note('카메라가 켜졌습니다.')}const track=state.local.getVideoTracks()[0];if(!track)return note('사용 가능한 카메라가 없습니다.');track.enabled=!track.enabled;$('cameraButton').setAttribute('aria-pressed',String(track.enabled));$('cameraButton').textContent=track.enabled?'카메라':'카메라 꺼짐';note(track.enabled?'카메라가 켜졌습니다.':'카메라를 껐습니다.')}catch(error){note(`카메라 사용 불가: ${error.message}`)}});
 $('micButton').addEventListener('click',()=>{const track=state.local?.getAudioTracks?.()[0];if(!track)return note('먼저 카메라·마이크를 준비해 주세요.');track.enabled=!track.enabled;$('micButton').setAttribute('aria-pressed',String(track.enabled));$('micButton').textContent=track.enabled?'마이크':'마이크 꺼짐';note(track.enabled?'마이크가 켜졌습니다.':'마이크를 껐습니다.')});
 $('copyLinkButton').addEventListener('click',async()=>{await navigator.clipboard?.writeText?.($('shareLink').value);note('참여 링크를 복사했습니다.')});
