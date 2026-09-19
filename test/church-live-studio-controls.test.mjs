@@ -148,3 +148,14 @@ test('church live wording is worship-specific while keeping the same studio cont
   assert.match(html,/설교자\+공유\(PIP\)/);
   assert.match(html,/PIP 설교자는 화면에서 마우스로 이동/);
 });
+
+
+test('live publisher heartbeat stays active only while broadcasting',async()=>{
+  const js=await read('live/live.js');
+  assert.match(js,/hostHeartbeatTimer:null/);
+  assert.match(js,/\/heartbeat/);
+  assert.match(js,/setInterval\(\(\)=>void sendHostHeartbeat\(\),20000\)/);
+  assert.match(js,/state\.isLive=true;startHostHeartbeat\(\)/);
+  assert.match(js,/async function endLive\(\)\{[\s\S]*?stopHostHeartbeat\(\)/);
+  assert.match(js,/pagehide',hostExitCleanup/);
+});
