@@ -26,3 +26,24 @@
 .viewer-interpretation .language-chips{margin-top:9px}
 .viewer-camera-box{display:grid;gap:8px}.viewer-camera-box .section-heading{margin-bottom:2px}.participant-camera-preview{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:11px;background:#111}
 .viewer-chat{margin-bottom:10px}
+
+
+/* Mobile broadcaster: keep the program monitor compact so controls remain above the fold. */
+@media(max-width:640px){
+  .studio{gap:12px}
+  .program-stage{min-height:0}
+  .program-screen{
+    min-height:0;
+    height:auto;
+    aspect-ratio:16/9;
+  }
+  .program-screen video{position:absolute;inset:0}
+  .program-placeholder{inset:0;place-content:center}
+  .program-badge{top:9px;left:9px;padding:5px 8px;font-size:10px}
+  .stage-fullscreen{top:7px;right:7px;padding:6px 8px;font-size:11px}
+  .program-status{left:8px;right:8px;bottom:8px;gap:5px}
+  .program-status span{padding:5px 7px;font-size:10px}
+  .thumbnail-rail{padding:7px}
+  .source-thumb,.source-thumb video{width:112px;min-width:112px}
+  .source-thumb video{height:63px}
+}
