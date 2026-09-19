@@ -103,11 +103,6 @@ function renderLanguageOptions(){
   for(const chips of targets){
     chips.replaceChildren(...SUPPORTED_LANGUAGES.map(language=>{const span=document.createElement('span');span.textContent=language.label;span.dataset.language=language.code;return span}));
   }
-  const select=$('viewerLanguageSelect');
-  if(select){
-    select.replaceChildren(new Option('원음','original'),...SUPPORTED_LANGUAGES.map(language=>new Option(language.label,language.code)));
-    select.value=sessionStorage.getItem('ekodi-live-interpretation-language')||'original';
-  }
   if($('interpretationStatus'))$('interpretationStatus').textContent='자동동시통역 가능';
 }
 function setPhase(phase){
@@ -641,13 +636,6 @@ setupProgramDrop();
 $('chatOverlaySource')?.addEventListener('dragstart',event=>event.dataTransfer?.setData('text/ekodi-overlay','chat'));
 $('chatOverlaySource')?.addEventListener('click',()=>state.overlays.get('chat')?.visible?removeOverlay('chat'):addOverlay('chat'));
 $('connectExtraCameraButton')?.addEventListener('click',connectExtraCamera);
-$('viewerLanguageSelect')?.addEventListener('change',event=>{
-  const code=event.target.value;
-  sessionStorage.setItem('ekodi-live-interpretation-language',code);
-  const label=code==='original'?'원음':SUPPORTED_LANGUAGES.find(language=>language.code===code)?.label||code;
-  note(`동시통역 언어: ${label}`,'viewerStatus');
-  document.dispatchEvent(new CustomEvent('ekodi:interpretation-language-change',{detail:{language:code,roomId:state.room?.id||''}}));
-});
 $('refreshParticipantSourcesButton')?.addEventListener('click',refreshParticipantSources);
 $('studioChatForm')?.addEventListener('submit',event=>{event.preventDefault();void sendChat('studioChatInput','방송자')});
 $('viewerChatForm')?.addEventListener('submit',event=>{event.preventDefault();void sendChat('viewerChatInput','참여자')});
