@@ -52,7 +52,6 @@
 .program-status-bar span{white-space:nowrap;padding:6px 9px;border-radius:999px;background:#2a312d;color:#fff;font-size:12px}
 .program-status-bar #recordingStatus[data-recording="true"]{background:#812f2b}
 .camera-limit-note{display:block;color:#758078;font-size:10px;margin-top:6px}
-.viewer-interpretation select{width:100%;margin-top:9px;border:1px solid #ccd7cf;border-radius:10px;background:#fff;padding:9px}
 .resizable-panel{resize:vertical;overflow:auto;min-height:150px;max-height:70vh}
 @media(min-width:901px){
   .studio{grid-template-columns:minmax(0,1fr) minmax(340px,390px)}
