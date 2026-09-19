@@ -20,7 +20,7 @@ const SUPPORTED_LANGUAGES=[
 const LAYOUTS=new Set(['presenter','pip','side','equal','screen']);
 const setupParams=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
-const state={room:null,pc:null,session:null,local:null,screen:null,sharedVisual:null,sharedObjectUrl:'',program:null,remote:new MediaStream(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,chatMessages:[],chatTimer:null,participantTimer:null,recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
+const state={room:null,pc:null,session:null,local:null,screen:null,sharedVisual:null,sharedObjectUrl:'',program:null,remote:new MediaStream(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,chatMessages:[],chatTimer:null,participantTimer:null,recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false,hostHeartbeatTimer:null,hostHeartbeatFailures:0};
 
 function token(){try{const central=sessionStorage.getItem('ekodi-auth-token');if(central)return central;const church=JSON.parse(sessionStorage.getItem('ekodi-church-pastor-session')||'null');return church?.accessToken||''}catch{return''}}
 function headers(json=false,session=false){const h=new Headers();if(token())h.set('authorization',`Bearer ${token()}`);if(json)h.set('content-type','application/json');if(session&&state.session?.accessKey)h.set('x-ekodi-session-key',state.session.accessKey);return h}
@@ -30,6 +30,19 @@ async function sessionApi(path,accessKey,options={}){
   const r=await fetch(`${API}${path}`,{...options,headers:h,cache:'no-store'});
   const data=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(data.error||`HTTP ${r.status}`);e.status=r.status;e.data=data;throw e}return data;
 }
+function stopHostHeartbeat(){if(state.hostHeartbeatTimer)clearInterval(state.hostHeartbeatTimer);state.hostHeartbeatTimer=null;state.hostHeartbeatFailures=0}
+async function sendHostHeartbeat(){
+  if(!state.isLive||!state.room||!state.session)return;
+  try{
+    await sessionApi(`/rooms/${encodeURIComponent(state.room.id)}/sessions/${encodeURIComponent(state.session.id)}/heartbeat`,state.session.accessKey,{method:'POST',body:'{}'});
+    state.hostHeartbeatFailures=0;
+  }catch(error){
+    if(error?.status===404||error?.status===405)return;
+    state.hostHeartbeatFailures++;
+    if(state.hostHeartbeatFailures===3)note('방송 연결 상태 확인이 지연되고 있습니다. 송출 화면을 유지한 채 네트워크를 확인해 주세요.');
+  }
+}
+function startHostHeartbeat(){stopHostHeartbeat();void sendHostHeartbeat();state.hostHeartbeatTimer=setInterval(()=>void sendHostHeartbeat(),20000)}
 function show(id){for(const key of ['entryView','studioView','viewerView'])$(key)?.classList.add('hidden');$(id)?.classList.remove('hidden')}
 function note(message,target='statusLog'){$(target).textContent=message}
 function isLikelyMobile(){return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent||'')||((matchMedia?.('(pointer: coarse)')?.matches)&&Math.min(innerWidth||9999,innerHeight||9999)<1000)}
@@ -506,7 +519,7 @@ async function startHost(){
     const local=state.local||await acquireCamera();const program=ensureProgramStream()||local;await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'starting'})});await createSession(state.room.id,'owner');await publishStream(program,'program');startChatPolling();startParticipantMonitoring();setPhase('ready');note('미디어 연결이 완료되었습니다. 방송을 시작합니다.');setRecordingState(false,'녹화 준비');return true;
   }catch(error){state.hosting=false;setPhase('error');$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 준비 실패: ${error.message}`);return false}
 }
-async function goLive(){if(!state.room)return false;try{await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'live'})});state.isLive=true;setPhase('live');startLiveClock();$('goLiveButton').disabled=true;$('endLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);lockDestinationSelection();setRecordingState(false,'녹화 준비 중');await startManagedRecording();return true}catch(error){$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 시작 실패: ${error.message}`);return false}}
+async function goLive(){if(!state.room)return false;try{await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'live'})});state.isLive=true;startHostHeartbeat();setPhase('live');startLiveClock();$('goLiveButton').disabled=true;$('endLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);lockDestinationSelection();setRecordingState(false,'녹화 준비 중');await startManagedRecording();return true}catch(error){stopHostHeartbeat();$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 시작 실패: ${error.message}`);return false}}
 async function startBroadcast(){
   if(state.isLive)return;
   sessionStorage.setItem(PENDING_START_KEY,'1');$('goLiveButton').disabled=true;
@@ -520,6 +533,7 @@ async function startBroadcast(){
 }
 async function endLive(){
   if(!state.room)return;
+  stopHostHeartbeat();
   try{
     await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ending'})});
     const recordingResult=await stopManagedRecording();
@@ -649,6 +663,7 @@ async function joinViewer(roomId=''){
   }catch(error){note(`참여 연결 실패: ${error.message}`,'viewerStatus')}
 }
 async function refreshLive(){try{const live=await api(`/live?tenant=${TENANT}`);$('liveState').textContent=live.live?'현재 LIVE':'현재 대기';$('liveState').dataset.phase=live.live?'live':'idle';if(live.live)$('joinButton').textContent='현재 방송 참여하기'}catch{$('liveState').textContent='상태 확인 필요'}}
+function hostExitCleanup(){if(!state.isLive||!state.room)return;stopHostHeartbeat()}
 function guardLiveExit(event){if(!state.isLive)return;const message='현재 방송 중입니다. 교회 홈으로 이동하면 이 브라우저의 송출이 종료될 수 있습니다. 이동하시겠습니까?';if(event?.type==='beforeunload'){event.preventDefault();event.returnValue='';return}if(!confirm(message))event.preventDefault()}
 
 renderLanguageOptions();
@@ -664,6 +679,7 @@ $('refreshDestinationsButton')?.addEventListener('click',()=>{if(!token())return
 document.querySelectorAll('[data-layout]').forEach(button=>button.addEventListener('click',()=>setLayout(button.dataset.layout)));
 document.querySelectorAll('[data-leave-studio],.brand').forEach(link=>link.addEventListener('click',guardLiveExit));
 window.addEventListener('beforeunload',guardLiveExit);
+window.addEventListener('pagehide',hostExitCleanup);
 document.addEventListener('fullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});document.addEventListener('webkitfullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});window.addEventListener('resize',()=>{syncPresenterDragHandle();syncOverlayHandles();syncShareCapability()});syncShareCapability();
 $('presenterDragHandle')?.addEventListener('pointerdown',beginPresenterDrag);$('presenterDragHandle')?.addEventListener('pointermove',movePresenterDrag);$('presenterDragHandle')?.addEventListener('pointerup',endPresenterDrag);$('presenterDragHandle')?.addEventListener('pointercancel',endPresenterDrag);$('presenterRemoveButton')?.addEventListener('click',event=>{event.stopPropagation();setLayout('screen')});
 $('hostButton').addEventListener('click',prepareStudio);$('joinButton').addEventListener('click',()=>joinViewer());$('goLiveButton').addEventListener('click',startBroadcast);$('endLiveButton').addEventListener('click',endLive);$('screenButton').addEventListener('click',shareScreen);$('mobileShareInput')?.addEventListener('change',event=>void loadMobileShareFile(event.target.files?.[0]));$('fullscreenButton').addEventListener('click',toggleFullscreen);
