@@ -16,7 +16,7 @@ test('church homepage exposes canonical broadcast and participation actions',asy
 
 test('church live studio keeps provider secrets server-side',async()=>{
   const [html,js]=await Promise.all([read('live/index.html'),read('live/live.js')]);
-  assert.match(html,/LIVE STUDIO/);
+  assert.match(html,/예배 방송실/);
   assert.match(html,/PPT·화면공유/);
   assert.match(html,/href="\.\/live\.css"/);
   assert.match(html,/src="\.\/live\.js"/);
