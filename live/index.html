@@ -58,7 +58,8 @@
         <video id="mainVideo" autoplay playsinline muted></video>
         <video id="cameraSource" class="source-video" autoplay playsinline muted aria-hidden="true"></video>
         <video id="screenSource" class="source-video" autoplay playsinline muted aria-hidden="true"></video>
-        <div class="presenter-drag-handle hidden" id="presenterDragHandle" role="button" aria-label="발표자 화면 위치 이동"><span>발표자 위치 이동</span></div>
+        <div class="presenter-drag-handle hidden" id="presenterDragHandle" role="button" aria-label="발표자 화면 위치 이동"><span>발표자</span><button class="overlay-remove" id="presenterRemoveButton" type="button" aria-label="발표자 화면에서 제거">×</button></div>
+        <div class="program-overlay-layer" id="programOverlayLayer" aria-label="방송 화면 추가 소스"></div>
         <div class="program-placeholder" id="programPlaceholder">
           <strong>EKODI CHURCH LIVE</strong>
           <span>카메라 또는 화면공유를 시작해 주세요.</span>
@@ -104,24 +105,50 @@
         </div>
       </section>
 
-      <details class="broadcast-settings">
-        <summary>송출 설정 <span>에코디 기본</span></summary>
-        <fieldset class="field broadcast-mode"><legend>방송 방식</legend>
-          <label><input type="radio" name="broadcastMode" value="ekodi" checked> 에코디 홈페이지에서만 방송</label>
-          <label><input type="radio" name="broadcastMode" value="multistream"> 유튜브 등 외부 플랫폼에도 동시방송</label>
-          <div id="externalDestinations" class="destination-options hidden">
-            <label><input type="checkbox" value="youtube" checked> YouTube</label>
-            <label><input type="checkbox" value="rtmp"> 기타 RTMP</label>
-            <small>외부 채널 연결 실패 시에도 에코디 방송은 계속됩니다.</small>
+      <section class="source-manager" aria-label="방송 소스">
+        <div class="section-heading"><strong>방송 소스</strong><small>끌어서 방송화면에 추가</small></div>
+        <div class="source-actions">
+          <button id="chatOverlaySource" class="source-card" type="button" draggable="true" data-overlay-source="chat"><b>실시간 채팅</b><span>화면에 추가</span></button>
+        </div>
+        <div class="camera-connect">
+          <select id="extraCameraSelect" aria-label="추가 카메라"><option value="">추가 카메라 선택</option></select>
+          <button id="connectExtraCameraButton" type="button">카메라 연결</button>
+        </div>
+        <div class="source-list" id="extraCameraSources" aria-label="추가 카메라 목록"></div>
+        <div class="participant-source-head"><strong>참여자 카메라</strong><button id="refreshParticipantSourcesButton" type="button">새로고침</button></div>
+        <div class="participant-requests" id="participantRequests" aria-label="카메라 참여 요청"></div>
+        <div class="source-list" id="participantSources" aria-label="참여자 카메라 목록"></div>
+      </section>
+
+      <section class="live-chat-box" aria-label="실시간 채팅">
+        <div class="section-heading"><strong>실시간 채팅</strong><span id="studioChatState">대기</span></div>
+        <div class="chat-messages" id="studioChatMessages"></div>
+        <form class="chat-form" id="studioChatForm">
+          <input id="studioChatInput" maxlength="500" autocomplete="off" placeholder="메시지 입력">
+          <button type="submit">전송</button>
+        </form>
+      </section>
+
+      <details class="broadcast-settings" open>
+        <summary>송출 · 저장 설정 <span>내부 저장 기본</span></summary>
+        <section class="delivery-settings" aria-label="송출 및 저장 설정">
+          <div class="delivery-fixed">
+            <span class="delivery-check" aria-hidden="true">✓</span>
+            <div><strong>EKODI 내부 방송 · 자동 저장</strong><small>방송 시작과 동시에 내부 녹화가 기본으로 실행됩니다.</small></div>
+            <span class="delivery-default">기본</span>
           </div>
-        </fieldset>
+          <div class="external-head">
+            <div><strong>외부 동시방송</strong><small>연결된 채널 중 준비된 채널만 선택합니다.</small></div>
+            <button id="refreshDestinationsButton" type="button">채널 확인</button>
+          </div>
+          <div id="externalDestinations" class="destination-options"><small>로그인 후 외부 방송 채널을 불러옵니다.</small></div>
+          <p class="delivery-note">외부 채널에 문제가 생겨도 EKODI 내부 방송과 녹화는 계속됩니다.</p>
+        </section>
       </details>
 
-      <section class="interpretation-box" aria-label="자동 통역 설정">
-        <div class="section-heading"><strong>통역: 자동</strong><span class="auto-badge">자동</span></div>
-        <p>원음을 자동으로 인식하고, 참여자가 선택한 언어에 맞춰 통역 가능한 언어를 준비합니다.</p>
-        <strong class="language-list-title">통역 가능 언어</strong>
-        <div class="language-chips" id="languageChips" aria-label="통역 가능 언어"></div>
+      <section class="interpretation-box" aria-label="자동동시통역">
+        <strong class="interpretation-title">자동동시통역 가능</strong>
+        <div class="language-chips" id="languageChips" aria-label="가능 언어"></div>
       </section>
 
       <div class="broadcast-actions">
@@ -144,11 +171,24 @@
     <aside class="viewer-panel">
       <small>LIVE PARTICIPATION</small>
       <h2 id="viewerTitle">에코디교회 실시간</h2>
-      <label class="field">듣고 싶은 언어
-        <select id="viewerLanguage"><option value="ko">한국어 원음</option></select>
-      </label>
-      <button id="requestSpeakButton" type="button">발언 참여 요청</button>
-      <p class="viewer-help">공개 예배는 로그인 없이 시청할 수 있습니다. 발언·카메라 참여에는 로그인이 필요할 수 있습니다.</p>
+      <section class="viewer-interpretation">
+        <strong>자동동시통역 가능</strong>
+        <div class="language-chips" id="viewerLanguageChips" aria-label="가능 언어"></div>
+      </section>
+      <section class="viewer-camera-box">
+        <div class="section-heading"><strong>카메라 참여</strong><span id="participantCameraState">대기</span></div>
+        <select id="participantCameraSelect" aria-label="참여 카메라"><option value="">카메라 선택</option></select>
+        <button id="requestSpeakButton" type="button">카메라 참여 요청</button>
+        <video id="participantCameraPreview" class="participant-camera-preview hidden" autoplay playsinline muted></video>
+      </section>
+      <section class="live-chat-box viewer-chat" aria-label="실시간 채팅">
+        <div class="section-heading"><strong>실시간 채팅</strong><span id="viewerChatState">대기</span></div>
+        <div class="chat-messages" id="viewerChatMessages"></div>
+        <form class="chat-form" id="viewerChatForm">
+          <input id="viewerChatInput" maxlength="500" autocomplete="off" placeholder="메시지 입력">
+          <button type="submit">전송</button>
+        </form>
+      </section>
       <div class="status-log" id="viewerStatus" role="status" aria-live="polite"></div>
     </aside>
   </section>

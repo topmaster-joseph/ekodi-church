@@ -23,12 +23,11 @@ test('church live studio keeps provider secrets server-side',async()=>{
   assert.match(js,/ekodi\.kr\/api\/realtime/);
   assert.match(js,/RTCPeerConnection/);
   assert.match(js,/getDisplayMedia/);
-  assert.match(html,/에코디 홈페이지에서만 방송/);
-  assert.match(html,/유튜브 등 외부 플랫폼에도 동시방송/);
+  assert.match(html,/EKODI 내부 방송 · 자동 저장/);
+  assert.match(html,/외부 동시방송/);
   assert.match(js,/broadcastSelection/);
-  assert.match(js,/broadcastMode:mode/);
+  assert.match(js,/destinationIds/);
   assert.match(js,/mode:'worship'/);
-  assert.doesNotMatch(js,/return \{mode,destinations,multistream/);
   assert.match(js,/multistream/);
   assert.doesNotMatch(js,/REALTIME_SFU_APP_SECRET|Cloudflare-Calls-Secret/);
 });
