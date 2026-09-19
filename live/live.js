@@ -20,7 +20,7 @@ const SUPPORTED_LANGUAGES=[
 const LAYOUTS=new Set(['presenter','pip','side','equal','screen']);
 const setupParams=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
-const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),viewerIdentity:null,hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,chatMessages:[],chatTimer:null,participantTimer:null,recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
+const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),viewerIdentity:null,participantRequests:new Map(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,chatMessages:[],chatTimer:null,participantTimer:null,recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
 
 function viewerIdentity(){
   if(state.viewerIdentity)return state.viewerIdentity;
@@ -375,7 +375,7 @@ function endOverlayDrag(event){if(!state.overlayDrag||state.overlayDrag.pointerI
 function sourceCard(id,label,{subtitle='화면에 추가',onDelete=null}={}){
   const card=document.createElement('div');card.className='source-card-row';card.draggable=true;card.dataset.overlayId=id;
   const copy=document.createElement('div');const strong=document.createElement('strong');strong.textContent=label;const small=document.createElement('small');small.textContent=subtitle;copy.append(strong,small);
-  const add=document.createElement('button');add.type='button';add.textContent=state.overlays.get(id)?.visible?'화면에서 빼기':'추가';add.addEventListener('click',()=>state.overlays.get(id)?.visible?removeOverlay(id):addOverlay(id));
+  const add=document.createElement('button');add.type='button';add.textContent=state.overlays.get(id)?.visible?'화면에서 빼기':'방송화면에 추가';add.addEventListener('click',()=>state.overlays.get(id)?.visible?removeOverlay(id):addOverlay(id));
   card.append(copy,add);
   if(onDelete){const del=document.createElement('button');del.type='button';del.className='source-delete';del.textContent='연결 해제';del.addEventListener('click',onDelete);card.append(del)}
   card.addEventListener('dragstart',event=>event.dataTransfer?.setData('text/ekodi-overlay',id));return card;
@@ -383,7 +383,13 @@ function sourceCard(id,label,{subtitle='화면에 추가',onDelete=null}={}){
 function renderSourceCards(){
   const chat=$('chatOverlaySource');if(chat){const active=state.overlays.get('chat')?.visible;chat.querySelector('span').textContent=active?'화면에서 빼기':'화면에 추가';chat.classList.toggle('active',Boolean(active))}
   const cameras=$('extraCameraSources');if(cameras){cameras.replaceChildren();for(const [id,item] of state.extraCameras)cameras.append(sourceCard(id,item.label,{onDelete:()=>disconnectExtraCamera(id)}))}
-  const participants=$('participantSources');if(participants){participants.replaceChildren();for(const [id,item] of state.participantPulls)participants.append(sourceCard(id,item.label,{subtitle:item.ready?'화면에 추가':'연결 중'}))}
+  const participants=$('participantSources');if(participants){participants.replaceChildren();for(const [id,item] of state.participantPulls){
+    const visible=state.overlays.get(id)?.visible;
+    const request=state.participantRequests.get(String(item.source?.actorKey||''));const requestedAt=request?.requestedAt||request?.createdAt||request?.created_at;
+    const when=requestedAt?new Date(requestedAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):'';
+    const subtitle=visible?`공개 방송 노출 중${when?' · 요청 '+when:''}`:item.ready?`비공개 대기${when?' · 요청 '+when:''}`:'연결 중';
+    participants.append(sourceCard(id,item.label,{subtitle}));
+  }}
 }
 async function refreshCameraDevices(){
   if(!navigator.mediaDevices?.enumerateDevices)return;
@@ -555,12 +561,15 @@ async function decideParticipation(id,status){
 }
 function renderParticipationRequests(rows=[]){
   const root=$('participantRequests');if(!root)return;root.replaceChildren();
+  state.participantRequests=new Map(rows.map(row=>[String(row.actorKey||row.id),row]));
   const pending=rows.filter(row=>row.status==='pending');
   if(!pending.length){const empty=document.createElement('small');empty.textContent='대기 중인 카메라 참여 요청이 없습니다.';root.append(empty);return}
   for(const row of pending){
     const item=document.createElement('div');item.className='participant-request';
     const name=document.createElement('strong');name.textContent=row.displayName||'참여자';
-    const stateLabel=document.createElement('span');stateLabel.className='request-state';stateLabel.textContent='대기화면 자동 연결';
+    const stateLabel=document.createElement('span');stateLabel.className='request-state';
+    const requestedAt=row.requestedAt||row.createdAt||row.created_at;
+    stateLabel.textContent=`비공개 대기 · ${requestedAt?new Date(requestedAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):'요청 시각 확인 중'}`;
     item.classList.add('auto-queued');item.append(name,stateLabel);root.append(item);
   }
 }
@@ -622,7 +631,7 @@ async function startParticipantCameraPublish(){
 function cleanupCollaboration(){
   clearInterval(state.chatTimer);clearInterval(state.participantTimer);state.chatTimer=null;state.participantTimer=null;
   for(const item of state.participantPulls.values()){item.pc?.close();item.stream?.getTracks?.().forEach(track=>track.stop());item.overlay?.video?.remove?.()}
-  state.participantPulls.clear();
+  state.participantPulls.clear();state.participantRequests.clear();
   if(state.participantPublish){state.participantPublish.pc?.close();state.participantPublish.stream?.getTracks?.().forEach(track=>track.stop());state.participantPublish=null}
 }
 async function joinViewer(roomId=''){
