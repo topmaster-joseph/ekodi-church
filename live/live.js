@@ -254,7 +254,15 @@ async function publishStream(stream,source='program'){
 function setSourceVideo(id,stream){const video=$(id);if(!video)return;video.srcObject=stream;video.play?.().catch(()=>{})}
 async function acquireCamera(){
   if(state.local)return state.local;
-  const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720}},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  const mobile=matchMedia('(max-width: 640px)').matches;
+  const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},facingMode:{ideal:'user'},...(mobile?{resizeMode:'none'}:{})},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  const cameraTrack=stream.getVideoTracks()[0];
+  if(mobile&&cameraTrack?.getCapabilities){
+    const caps=cameraTrack.getCapabilities(),settings=cameraTrack.getSettings?.()||{};
+    if(caps.zoom&&typeof cameraTrack.applyConstraints==='function'){
+      const min=Number(caps.zoom.min);if(Number.isFinite(min)&&settings.zoom!==min)await cameraTrack.applyConstraints({advanced:[{zoom:min}]}).catch(()=>{});
+    }
+  }
   state.local=stream;setSourceVideo('cameraSource',stream);
   $('cameraButton')?.setAttribute('aria-pressed','true');$('micButton')?.setAttribute('aria-pressed','true');
   if($('cameraButton'))$('cameraButton').textContent='카메라';if($('micButton'))$('micButton').textContent='마이크';
@@ -307,7 +315,7 @@ function drawProgram(){
     const split=Math.round(w*.5);drawContained(ctx,screen,0,0,split,h);drawCovered(ctx,camera,split,0,w-split,h);
   }else if(layout==='pip'){
     drawContained(ctx,screen,0,0,w,h);const pw=Math.round(w*PIP_SIZE);const ph=Math.round(h*PIP_SIZE);const px=Math.round(w*state.presenterPosition.x);const py=Math.round(h*state.presenterPosition.y);ctx.fillStyle='#f6f1e8';ctx.fillRect(px-4,py-4,pw+8,ph+8);drawCovered(ctx,camera,px,py,pw,ph);
-  }else drawCovered(ctx,camera,0,0,w,h);
+  }else drawContained(ctx,camera,0,0,w,h,'#142019');
   drawOverlaySources(ctx,w,h);
   state.animationFrame=requestAnimationFrame(drawProgram);
 }
@@ -403,8 +411,8 @@ async function refreshCameraDevices(){
 }
 async function connectExtraCamera(){
   const deviceId=$('extraCameraSelect')?.value;if(!deviceId)return note('추가할 카메라를 선택해 주세요.');
-  if(state.extraCameras.size>=2)return note('추가 카메라는 최대 2대까지 연결할 수 있습니다. 기존 카메라를 연결 해제한 뒤 다시 시도해 주세요.');
   const existing=[...state.extraCameras.values()].find(item=>item.deviceId===deviceId);if(existing){addOverlay(existing.id);return}
+  if(state.extraCameras.size>=2)return note('추가 카메라는 최대 2대까지 연결할 수 있습니다. 기존 카메라를 연결 해제한 뒤 다시 시도해 주세요.');
   try{
     const stream=await navigator.mediaDevices.getUserMedia({video:{deviceId:{exact:deviceId},width:{ideal:1280},height:{ideal:720}},audio:false});
     const label=$('extraCameraSelect').selectedOptions?.[0]?.textContent||'추가 카메라',id=`camera:${crypto.randomUUID()}`;
