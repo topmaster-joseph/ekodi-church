@@ -111,3 +111,7 @@
 .participant-policy-note{display:block;margin:5px 0 8px;color:#6f7d74;font-size:10px;line-height:1.45}
 .participant-request{grid-template-columns:minmax(0,1fr) auto}
 .participant-request .request-state{white-space:nowrap}
+
+@media(max-width:640px){
+  .participant-camera-preview,.source-thumb video{object-fit:contain;background:rgba(9,11,10,.92)}
+}
