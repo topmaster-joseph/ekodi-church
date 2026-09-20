@@ -95,6 +95,16 @@
         <button id="recordingButton" type="button" disabled>녹화 자동</button>
       </div>
 
+      <section class="share-panel" aria-label="자료 및 화면 공유">
+        <div class="section-heading"><strong>자료 · 화면 공유</strong><small>파일 형식 제한 없이 선택</small></div>
+        <div class="share-mode-options" role="group" aria-label="화면공유 방식">
+          <button type="button" data-share-mode="screen" class="active" aria-pressed="true">전체 화면</button>
+          <button type="button" data-share-mode="window" aria-pressed="false">앱 창</button>
+          <button type="button" data-share-mode="tab" aria-pressed="false">브라우저 탭</button>
+        </div>
+        <div class="file-share-row"><input id="presentationFileInput" type="file" aria-label="공유할 자료 선택"><button id="presentationFileButton" type="button">자료 선택</button></div>
+        <small class="share-help">PPT·PPTX·PDF·한글·Word·Excel·이미지·영상·음성·기타 파일을 모두 선택할 수 있습니다. 브라우저가 직접 표시하지 못하는 형식은 해당 앱에서 연 뒤 ‘앱 창’ 공유를 사용합니다.</small>
+      </section>
       <section class="layout-panel hidden" id="layoutPanel" aria-label="화면 구도 선택">
         <div class="section-heading"><strong>화면 구도</strong><small>PIP 발표자는 화면에서 마우스로 이동할 수 있습니다.</small></div>
         <div class="layout-options" id="layoutOptions">
