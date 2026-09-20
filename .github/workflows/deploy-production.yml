@@ -46,6 +46,10 @@ jobs:
           npm test
           echo 'Broadcast System Verification Contract: inherited from ekodi-platform/BROADCAST_SYSTEM_VERIFICATION_POLICY.md'
           node --test test/church-live-system-verification.test.mjs
+      - name: Install synthetic broadcast browser
+        run: npx playwright install --with-deps chromium
+      - name: Virtual broadcaster and production synthetic canary
+        run: npm run test:live:synthetic
           node --check giving.js
           node --check script.js
           node --check live/live.js
