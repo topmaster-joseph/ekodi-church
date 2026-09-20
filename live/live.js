@@ -18,9 +18,10 @@ const SUPPORTED_LANGUAGES=[
   {code:'mn',label:'Монгол'}
 ];
 const LAYOUTS=new Set(['presenter','pip','side','equal','screen']);
+const SHARE_MODES=new Set(['screen','window','tab']);
 const setupParams=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
-const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),viewerIdentity:null,participantRequests:new Map(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,chatMessages:[],chatTimer:null,participantTimer:null,participantWatchMode:'',recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
+const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),viewerIdentity:null,participantRequests:new Map(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,shareMode:'screen',presentationFile:null,chatMessages:[],chatTimer:null,participantTimer:null,participantWatchMode:'',recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
 
 function viewerIdentity(){
   if(state.viewerIdentity)return state.viewerIdentity;
@@ -277,6 +278,7 @@ function drawContained(ctx,video,x,y,w,h,fill='#090b0a'){
 }
 function drawCovered(ctx,video,x,y,w,h){
   if(!video||!video.videoWidth||!video.videoHeight){ctx.fillStyle='#142019';ctx.fillRect(x,y,w,h);return}
+  if(matchMedia('(max-width: 640px)').matches){drawContained(ctx,video,x,y,w,h);return}
   const scale=Math.max(w/video.videoWidth,h/video.videoHeight);const sw=w/scale;const sh=h/scale;const sx=(video.videoWidth-sw)/2;const sy=(video.videoHeight-sh)/2;ctx.drawImage(video,sx,sy,sw,sh,x,y,w,h);
 }
 function drawChatOverlay(ctx,overlay,w,h){
@@ -473,12 +475,22 @@ function setLayout(layout){
 function stopScreenShare(message='화면공유를 종료했습니다.'){
   const stream=state.screen;if(!stream)return;state.screen=null;for(const track of stream.getTracks())if(track.readyState!=='ended')track.stop();setSourceVideo('screenSource',null);state.layout='presenter';$('layoutPanel')?.classList.add('hidden');$('screenButton')?.setAttribute('aria-pressed','false');if($('screenButton'))$('screenButton').textContent='화면공유';updateSourceRail();syncPresenterDragHandle();note(message);
 }
+function setShareMode(mode){
+  if(!SHARE_MODES.has(mode))return;state.shareMode=mode;
+  document.querySelectorAll('[data-share-mode]').forEach(button=>{const active=button.dataset.shareMode===mode;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});
+  note(`화면공유 방식: ${{screen:'전체 화면',window:'앱 창',tab:'브라우저 탭'}[mode]}`);
+}
+function displayMediaOptions(){return {video:{frameRate:{ideal:15,max:30},displaySurface:{screen:'monitor',window:'window',tab:'browser'}[state.shareMode]||'monitor'},audio:state.shareMode==='tab'}}
+function presentationFileChanged(event){
+  const file=event.target.files?.[0];if(!file)return;state.presentationFile=file;
+  note(`자료 선택: ${file.name}. 모든 파일 형식을 받을 수 있습니다. 직접 표시가 안 되는 형식은 해당 앱에서 연 뒤 '앱 창' 공유를 사용하세요.`);
+}
 async function shareScreen(){
   if(!state.local){note('먼저 카메라·마이크를 준비해 주세요.');return}
   if(state.screen){stopScreenShare();return}
   if(!state.canvasStream){note('현재 브라우저는 발표자와 공유화면 합성을 지원하지 않습니다. 최신 Chromium 브라우저에서 다시 시도해 주세요.');return}
   try{
-    const stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:15,max:30}},audio:false});state.screen=stream;setSourceVideo('screenSource',stream);state.layout='pip';$('layoutPanel')?.classList.remove('hidden');$('screenButton')?.setAttribute('aria-pressed','true');if($('screenButton'))$('screenButton').textContent='화면공유 종료';setLayout('pip');updateSourceRail();stream.getVideoTracks()[0]?.addEventListener('ended',()=>stopScreenShare('브라우저에서 화면공유가 종료되었습니다.'),{once:true});note('화면공유를 방송 화면에 합성했습니다. 방송 중에도 화면 구도를 바꿀 수 있습니다.');
+    const stream=await navigator.mediaDevices.getDisplayMedia(displayMediaOptions());state.screen=stream;setSourceVideo('screenSource',stream);state.layout='pip';$('layoutPanel')?.classList.remove('hidden');$('screenButton')?.setAttribute('aria-pressed','true');if($('screenButton'))$('screenButton').textContent='화면공유 종료';setLayout('pip');updateSourceRail();stream.getVideoTracks()[0]?.addEventListener('ended',()=>stopScreenShare('브라우저에서 화면공유가 종료되었습니다.'),{once:true});note('화면공유를 방송 화면에 합성했습니다. 방송 중에도 화면 구도를 바꿀 수 있습니다.');
   }catch(error){if(error.name!=='NotAllowedError')note(`화면공유 실패: ${error.message}`)}
 }
 async function toggleFullscreen(){
@@ -696,6 +708,9 @@ document.addEventListener('visibilitychange',()=>{
 });
 document.addEventListener('fullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});document.addEventListener('webkitfullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});window.addEventListener('resize',()=>{syncPresenterDragHandle();syncOverlayHandles()});
 $('presenterDragHandle')?.addEventListener('pointerdown',beginPresenterDrag);$('presenterDragHandle')?.addEventListener('pointermove',movePresenterDrag);$('presenterDragHandle')?.addEventListener('pointerup',endPresenterDrag);$('presenterDragHandle')?.addEventListener('pointercancel',endPresenterDrag);$('presenterRemoveButton')?.addEventListener('click',event=>{event.stopPropagation();setLayout('screen')});
+document.querySelectorAll('[data-share-mode]').forEach(button=>button.addEventListener('click',()=>setShareMode(button.dataset.shareMode)));
+$('presentationFileButton')?.addEventListener('click',()=>$('presentationFileInput')?.click());
+$('presentationFileInput')?.addEventListener('change',presentationFileChanged);
 $('hostButton').addEventListener('click',prepareStudio);$('joinButton').addEventListener('click',()=>joinViewer());$('goLiveButton').addEventListener('click',startBroadcast);$('endLiveButton').addEventListener('click',endLive);$('screenButton').addEventListener('click',shareScreen);$('fullscreenButton').addEventListener('click',toggleFullscreen);
 $('cameraButton').addEventListener('click',async()=>{try{if(!state.local){await acquireCamera();state.studioPrepared=true;setPhase('ready');$('goLiveButton').disabled=false;return note('카메라가 켜졌습니다.')}const track=state.local.getVideoTracks()[0];if(!track)return note('사용 가능한 카메라가 없습니다.');track.enabled=!track.enabled;$('cameraButton').setAttribute('aria-pressed',String(track.enabled));$('cameraButton').textContent=track.enabled?'카메라':'카메라 꺼짐';note(track.enabled?'카메라가 켜졌습니다.':'카메라를 껐습니다.')}catch(error){note(`카메라 사용 불가: ${error.message}`)}});
 $('micButton').addEventListener('click',()=>{const track=state.local?.getAudioTracks?.()[0];if(!track)return note('먼저 카메라·마이크를 준비해 주세요.');track.enabled=!track.enabled;$('micButton').setAttribute('aria-pressed',String(track.enabled));$('micButton').textContent=track.enabled?'마이크':'마이크 꺼짐';note(track.enabled?'마이크가 켜졌습니다.':'마이크를 껐습니다.')});
