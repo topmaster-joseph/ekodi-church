@@ -73,7 +73,12 @@ jobs:
           grep -Fq "current_site_access" mypage/app.js
           grep -Fq "metadata:{service:" live/live.js
           grep -Fq "syncPublishedWorship" script.js
-          grep -Fq "https://ekodi.kr/my/" script.js
+          grep -Fq "https://ekodi.kr/ekodichurch/my" script.js
+          grep -Fq "https://ekodi.kr/ekodichurch/my" index.html
+          if grep -Fq "https://ekodi.kr/my/" index.html || grep -Fq "https://ekodi.kr/my/" script.js; then
+            echo 'Church public surface must use its site-local My Page, not global My EKODI.'
+            exit 1
+          fi
           if grep -Fq 'https://my.ekodi.kr/' script.js; then
             echo 'Deprecated My EKODI subdomain must not return.'
             exit 1
