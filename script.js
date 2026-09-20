@@ -77,13 +77,13 @@ if (siteHeader) {
   dailyVerse.setAttribute('aria-label', `${scripture.text}, ${scripture.ref}`);
 }
 
-// Public church header: keep only the most useful next actions and My EKODI.
+// Public church header: keep only the most useful next actions and the church-local member home.
 if (nav) {
   const items = [
     { href: '#worship', label: '예배안내' },
     { href: '#online', label: '온라인' },
     { href: '#location', label: '오시는 길' },
-    { href: 'https://ekodi.kr/my/', label: 'My EKODI', className: 'shell-my' },
+    { href: 'https://ekodi.kr/ekodichurch/my', label: '마이페이지', className: 'shell-my' },
   ];
   const links = items.map((item) => {
     const link = document.createElement('a');
