@@ -44,6 +44,8 @@ jobs:
         run: |
           set -euo pipefail
           npm test
+          echo 'Broadcast System Verification Contract: inherited from ekodi-platform/BROADCAST_SYSTEM_VERIFICATION_POLICY.md'
+          node --test test/church-live-system-verification.test.mjs
           node --check giving.js
           node --check script.js
           node --check live/live.js
