@@ -13,3 +13,11 @@
 - 교회와 선교회 회계 주체 및 계좌는 화면에서 명확히 구분합니다.
 - 확인되지 않은 별도 가맹점이나 프로젝트를 추정 연결하지 않습니다.
 - `npm test`로 후원 경로, 보안 헤더, Toss 잔존 의존성을 검증합니다.
+
+
+## Surface ownership
+- 공개 사용자 화면: `https://ekodi.kr/ekodichurch/`
+- 교회 사용자 마이페이지: `https://ekodi.kr/ekodichurch/my` — EKODI 공통 Identity와 Capability Registry를 사용하되 교회 문맥에서 표시합니다.
+- 교회 관리자 화면: `https://ekodi.kr/ekodichurch/admin` — `ekodi-platform`의 Church Pastor Admin이 소유하며 이 정적 공개 저장소에 중복 구현하지 않습니다.
+- 로그인 후 기본 복귀점은 공용 My EKODI가 아니라 교회 로컬 마이페이지입니다.
+- 교인·돌봄·권한·사역 관리 데이터는 공개 화면에 포함하지 않고 관리자/Workspace 권한 경계 안에서만 처리합니다.

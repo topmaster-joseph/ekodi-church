@@ -18,6 +18,7 @@ on:
       - 'giving.js'
       - 'functions/api/giving/**'
       - 'mypage/**'
+      - 'my/**'
       - '_headers'
       - 'test/**'
       - 'package.json'
@@ -54,10 +55,14 @@ jobs:
           node --check church-life-hub-i18n.js
           node --check church-life-hub-i18n-state.js
           node --check mypage/app.js
+          node --check my/app.js
           test -s church-life-hub.css
           test -s giving-config.json
           test -s mypage/index.html
           test -s mypage/styles.css
+          test -s my/index.html
+          test -s my/styles.css
+          test -s my/app.js
           test -s live/index.html
           grep -Fq '"provider": "missionfund"' giving-config.json
           grep -Fq 'https://go.missionfund.org/fmd01' giving-config.json
@@ -71,11 +76,19 @@ jobs:
           grep -Fq '예배 운영 콘솔' mypage/index.html
           grep -Fq 'PPT 다운로드' mypage/index.html
           grep -Fq '라이브 스튜디오 열기' mypage/index.html
+          grep -Fq 'EKODI CHURCH · MY PAGE' my/index.html
+          grep -Fq 'site=church' my/index.html
+          grep -Fq 'https://ekodi.kr/my/' my/index.html
           grep -Fq "church_worship_materials" mypage/app.js
           grep -Fq "current_site_access" mypage/app.js
           grep -Fq "metadata:{service:" live/live.js
           grep -Fq "syncPublishedWorship" script.js
-          grep -Fq "https://ekodi.kr/my/" script.js
+          grep -Fq "https://ekodi.kr/ekodichurch/my" script.js
+          grep -Fq "https://ekodi.kr/ekodichurch/my" index.html
+          if grep -Fq "https://ekodi.kr/my/" index.html || grep -Fq "https://ekodi.kr/my/" script.js; then
+            echo 'Church public surface must use its site-local My Page, not global My EKODI.'
+            exit 1
+          fi
           if grep -Fq 'https://my.ekodi.kr/' script.js; then
             echo 'Deprecated My EKODI subdomain must not return.'
             exit 1
