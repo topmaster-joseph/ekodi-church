@@ -83,7 +83,7 @@ if (nav) {
     { href: '#worship', label: '예배안내' },
     { href: '#online', label: '온라인' },
     { href: '#location', label: '오시는 길' },
-    { href: 'https://ekodi.kr/ekodichurch/my', label: '마이페이지', className: 'shell-my' },
+    { href: '/ekodichurch/my/', label: '마이페이지', className: 'shell-my' },
   ];
   const links = items.map((item) => {
     const link = document.createElement('a');
