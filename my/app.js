@@ -1,6 +1,11 @@
 const state=document.getElementById('memberState');
 const login=document.getElementById('loginAction');
 
+function clearAuthReturnFragment(){
+  if(!location.hash.startsWith('#ekodi_'))return;
+  history.replaceState(null,'',location.pathname+location.search);
+}
+
 function storedSession(){
   try{
     for(let i=0;i<localStorage.length;i++){
@@ -28,5 +33,6 @@ function render(){
     login.hidden=false;
   }
 }
+clearAuthReturnFragment();
 render();
 window.addEventListener('storage',render);
