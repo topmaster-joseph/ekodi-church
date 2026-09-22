@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+const core=await readFile(new URL('../church-i18n.js',import.meta.url),'utf8');
 const extended=await readFile(new URL('../church-i18n-extended.js',import.meta.url),'utf8');
 const shell=await readFile(new URL('../church-shell-i18n.js',import.meta.url),'utf8');
 const canonical=[
