@@ -12,9 +12,12 @@ test('church-local My Page is user-facing and separated from admin operations',a
   assert.match(html,/noindex,nofollow,noarchive/);
   assert.match(html,/https:\/\/ekodi\.kr\/auth\/\?site=church/);
   assert.match(html,/https:\/\/ekodi\.kr\/my\//);
-  assert.match(html,/교인·돌봄·권한·사역 운영 데이터는 이 사용자 화면에 노출하지 않습니다/);
+  assert.match(html,/내 EKODI/);
+  assert.doesNotMatch(html,/운영자 기능은 별도 관리자 화면에서 처리합니다/);
   assert.doesNotMatch(html,/church_worship_materials|current_site_access|tenant_admin/);
   assert.match(app,/sb-\.\*-auth-token/);
+  assert.match(app,/clearAuthReturnFragment/);
+  assert.match(app,/location\.hash\.startsWith\('#ekodi_'\)/);
   assert.match(publicIndex,/https:\/\/ekodi\.kr\/ekodichurch\/my/);
   assert.match(publicScript,/https:\/\/ekodi\.kr\/ekodichurch\/my/);
 });
