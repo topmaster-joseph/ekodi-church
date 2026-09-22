@@ -165,7 +165,12 @@ function ensureLanguageOptions(){
   return true;
 }
 
-function core(source,locale){return P[source]?.[locale]||fallback.get(source)||source;}
+function core(source,locale){
+  const direct=P[source]?.[locale]||fallback.get(source);
+  if(direct)return direct;
+  const english=window.EKODIChurchI18n?.translate?.(source,'en');
+  return english&&english!==source?english:source;
+}
 function captureFallback(){
   if(captured||capturing||!window.EKODIChurchI18n)return;
   capturing=true;

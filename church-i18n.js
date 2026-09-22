@@ -194,7 +194,50 @@ const TEXT={
 '결제 인증 후 승인 확인에 문제가 생겼습니다. 중복 결제하지 마시고 교회로 문의해 주세요.':{en:'There was a problem confirming approval after authentication. Do not pay again; please contact the church.','zh-CN':'认证后确认批准时出现问题。请勿重复支付，并联系教会。',ja:'認証後の承認確認で問題が発生しました。重複決済はせず、教会へお問い合わせください。'},
 '헌금 결제가 완료되었습니다.':{en:'Your offering payment is complete.','zh-CN':'奉献支付已完成。',ja:'献金の決済が完了しました。'},
 '결제를 완료하지 못했습니다.':{en:'Payment could not be completed.','zh-CN':'支付未能完成。',ja:'決済を完了できませんでした。'},
-'결제 영수증 보기 ↗':{en:'View payment receipt ↗','zh-CN':'查看支付收据 ↗',ja:'決済領収書を見る ↗'}
+'결제 영수증 보기 ↗':{en:'View payment receipt ↗','zh-CN':'查看支付收据 ↗',ja:'決済領収書を見る ↗'},
+'협력소식':{en:'Partner news','zh-CN':'合作消息',ja:'協力ニュース'},
+'마이페이지':{en:'My Page','zh-CN':'我的页面',ja:'マイページ'},
+'협력 소식':{en:'Partner news','zh-CN':'合作消息',ja:'協力ニュース'},
+'함께하는 기관·단체의 이야기':{en:'Stories from partner organizations','zh-CN':'合作机构与团体的消息',ja:'協力機関・団体のニュース'},
+'함께 걷는 이들의 소식':{en:'News from those walking with us','zh-CN':'同行伙伴的消息',ja:'ともに歩む仲間のニュース'},
+'에코디교회와 함께 섬기고 배우며 협력하는 기관·단체의 소식 가운데 확인·승인된 내용만 나눕니다.':{en:'We share only verified and approved news from organizations and groups that serve, learn, and collaborate with EKODI Church.','zh-CN':'我们只分享与EKODI教会一同服事、学习和合作的机构与团体中已经核实并获批准的消息。',ja:'EKODI教会とともに奉仕し、学び、協力する機関・団体のうち、確認・承認されたニュースだけを共有します。'},
+'협력 소식 확인 중':{en:'Checking partner news','zh-CN':'正在检查合作消息',ja:'協力ニュースを確認中'},
+'협력 소식을 불러오고 있습니다.':{en:'Loading partner news.','zh-CN':'正在加载合作消息。',ja:'協力ニュースを読み込んでいます。'},
+'공개된 협력 소식이 준비되면 이곳에 안내합니다.':{en:'Published partner news will appear here when available.','zh-CN':'已发布的合作消息准备好后会显示在这里。',ja:'公開済みの協力ニュースが準備でき次第、ここに表示します。'},
+'협력 소식을 지금 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.':{en:'Partner news could not be loaded right now. Please try again shortly.','zh-CN':'目前无法加载合作消息，请稍后再试。',ja:'現在、協力ニュースを読み込めません。しばらくしてから再度ご確認ください。'},
+'원문 보기':{en:'View original','zh-CN':'查看原文',ja:'原文を見る'},
+'© 2026 에코디교회':{en:'© 2026 EKODI Church','zh-CN':'© 2026 EKODI教会',ja:'© 2026 EKODI教会'},
+'함께 드리는 모임':{en:'Gathering','zh-CN':'共同聚会',ja:'集会'},
+'농협 355-0088-5391-83':{en:'NongHyup 355-0088-5391-83','zh-CN':'农协 355-0088-5391-83',ja:'農協 355-0088-5391-83'},
+'국민 782301-01-666597':{en:'KB Kookmin 782301-01-666597','zh-CN':'国民银行 782301-01-666597',ja:'国民銀行 782301-01-666597'},
+'영수증 발행 문의 010-3501-8542':{en:'Receipt inquiry 010-3501-8542','zh-CN':'收据开具咨询 010-3501-8542',ja:'領収書発行のお問い合わせ 010-3501-8542'},
+'에코디교회 · 말씀으로 오늘을 살아내기':{en:'EKODI Church · Living today through the Word','zh-CN':'EKODI教会 · 用话语活出今天',ja:'EKODI教会 · みことばで今日を生きる'},
+'에코디교회 공동체 나눔':{en:'EKODI Church community sharing','zh-CN':'EKODI教会群体分享',ja:'EKODI教会 コミュニティ共有'},
+'먼저 나눌 내용을 기록해 주세요.':{en:'Please record something to share first.','zh-CN':'请先记录要分享的内容。',ja:'まず共有する内容を記録してください。'},
+'나눔 창을 열었습니다.':{en:'The sharing window is open.','zh-CN':'分享窗口已打开。',ja:'共有画面を開きました。'},
+'공유할 내용을 복사했습니다.':{en:'The content to share has been copied.','zh-CN':'已复制要分享的内容。',ja:'共有する内容をコピーしました。'},
+'공유를 열지 못했습니다. 내용을 복사해 사용해 주세요.':{en:'Could not open sharing. Please use the copied content.','zh-CN':'无法打开分享，请使用已复制的内容。',ja:'共有を開けませんでした。コピーした内容をご利用ください。'},
+'오늘의 기록':{en:'Today’s record','zh-CN':'今天的记录',ja:'今日の記録'},
+'우리의 기억':{en:'Our memories','zh-CN':'我们的记忆',ja:'私たちの記憶'},
+'이 추억 나누기':{en:'Share this memory','zh-CN':'分享这段回忆',ja:'この思い出を共有'},
+'에코디교회 추억 나눔':{en:'EKODI Church memory sharing','zh-CN':'EKODI教会回忆分享',ja:'EKODI教会 思い出の共有'},
+'오늘':{en:'Today','zh-CN':'今天',ja:'今日'},
+'오늘의 말씀 기록을 이 기기에 저장했습니다.':{en:'Today’s Word record was saved on this device.','zh-CN':'今天的话语记录已保存在此设备上。',ja:'今日のみことばの記録をこの端末に保存しました。'},
+'이 브라우저에서는 저장할 수 없습니다.':{en:'This browser cannot save the record.','zh-CN':'此浏览器无法保存记录。',ja:'このブラウザでは保存できません。'},
+'에코디교회 · 오늘의 안부':{en:'EKODI Church · Today’s check-in','zh-CN':'EKODI教会 · 今天的问候',ja:'EKODI教会 · 今日の近況'},
+'추억을 이 기기에 담았습니다. 원할 때만 나눌 수 있습니다.':{en:'The memory was saved on this device. Share it only when you choose.','zh-CN':'回忆已保存在此设备上，只在您愿意时分享。',ja:'思い出をこの端末に保存しました。共有したいときだけ共有できます。'},
+'오늘의 증언을 기록했습니다.':{en:'Today’s witness was recorded.','zh-CN':'今天的见证已记录。',ja:'今日の証しを記録しました。'},
+'에코디교회 · 오늘의 증언':{en:'EKODI Church · Today’s witness','zh-CN':'EKODI教会 · 今天的见证',ja:'EKODI教会 · 今日の証し'},
+'이 기기에 저장된 공동체 생활 기록을 비웠습니다.':{en:'Community-life records stored on this device were cleared.','zh-CN':'已清除此设备上保存的群体生活记录。',ja:'この端末に保存された共同体生活の記録を消去しました。'},
+'언어 선택':{en:'Language selection','zh-CN':'语言选择',ja:'言語選択'},
+'My EKODI 로그인 후 이동':{en:'Continue after signing in','zh-CN':'登录后继续',ja:'ログイン後に続行'},
+'에코디교회 다국어 실시간 방송':{en:'EKODI Church multilingual live broadcast','zh-CN':'EKODI教会多语言直播',ja:'EKODI教会 多言語ライブ配信'},
+'닫기':{en:'Close','zh-CN':'关闭',ja:'閉じる'},
+'말씀은 하나로, 언어는 각자의 언어로.':{en:'One Word, in each person’s language.','zh-CN':'同一话语，各自的语言。',ja:'一つのみことばを、それぞれの言葉で。'},
+'실시간 예배를 원음 또는 선택한 언어로 듣고 참여합니다.':{en:'Join live worship in the original audio or your selected language.','zh-CN':'可用原声或所选语言收听并参加实时礼拜。',ja:'ライブ礼拝を原音または選択した言語で聞いて参加できます。'},
+'다국어 방송 참여':{en:'Join multilingual broadcast','zh-CN':'参加多语言直播',ja:'多言語配信に参加'},
+'다국어 실시간 방송 참여':{en:'Join multilingual live broadcast','zh-CN':'参加多语言实时直播',ja:'多言語ライブ配信に参加'},
+'다국어 실시간 방송 스튜디오':{en:'Multilingual live broadcast studio','zh-CN':'多语言直播演播室',ja:'多言語ライブ配信スタジオ'}
 };
 
 const SCRIPTURES=[
@@ -266,10 +309,14 @@ function requestedUrlLocale(){
 }
 function delegatedUrlLocale(){return DELEGATED_URL_LOCALES.has(requestedUrlLocale());}
 function interpolate(value,vars={}){return String(value).replace(/\{([a-zA-Z0-9_]+)\}/g,(_,key)=>String(vars[key]??`{${key}}`));}
-function t(source,vars={}){
+function translateForLocale(source,targetLocale,vars={}){
   const key=String(source??'');
-  if(locale==='ko-KR')return interpolate(key,vars);
-  return interpolate(TEXT[key]?.[locale]||key,vars);
+  const target=normalize(targetLocale);
+  if(target==='ko-KR')return interpolate(key,vars);
+  return interpolate(TEXT[key]?.[target]||key,vars);
+}
+function t(source,vars={}){
+  return translateForLocale(source,locale,vars);
 }
 function formatAmount(value){
   const loc=locale==='en'?'en-US':locale;
@@ -358,6 +405,7 @@ window.EKODIChurchI18n=Object.freeze({
   setLocale:value=>applyDocument(value),
   refresh:schedule,
   t:(source,vars)=>t(source,vars),
+  translate:(source,targetLocale,vars)=>translateForLocale(source,targetLocale,vars),
   formatAmount
 });
 window.addEventListener('ekodi:locale-change',event=>applyDocument(event.detail?.locale||currentSharedLocale()));

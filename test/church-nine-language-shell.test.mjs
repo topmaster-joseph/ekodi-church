@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+const core=await readFile(new URL('../church-i18n.js',import.meta.url),'utf8');
 const extended=await readFile(new URL('../church-i18n-extended.js',import.meta.url),'utf8');
 const shell=await readFile(new URL('../church-shell-i18n.js',import.meta.url),'utf8');
 const canonical=[
@@ -28,4 +29,13 @@ test('language selector preserves a visible, reload-safe locale change path',()=
   assert.match(shell,/location\.assign\(url\.toString\(\)\)/);
   assert.match(extended,/window\.EKODIUserLanguage\?\.getLocale/);
   assert.match(extended,/new MutationObserver\(schedule\)/);
+});
+
+test('core and extended locale layers eliminate late residual Korean copy', () => {
+  assert.match(core, /'마이페이지':\{en:'My Page'/);
+  assert.match(core, /'협력소식':\{en:'Partner news'/);
+  assert.match(core, /'함께 걷는 이들의 소식':\{en:'News from those walking with us'/);
+  assert.match(core, /'공개된 협력 소식이 준비되면 이곳에 안내합니다\.'/);
+  assert.match(core, /translate:\(source,targetLocale,vars\)=>translateForLocale/);
+  assert.match(extended, /EKODIChurchI18n\?\.translate\?\.\(source,'en'\)/);
 });
