@@ -29,3 +29,12 @@ test('language selector preserves a visible, reload-safe locale change path',()=
   assert.match(extended,/window\.EKODIUserLanguage\?\.getLocale/);
   assert.match(extended,/new MutationObserver\(schedule\)/);
 });
+
+test('core and extended locale layers eliminate late residual Korean copy', () => {
+  assert.match(core, /'마이페이지':\{en:'My Page'/);
+  assert.match(core, /'협력소식':\{en:'Partner news'/);
+  assert.match(core, /'함께 걷는 이들의 소식':\{en:'News from those walking with us'/);
+  assert.match(core, /'공개된 협력 소식이 준비되면 이곳에 안내합니다\.'/);
+  assert.match(core, /translate:\(source,targetLocale,vars\)=>translateForLocale/);
+  assert.match(extended, /EKODIChurchI18n\?\.translate\?\.\(source,'en'\)/);
+});
