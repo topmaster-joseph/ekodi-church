@@ -12,6 +12,7 @@ test('church-local My Page is user-facing and separated from admin operations',a
   assert.match(html,/noindex,nofollow,noarchive/);
   assert.match(html,/https:\/\/ekodi\.kr\/auth\/\?site=church/);
   assert.match(html,/data-ekodi-header-actions/);
+  assert.match(html,/\.\/language\.js/);
   assert.doesNotMatch(html,/https:\/\/ekodi\.kr\/my\//);
   assert.doesNotMatch(html,/내 EKODI|MY EKODI|다른 EKODI 활동/);
   assert.doesNotMatch(html,/운영자 기능은 별도 관리자 화면에서 처리합니다/);
