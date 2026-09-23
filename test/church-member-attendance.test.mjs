@@ -11,6 +11,11 @@ test('member attendance exposes self-only analytics',async()=>{
   assert.match(html,/최장 연속출석/);
   assert.match(html,/월별 출결 흐름/);
   assert.match(html,/본인 조회/);
+  for(const id of ['currentStreak','longestStreak','lastAttended','lastAbsent','monthlyTrend']){
+    assert.equal((html.match(new RegExp('id="'+id+'"','g'))||[]).length,1,`${id} must appear exactly once`);
+  }
+  assert.equal((html.match(/<section class="streak-grid"/g)||[]).length,1,'streak grid must appear exactly once');
+  assert.equal((html.match(/MONTHLY TREND/g)||[]).length,1,'monthly trend panel must appear exactly once');
   assert.match(app,/functions\/v1\/church-member-attendance-api/);
   assert.match(app,/current_streak/);
   assert.match(app,/longest_streak/);
