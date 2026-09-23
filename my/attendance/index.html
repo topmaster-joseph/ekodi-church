@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" data-ekodi-church-attendance="v1">
+<html lang="ko" data-ekodi-church-attendance="v2">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -43,6 +43,18 @@
         <article><span>온라인</span><strong id="onlineCount">0</strong></article>
         <article><span>결석</span><strong id="absentCount">0</strong></article>
         <article><span>인정결석</span><strong id="excusedCount">0</strong></article>
+      </section>
+
+      <section class="streak-grid" aria-label="개인 출결 흐름">
+        <article><span>현재 연속출석</span><strong id="currentStreak">0회</strong></article>
+        <article><span>최장 연속출석</span><strong id="longestStreak">0회</strong></article>
+        <article><span>최근 출석</span><strong id="lastAttended">-</strong></article>
+        <article><span>최근 결석</span><strong id="lastAbsent">-</strong></article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><div><small>MONTHLY TREND</small><h2>월별 출결 흐름</h2></div><span>기록 기준</span></div>
+        <div id="monthlyTrend" class="monthly-list"><p class="empty">월별 출결을 불러오고 있습니다.</p></div>
       </section>
 
       <section class="panel">
