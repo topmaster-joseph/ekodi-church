@@ -86,7 +86,7 @@ function render(data){
   $('monthlyTrend').innerHTML=monthly.length?monthly.map(item=>{
     const rate=item.attendance_rate===null||item.attendance_rate===undefined?null:Number(item.attendance_rate);
     const width=rate===null?0:Math.max(0,Math.min(100,rate));
-    return '<article class="month-row"><div><strong>'+esc(item.month)+'월</strong><span>'+Number(item.attended_count||0)+' / '+Number(item.recorded_count||0)+'회</span></div><div class="month-meter" aria-label="'+esc(item.month)+'월 출석률"><i style="width:'+width+'%"></i></div><b>'+(rate===null?'-':esc(rate.toLocaleString('ko-KR',{maximumFractionDigits:1})+'%'))+'</b></article>';
+    return '<article class="month-row"><div><strong>'+esc(item.month)+'월</strong><span>'+Number(item.attended_count||0)+' / '+Number(item.recorded_count||0)+'회</span></div><progress class="month-meter" max="100" value="'+width+'" aria-label="'+esc(item.month)+'월 출석률"></progress><b>'+(rate===null?'-':esc(rate.toLocaleString('ko-KR',{maximumFractionDigits:1})+'%'))+'</b></article>';
   }).join(''):'<p class="empty">선택한 연도에 저장된 월별 출결 기록이 없습니다.</p>';
   $('currentStreak').textContent=Number(data.current_streak||0)+'회';
   $('longestStreak').textContent=Number(data.longest_streak||0)+'회';
