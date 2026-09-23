@@ -64,7 +64,7 @@ function stateLabel(value){return({present:'출석',late:'지각',online:'온라
 function render(data){
   if(!data.linked){
     $('memberName').textContent='연결 필요';
-    for(const id of ['recorded','attended','rate','presentCount','lateCount','onlineCount','absentCount','excusedCount'])$(id).textContent='-';
+    for(const id of ['recorded','attended','rate','presentCount','lateCount','onlineCount','absentCount','excusedCount','currentStreak','longestStreak','lastAttended','lastAbsent'])$(id).textContent='-';
     $('attendanceList').innerHTML='<p class="empty">로그인 계정과 교인명부가 아직 연결되지 않았습니다. 교인명부의 이메일 확인이 필요합니다.</p>';
     setState('교인정보 연결이 필요합니다.',true);return;
   }
@@ -78,8 +78,18 @@ function render(data){
   $('onlineCount').textContent=Number(data.online_count||0);
   $('absentCount').textContent=Number(data.absent_count||0);
   $('excusedCount').textContent=Number(data.excused_count||0);
+  $('currentStreak').textContent=Number(data.current_streak||0)+'회';
+  $('longestStreak').textContent=Number(data.longest_streak||0)+'회';
+  $('lastAttended').textContent=data.last_attended_date||'-';
+  $('lastAbsent').textContent=data.last_absence_date||'-';
+  const monthly=Array.isArray(data.monthly)?data.monthly:[];
+  $('monthlyTrend').innerHTML=monthly.length?monthly.map(item=>{
+    const rate=item.attendance_rate===null||item.attendance_rate===undefined?null:Number(item.attendance_rate);
+    const width=rate===null?0:Math.max(0,Math.min(100,rate));
+    return '<article class="month-row"><div><strong>'+esc(item.month)+'월</strong><span>'+Number(item.attended_count||0)+' / '+Number(item.recorded_count||0)+'회</span></div><div class="month-meter" aria-label="'+esc(item.month)+'월 출석률"><i style="width:'+width+'%"></i></div><b>'+(rate===null?'-':esc(rate.toLocaleString('ko-KR',{maximumFractionDigits:1})+'%'))+'</b></article>';
+  }).join(''):'<p class="empty">선택한 연도에 저장된 월별 출결 기록이 없습니다.</p>';
   $('attendanceList').innerHTML=items.length?'<table><thead><tr><th>날짜</th><th>예배·모임</th><th>상태</th><th>확인</th></tr></thead><tbody>'+items.map(item=>'<tr><td>'+esc(item.service_date)+'</td><td><strong>'+esc(item.service_title)+'</strong></td><td><span class="badge '+(['present','late','online'].includes(item.attendance_state)?'ok':'')+'">'+esc(stateLabel(item.attendance_state))+'</span></td><td>'+esc(item.check_in_at?String(item.check_in_at).replace('T',' ').slice(0,16):'-')+'</td></tr>').join('')+'</tbody></table>':'<p class="empty">선택한 연도에 저장된 출결 기록이 없습니다.</p>';
-  setState((data.member?.name||'교인')+'님의 '+data.year+'년 출결현황입니다. 미기록 예배는 결석으로 계산하지 않습니다.');
+  setState((data.member?.name||'교인')+'님의 '+data.year+'년 출결현황입니다. 연속출석과 출석률은 실제 기록만 기준으로 하며 미기록 예배는 결석으로 계산하지 않습니다.');
 }
 async function load(){
   try{setState('출결현황을 불러오고 있습니다.');render(await api());}
