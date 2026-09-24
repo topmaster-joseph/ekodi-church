@@ -1,3 +1,28 @@
+
+.site-header .brand .operating-space-label{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:max-content;
+  margin-top:3px;
+  padding:2px 6px;
+  border:1px solid rgba(23,55,48,.16);
+  border-radius:999px;
+  background:rgba(255,255,255,.48);
+  color:rgba(23,55,48,.72);
+  font:750 9px/1.2 system-ui,-apple-system,"Noto Sans KR",sans-serif;
+  font-style:normal;
+  letter-spacing:.01em;
+  white-space:nowrap;
+}
+@media(max-width:620px){
+  .site-header .brand .operating-space-label{
+    margin-top:2px;
+    padding:1px 5px;
+    font-size:8px;
+  }
+}
+
 .site-header .brand{
   text-decoration:none;
   cursor:pointer;
