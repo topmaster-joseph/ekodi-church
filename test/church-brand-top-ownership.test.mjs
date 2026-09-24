@@ -15,7 +15,7 @@ test('church declares the shared local top-link contract',()=>{
   assert.match(source,/brand\.setAttribute\('href','#top'\)/);
   assert.match(source,/attributeFilter:\['aria-pressed'\]/);
   assert.match(source,/window\.scrollTo\(\{top:0,left:0,behavior\}\)/);
-  assert.match(index,/data-ekodi-operating-space-label="v1">운영공간<\/em>/);
-  assert.match(i18n,/'운영공간':\{en:'Operating Space','zh-CN':'运营空间',ja:'運営スペース'\}/);
-  assert.match(css,/\.site-header \.brand \.operating-space-label/);
+  assert.doesNotMatch(index,/data-ekodi-operating-space-label|>운영공간<\/em>/);
+  assert.doesNotMatch(i18n,/'운영공간':/);
+  assert.doesNotMatch(css,/\.site-header \.brand \.operating-space-label/);
 });
