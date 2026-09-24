@@ -6,7 +6,7 @@ const [index,source,i18n,css]=await Promise.all([
   readFile(new URL('../index.html',import.meta.url),'utf8'),
   readFile(new URL('../church-header-controls.js',import.meta.url),'utf8'),
   readFile(new URL('../church-i18n.js',import.meta.url),'utf8'),
-  readFile(new URL('../church-header-tune.css',import.meta.url),'utf8'),
+  readFile(new URL('../styles.css',import.meta.url),'utf8'),
 ]);
 
 test('church declares the shared local top-link contract',()=>{
