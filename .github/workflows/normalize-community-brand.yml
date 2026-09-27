@@ -1,10 +1,16 @@
-name: Normalize EKODI Community Brand
+name: Validate EKODI Church Community Identity
 
 on:
   push:
     branches: [main]
     paths:
       - 'index.html'
+      - 'script.js'
+      - '.github/workflows/normalize-community-brand.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'script.js'
       - '.github/workflows/normalize-community-brand.yml'
 
 permissions:
@@ -18,41 +24,48 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: true
-      - name: Normalize formal organization name and links
+      - name: Normalize only obsolete spelling without changing ministry identity
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
 
           p = Path('index.html')
           text = p.read_text(encoding='utf-8')
-          mission_finance = '에코디선교회 · 선교헌금'
-          marker = '__EKODI_MISSION_FINANCE__'
-          text = text.replace(mission_finance, marker)
-          text = text.replace('EKODI선교회', '에코디커뮤니티').replace('에코디선교회', '에코디커뮤니티')
-          text = text.replace(marker, mission_finance)
 
-          # Only the former organization card is redirected to Community.
-          pattern = r'(<article class="reveal c2">[\s\S]*?<h3>에코디커뮤니티</h3>[\s\S]*?<a href=")[^"]+(" target="_blank" rel="noreferrer">)[^<]+(</a>)'
-          text, count = re.subn(pattern, r'\1https://community.ekodi.kr\2에코디커뮤니티 보기 →\3', text, count=1)
-          if count != 1:
-              raise SystemExit('Could not normalize Community card link')
+          # 에코디선교회 and 에코디커뮤니티 are distinct current identities.
+          # Only normalize the obsolete mixed-script spelling.
+          text = text.replace('EKODI선교회', '에코디선교회')
 
-          # Keep the public header intentionally compact. Social discovery belongs in
-          # the online/social area, not as a permanent top-level header item.
+          # Keep the public header compact; social discovery belongs in the
+          # online/social area rather than a permanent top-level header item.
           social = '<a data-ekodi-social="true" href="https://social.ekodi.kr/?org=church">Social</a>'
           text = text.replace(social, '')
 
-          legacy_check = text.replace(mission_finance, '')
-          if 'EKODI선교회' in legacy_check or '에코디선교회' in legacy_check:
-              raise SystemExit('Legacy formal organization name remains outside the finance label')
+          required = [
+              '<h3>에코디선교회</h3>',
+              '에코디선교회 · 선교헌금',
+              '에코디커뮤니티 채널 ↗',
+          ]
+          missing = [marker for marker in required if marker not in text]
+          if missing:
+              raise SystemExit(f'Current Church community identity contract missing: {missing}')
+          if 'EKODI선교회' in text:
+              raise SystemExit('Obsolete mixed-script mission name remains')
+
           p.write_text(text, encoding='utf-8')
           PY
-      - name: Commit normalized source
+      - name: Verify current Church and Community link contract
+        run: |
+          grep -Fq "에코디선교회" index.html
+          grep -Fq "에코디커뮤니티 채널 ↗" index.html
+          grep -Fq "https://www.youtube.com/@ekodicommunity" index.html
+          grep -Fq "https://community.ekodi.kr" script.js
+      - name: Commit normalized source on main only
+        if: github.event_name == 'push'
         run: |
           if git diff --quiet; then exit 0; fi
           git config user.name 'EKODI Automation'
           git config user.email 'automation@ekodi.kr'
           git add index.html
-          git commit -m 'Normalize Community brand and Church header'
+          git commit -m 'Normalize Church community identity safely'
           git push
