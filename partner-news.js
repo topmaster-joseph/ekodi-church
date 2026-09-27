@@ -1,5 +1,6 @@
 (() => {
-  const endpoint='https://api.ekodi.kr/api/partner-news/public?tenant=ekodi-church&service=church&limit=6';
+  const endpoint='/api/partner-news/public?tenant=ekodi-church&service=church&limit=6';
+  const cacheKey='ekodi:church:partner-news:v1';
   const host=document.getElementById('partner-news-feed');
   const status=document.getElementById('partner-news-status');
   const section=document.getElementById('partner-news');
@@ -28,7 +29,7 @@
   const intro=section.querySelector('.partner-news-head > div:last-child > p');
   if(heading)heading.textContent=copy.title;
   if(intro)intro.textContent=copy.intro;
-  status.textContent=copy.loading;
+  setStatus(copy.loading);
 
   if(locale!=='ko-KR'){
     host.innerHTML=`<p class="partner-news-empty">${copy.empty}</p>`;
@@ -55,15 +56,26 @@
       </div>
     </article>`;
   }
+  function setStatus(message,visible=true){
+    if(!status)return;
+    status.textContent=message||'';
+    status.hidden=!visible;
+  }
+  function readCache(){
+    try{const cached=JSON.parse(localStorage.getItem(cacheKey)||'null');return Array.isArray(cached?.items)?cached.items:null}catch{return null}
+  }
+  function writeCache(items){
+    try{localStorage.setItem(cacheKey,JSON.stringify({savedAt:Date.now(),items}))}catch{}
+  }
   function render(items){
     const published=(Array.isArray(items)?items:[]).filter(item=>item&&item.status==='PUBLISHED');
     if(!published.length){
       host.innerHTML=`<p class="partner-news-empty">${copy.empty}</p>`;
-      status.textContent=copy.empty;
+      setStatus(copy.empty);
       return;
     }
     host.innerHTML=published.map(card).join('');
-    status.textContent=copy.count(published.length);
+    setStatus(copy.count(published.length));
   }
   async function load(){
     try{
@@ -71,11 +83,18 @@
       if(!response.ok)throw new Error(`HTTP ${response.status}`);
       const data=await response.json();
       if(data?.contract?.publicState!=='PUBLISHED')throw new Error('publication contract mismatch');
+      writeCache(data.items);
       render(data.items);
     }catch(error){
       console.warn('EKODI Church partner news unavailable',error);
-      host.innerHTML=`<p class="partner-news-empty">${copy.error}</p>`;
-      status.textContent=copy.error;
+      const cached=readCache();
+      if(cached?.length){
+        render(cached);
+        setStatus('',false);
+      }else{
+        host.innerHTML=`<p class="partner-news-empty" role="status">${copy.error}</p>`;
+        setStatus('',false);
+      }
     }
   }
   load();
