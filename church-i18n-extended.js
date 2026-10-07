@@ -21,6 +21,7 @@ const P={};
 function add(ko,my,kac,vi,mn,id){P[ko]={my,kac,vi,mn,id};}
 add('에코디교회 홈','ပင်မစာမျက်နှာ','EKODI Nawku Htingnu home','Trang chủ Hội thánh EKODI','EKODI Сүмийн нүүр','Beranda Gereja EKODI');
 add('메뉴 열기','မီနူးဖွင့်ရန်','Menu hpaw','Mở menu','Цэс нээх','Buka menu');
+add('마이페이지','ကျွန်ုပ်၏စာမျက်နှာ','Nye page','Trang của tôi','Миний хуудас','Halaman saya');
 add('주요 메뉴','အဓိက မီနူး','Main menu','Menu chính','Үндсэн цэс','Menu utama');
 add('예배안내','ဝတ်ပြုခြင်း','Nawku','Thờ phượng','Мөргөл','Ibadah');
 add('온라인','အွန်လိုင်း','Online','Trực tuyến','Онлайн','Online');

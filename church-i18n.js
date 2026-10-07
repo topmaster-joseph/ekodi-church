@@ -26,6 +26,7 @@ const PAGE_META={
 const TEXT={
 '에코디교회 홈':{en:'EKODI Church home','zh-CN':'EKODI教会首页',ja:'EKODI教会ホーム'},
 '메뉴 열기':{en:'Open menu','zh-CN':'打开菜单',ja:'メニューを開く'},
+'마이페이지':{en:'My Page','zh-CN':'我的页面',ja:'マイページ'},
 '주요 메뉴':{en:'Main menu','zh-CN':'主菜单',ja:'メインメニュー'},
 '예배안내':{en:'Worship','zh-CN':'礼拜指南',ja:'礼拝案内'},
 '온라인':{en:'Online','zh-CN':'线上',ja:'オンライン'},
