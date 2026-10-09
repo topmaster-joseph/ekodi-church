@@ -12,6 +12,7 @@ test('church homepage starts simple while preserving every primary destination',
     ['#community', '공동체 활동'],
     ['#worship', '예배'],
     ['#online', '실시간 연결'],
+    ['#partner-news', '협력 소식'],
     ['#location', '함께하기'],
   ];
 
@@ -23,7 +24,7 @@ test('church homepage starts simple while preserving every primary destination',
   assert.ok(css.includes('/* Progressive disclosure · simple first view'));
   assert.ok(css.includes('.hero .hero-focus,.hero .hero-copy,.hero .scroll-cue{display:none!important}'));
   assert.ok(css.includes('.hero .overview-grid a span,.hero .overview-grid a small{display:none!important}'));
-  assert.ok(css.includes('#about,#worship,#message,#life-hub,#community,#online,#location{display:none!important}'));
+  assert.ok(css.includes('#about,#worship,#message,#life-hub,#community,#partner-news,#online,#location{display:none!important}'));
   assert.ok(css.includes('#online:has(:target)'));
   assert.ok(css.includes('.church-live-entry{display:none!important}'));
 });
