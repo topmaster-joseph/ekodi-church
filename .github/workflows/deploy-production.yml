@@ -12,6 +12,7 @@ on:
       - 'partner-news.js'
       - 'partner-news.css'
       - 'live/**'
+      - 'worship/**'
       - 'church-character-identity.js'
       - 'church-life-hub.js'
       - 'church-life-hub.css'
@@ -55,6 +56,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Virtual broadcaster and production synthetic canary
         run: npm run test:live:synthetic
+      - name: Worship stage and portrait synthetic browser canary
+        run: npx playwright test test/church-worship-prism-synthetic.spec.mjs --reporter=line
       - name: Validate release boundary
         shell: bash
         run: |
