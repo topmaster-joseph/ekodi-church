@@ -92,7 +92,13 @@
   async function readPresenterSlide(){
     if(!followPresenter||roomRole!=='viewer'||!roomId||!packet||document.visibilityState==='hidden')return;
     try{
-      const response=await fetch(presentationEndpoint(),{cache:'no-store',credentials:'omit'});
+      // Private rooms require the same signed-in viewer identity as the media room.
+      // Never put bearer credentials into the URL, localStorage, or message payload.
+      const access=authToken();
+      const response=await fetch(presentationEndpoint(),{
+        cache:'no-store',credentials:'omit',
+        ...(access?{headers:{authorization:'Bearer '+access}}:{})
+      });
       if(response.status===429||response.status===1027){
         followPresenter=false;stopFollowPolling();
         if($('viewerFollowPresenter'))$('viewerFollowPresenter').setAttribute('aria-pressed','false');
@@ -128,8 +134,14 @@
     const detail=event.detail||{};
     if(!/^room_[a-zA-Z0-9_-]+$/.test(String(detail.roomId||'')))return;
     if(detail.tenant!=='ekodichurch')return;
+    // Room replacement must never display the prior room's cursor or keep its timer.
+    const roomChanged=roomId!==detail.roomId;
+    if(roomChanged){stopFollowPolling();latestRevision=0;slideIndex=0;renderSlide();renderHostSlide();}
     roomId=detail.roomId;roomRole=detail.role==='host'?'host':'viewer';
-    if(roomRole==='host'){renderHostStatus('방송방 연결됨 · 슬라이드를 넘기면 참여자에게 전송합니다.');}
+    if(roomRole==='host'){
+      renderHostStatus('방송방 연결됨 · 슬라이드 1장을 포함해 참여자와 동기화합니다.');
+      if(packet)void sendPresenterSlide();
+    }
     if(roomRole==='viewer'&&followPresenter)setFollow(true);
   });
   window.addEventListener('pagehide',stopFollowPolling);
@@ -180,6 +192,7 @@
         throw new Error('material_schema_invalid');
       packet=result;
       renderSlide();renderBulletin();renderHostSlide();
+      if(roomRole==='host'&&roomId)void sendPresenterSlide();
       status((packet.date||date)+' 주일예배 · PPT '+packet.slides.length+'장과 주보 준비됨');
     }catch(error){
       status('해당 날짜 예배자료를 불러올 수 없습니다. 영상 시청은 계속 가능합니다.');
