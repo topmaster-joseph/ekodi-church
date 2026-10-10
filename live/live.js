@@ -709,16 +709,29 @@ function cleanupCollaboration(){
   state.participantPulls.clear();state.participantRequests.clear();
   if(state.participantPublish){state.participantPublish.pc?.close();state.participantPublish.stream?.getTracks?.().forEach(track=>track.stop());state.participantPublish=null}
 }
+function roomNeedsPublisherCheck(room){
+  const last=Date.parse(room?.updatedAt||room?.createdAt||'');
+  return Number.isFinite(last) && Date.now()-last>30*60*1000;
+}
 async function joinViewer(roomId=''){
   show('viewerView');note('현재 방송을 찾고 있습니다.','viewerStatus');
   try{let id=roomId;if(!id){const live=await api(`/live?tenant=${TENANT}`);if(!live.live||!live.room){$('viewerEmpty').querySelector('strong').textContent='현재 생방송이 없습니다';$('viewerEmpty').querySelector('span').textContent='예정된 예배 시간에 다시 참여해 주세요.';note('현재 진행 중인 공개 방송이 없습니다.','viewerStatus');return}id=live.room.id}
-    const detail=await api(`/rooms/${encodeURIComponent(id)}`);state.room=detail.room;window.dispatchEvent(new CustomEvent('ekodi:live:room',{detail:{roomId:state.room.id,tenant:state.room.tenantId,role:'viewer'}}));$('viewerTitle').textContent=state.room.title||'에코디교회 실시간';renderLanguageOptions(detail.tracks||[]);startChatPolling();await refreshCameraDevices().catch(()=>{});await createSession(id,'viewer');state.pc.ontrack=event=>{for(const track of event.streams?.[0]?.getTracks?.()||[event.track])if(!state.remote.getTracks().some(x=>x.id===track.id))state.remote.addTrack(track);$('viewerVideo').srcObject=state.remote;$('viewerEmpty').classList.add('hidden')};
+    const detail=await api(`/rooms/${encodeURIComponent(id)}`);state.room=detail.room;
+    if(roomNeedsPublisherCheck(state.room))note('방송방 기록은 있지만 마지막 갱신이 오래됐습니다. 실제 미디어 수신 여부를 확인합니다.','viewerStatus');window.dispatchEvent(new CustomEvent('ekodi:live:room',{detail:{roomId:state.room.id,tenant:state.room.tenantId,role:'viewer'}}));$('viewerTitle').textContent=state.room.title||'에코디교회 실시간';renderLanguageOptions(detail.tracks||[]);startChatPolling();await refreshCameraDevices().catch(()=>{});await createSession(id,'viewer');state.pc.ontrack=event=>{for(const track of event.streams?.[0]?.getTracks?.()||[event.track])if(!state.remote.getTracks().some(x=>x.id===track.id))state.remote.addTrack(track);$('viewerVideo').srcObject=state.remote;$('viewerEmpty').classList.add('hidden');if(event.track?.kind==='video')note('실제 영상 트랙 수신 · 방송에 연결되었습니다.','viewerStatus')};
     const pulled=await api(`/rooms/${id}/sessions/${state.session.id}/pull`,{method:'POST',session:true,body:JSON.stringify({tracks:(detail.tracks||[]).filter(track=>(track.source_type||track.sourceType)!=='translation').map(track=>({trackName:track.track_name||track.trackName}))})});
     if(pulled.empty){note('방송방은 열려 있지만 아직 영상 트랙이 없습니다.','viewerStatus');return}
-    const offer=providerDescription(pulled);if(!offer?.sdp)throw new Error('미디어 서버의 수신 제안이 없습니다.');await state.pc.setRemoteDescription(offer);const answer=await state.pc.createAnswer();await state.pc.setLocalDescription(answer);await waitIce(state.pc);await api(`/rooms/${id}/sessions/${state.session.id}/renegotiate`,{method:'PUT',session:true,body:JSON.stringify({sessionDescription:state.pc.localDescription})});note('실시간 방송에 연결되었습니다.','viewerStatus');
+    const offer=providerDescription(pulled);if(!offer?.sdp)throw new Error('미디어 서버의 수신 제안이 없습니다.');await state.pc.setRemoteDescription(offer);const answer=await state.pc.createAnswer();await state.pc.setLocalDescription(answer);await waitIce(state.pc);await api(`/rooms/${id}/sessions/${state.session.id}/renegotiate`,{method:'PUT',session:true,body:JSON.stringify({sessionDescription:state.pc.localDescription})});note('미디어 수신 연결을 설정했습니다. 실제 영상 표시를 확인하고 있습니다.','viewerStatus');
   }catch(error){note(`참여 연결 실패: ${error.message}`,'viewerStatus')}
 }
-async function refreshLive(){try{const live=await api(`/live?tenant=${TENANT}`);$('liveState').textContent=live.live?'현재 LIVE':'현재 대기';$('liveState').dataset.phase=live.live?'live':'idle';if(live.live)$('joinButton').textContent='현재 방송 참여하기'}catch{$('liveState').textContent='상태 확인 필요'}}
+async function refreshLive(){
+  try{
+    const live=await api(`/live?tenant=${TENANT}`);
+    const unconfirmed=live.live&&roomNeedsPublisherCheck(live.room);
+    $('liveState').textContent=live.live?(unconfirmed?'방송 수신 확인 중':'현재 LIVE'):'현재 대기';
+    $('liveState').dataset.phase=live.live?(unconfirmed?'checking':'live'):'idle';
+    if(live.live)$('joinButton').textContent=unconfirmed?'방송 수신 확인하기':'현재 방송 참여하기';
+  }catch{$('liveState').textContent='상태 확인 필요'}
+}
 function guardLiveExit(event){if(!state.isLive)return;const message='현재 방송 중입니다. 교회 홈으로 이동하면 이 브라우저의 송출이 종료될 수 있습니다. 이동하시겠습니까?';if(event?.type==='beforeunload'){event.preventDefault();event.returnValue='';return}if(!confirm(message))event.preventDefault()}
 
 renderLanguageOptions();
