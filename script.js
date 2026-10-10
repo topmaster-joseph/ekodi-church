@@ -229,24 +229,18 @@ document.querySelectorAll('.copy-account').forEach((button) => button.addEventLi
 async function syncPublishedWorship() {
   const schedule = document.querySelector('#worship .schedule');
   if (!schedule) return;
-  const SUPABASE_URL = 'https://renzehysxirjilvdxacv.supabase.co';
-  const PUBLISHABLE_KEY = 'sb_publishable_0QjB0WzZbjrd-FJ5D5cR7A_xUkXyOY_';
+  // Use same-origin public proxy to comply with the church site's strict CSP.
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
-  const query = new URLSearchParams({
-    select: 'service_type,service_date,service_name,service_time,scripture,title,preacher,notice',
-    is_published: 'eq.true',
-    service_date: `gte.${today}`,
-    order: 'service_date.asc',
-    limit: '2',
-  });
+  const query = new URLSearchParams({ from: today });
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/church_worship_materials?${query}`, {
-      headers: { apikey: PUBLISHABLE_KEY, accept: 'application/json' },
+    const response = await fetch(`/api/public/church/worship?${query}`, {
+      headers: { accept: 'application/json' },
       cache: 'no-store',
     });
     if (!response.ok) throw new Error(`worship_${response.status}`);
-    const rows = await response.json();
-    if (!Array.isArray(rows) || !rows.length) return;
+    const data = await response.json();
+    const rows = data?.ok && Array.isArray(data.items) ? data.items : [];
+    if (!rows.length) return;
     schedule.querySelectorAll('[data-ekodi-published-worship]').forEach((node) => node.remove());
     rows.forEach((row) => {
       const card = document.createElement('div');
