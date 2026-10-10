@@ -119,6 +119,7 @@ add('헌금 종류','အလှူ အမျိုးအစား','Hkungga baw',
 add('헌금 금액','အလှူ ပမာဏ','Hkungga amount','Số tiền dâng','Өргөлийн дүн','Jumlah persembahan');
 add('직접 입력','ပမာဏ ရိုက်ထည့်ရန်','Amount ka','Nhập số tiền','Дүн оруулах','Masukkan jumlah');
 add('선택한 금액 결제하기','ရွေးထားသော ပမာဏ ပေးချေရန်','Lata da ai amount jaw','Thanh toán số tiền đã chọn','Сонгосон дүнг төлөх','Bayar jumlah terpilih');
+add('예배자료 관리','ဝတ်ပြုကိုးကွယ်မှု စာရွက်စာတမ်းများ စီမံရန်','Nawku lam hpe up hkang','Quản lý tài liệu thờ phượng','Мөргөлийн материалыг удирдах','Kelola materi ibadah');
 
 add('세상에서 구별된 에클레시아, 하나님과 하나된 코이노니아, 세상 속에 증인된 디아스포라.','လောကထဲမှ ခေါ်ထုတ်ထားသော Ekklesia၊ ဘုရားသခင်၌ တစ်လုံးတစ်ဝတည်းဖြစ်သော Koinonia၊ လောကထဲတွင် သက်သေဖြစ်သော Diaspora။','Mungkan kaw na shaga la ai Ekklesia, Karai Kasang hte rau ai Koinonia, mungkan hta sakse tai ai Diaspora.','Ekklesia được gọi ra khỏi thế gian, Koinonia hiệp một trong Đức Chúa Trời, Diaspora làm chứng giữa đời.','Дэлхийгээс дуудагдсан Ekklesia, Бурхантай нэгдсэн Koinonia, дэлхийд гэрчлэгч Diaspora.','Ekklesia yang dipanggil keluar dari dunia, Koinonia yang bersatu dalam Allah, Diaspora yang menjadi saksi di dunia.');
 add('전체 소셜채널 ↗','လူမှုကွန်ရက်ချန်နယ်များအားလုံး ↗','Social channel yawng ↗','Tất cả kênh mạng xã hội ↗','Бүх сошиал сувгууд ↗','Semua kanal sosial ↗');
@@ -217,6 +218,8 @@ function applyText(locale){
     const source=raw.trim();
     if(!source||!/[가-힣]/.test(source))continue;
     const translated=core(source,locale);
+    // Do not rewrite unknown Korean as the same string: MutationObserver would endlessly reschedule.
+    if(translated===source)continue;
     const lead=raw.match(/^\s*/)?.[0]||'';
     const tail=raw.match(/\s*$/)?.[0]||'';
     node.nodeValue=`${lead}${translated}${tail}`;
