@@ -34,7 +34,7 @@ test('screen layout changes reuse the program stream instead of republishing tra
 test('interpretation targets are automatic and displayed as supported languages',async()=>{
   const [html,js]=await Promise.all([read('live/index.html'),read('live/live.js')]);
   assert.match(html,/통역/);
-  assert.match(html,/자동동시통역 가능/);
+  assert.match(html,/통역 음성 준비 상태/);
   assert.match(html,/id="languageChips"/);
   assert.doesNotMatch(html,/id="languageSelect"/);
   assert.match(js,/const SUPPORTED_LANGUAGES=/);
@@ -96,7 +96,7 @@ test('live collaboration includes chat and moderated participant camera publishi
 
 test('interpretation UI is concise and only shows automatic simultaneous interpretation with language list',async()=>{
   const html=await read('live/index.html');
-  assert.match(html,/자동동시통역 가능/);
+  assert.match(html,/통역 음성 준비 상태/);
   assert.match(html,/id="languageChips"/);
   assert.doesNotMatch(html,/원음을 자동으로 인식/);
   assert.doesNotMatch(html,/class="auto-badge"/);
@@ -113,7 +113,7 @@ test('presenter PIP can be removed from the composed program without ending scre
 
 test('compact viewer keeps interpretation display-only with no language selector',async()=>{
   const [html,js]=await Promise.all([read('live/index.html'),read('live/live.js')]);
-  assert.match(html,/자동동시통역 가능/);
+  assert.match(html,/통역 음성 준비 상태/);
   assert.match(html,/id="viewerLanguageChips"/);
   assert.doesNotMatch(html,/id="viewerLanguageSelect"/);
   assert.doesNotMatch(js,/ekodi-live-interpretation-language/);
