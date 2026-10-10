@@ -256,7 +256,10 @@ function setSourceVideo(id,stream){const video=$(id);if(!video)return;video.srcO
 async function acquireCamera(){
   if(state.local)return state.local;
   const mobile=matchMedia('(max-width: 640px)').matches;
-  const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},facingMode:{ideal:'user'},...(mobile?{resizeMode:'none'}:{})},audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  const selectedCamera=$('primaryCameraSelect')?.value||'';
+  const facing=$('cameraFacingSelect')?.value==='environment'?'environment':'user';
+  const videoConstraints={width:{ideal:1280},height:{ideal:720},...(selectedCamera?{deviceId:{exact:selectedCamera}}:{facingMode:{ideal:facing}}),...(mobile?{resizeMode:'none'}:{})};
+  const stream=await navigator.mediaDevices.getUserMedia({video:videoConstraints,audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
   const cameraTrack=stream.getVideoTracks()[0];
   if(mobile&&cameraTrack?.getCapabilities){
     const caps=cameraTrack.getCapabilities(),settings=cameraTrack.getSettings?.()||{};
@@ -270,6 +273,25 @@ async function acquireCamera(){
   if($('programPlaceholder'))$('programPlaceholder').classList.add('hidden');
   ensureProgramStream();
   return stream;
+}
+async function applyPrimaryCamera(){
+  if(state.isLive||state.hosting){if($('cameraChoiceStatus'))$('cameraChoiceStatus').textContent='방송 중에는 카메라를 안전하게 유지합니다. 종료 후 변경할 수 있습니다.';return}
+  const button=$('applyPrimaryCameraButton');if(button)button.disabled=true;
+  try{
+    if(state.local){
+      cancelAnimationFrame(state.animationFrame);
+      state.canvasStream?.getTracks?.().forEach(track=>track.stop());
+      state.local.getTracks().forEach(track=>track.stop());
+      state.local=null;state.program=null;state.canvasStream=null;state.canvas=null;state.ctx=null;
+    }
+    await acquireCamera();
+    await refreshCameraDevices();
+    state.studioPrepared=true;setPhase('ready');$('goLiveButton').disabled=false;
+    if($('cameraChoiceStatus'))$('cameraChoiceStatus').textContent='카메라 미리보기가 준비되었습니다. 선택한 화면을 확인한 뒤 방송을 시작하세요.';
+  }catch(error){
+    if($('cameraChoiceStatus'))$('cameraChoiceStatus').textContent='카메라 변경 실패: '+error.message;
+    note('카메라 설정 실패: '+error.message);
+  }finally{if(button)button.disabled=false}
 }
 function drawContained(ctx,video,x,y,w,h,fill='#090b0a'){
   ctx.fillStyle=fill;ctx.fillRect(x,y,w,h);
@@ -405,8 +427,8 @@ async function refreshCameraDevices(){
   if(!navigator.mediaDevices?.enumerateDevices)return;
   const devices=(await navigator.mediaDevices.enumerateDevices()).filter(device=>device.kind==='videoinput');
   const primary=state.local?.getVideoTracks?.()[0]?.getSettings?.().deviceId||'';
-  for(const select of [$('extraCameraSelect'),$('participantCameraSelect')].filter(Boolean)){
-    const selected=select.value;select.replaceChildren(new Option(select.id==='extraCameraSelect'?'추가 카메라 선택':'카메라 선택',''));
+  for(const select of [$('primaryCameraSelect'),$('extraCameraSelect'),$('participantCameraSelect')].filter(Boolean)){
+    const selected=select.value;select.replaceChildren(new Option(select.id==='primaryCameraSelect'?'자동 선택':select.id==='extraCameraSelect'?'추가 카메라 선택':'카메라 선택',''));
     for(const [index,device] of devices.entries()){if(select.id==='extraCameraSelect'&&device.deviceId===primary)continue;const option=new Option(device.label||`카메라 ${index+1}`,device.deviceId);select.append(option)}
     if([...select.options].some(option=>option.value===selected))select.value=selected;
   }
@@ -692,6 +714,7 @@ ensureOverlay('chat',{type:'chat',label:'실시간 채팅'});
 setupProgramDrop();
 $('chatOverlaySource')?.addEventListener('dragstart',event=>event.dataTransfer?.setData('text/ekodi-overlay','chat'));
 $('chatOverlaySource')?.addEventListener('click',()=>state.overlays.get('chat')?.visible?removeOverlay('chat'):addOverlay('chat'));
+$('applyPrimaryCameraButton')?.addEventListener('click',applyPrimaryCamera);
 $('connectExtraCameraButton')?.addEventListener('click',connectExtraCamera);
 $('refreshParticipantSourcesButton')?.addEventListener('click',refreshParticipantSources);
 $('studioChatForm')?.addEventListener('submit',event=>{event.preventDefault();void sendChat('studioChatInput','방송자')});
