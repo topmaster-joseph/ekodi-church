@@ -33,7 +33,8 @@ test('authorized source slide controls reach remote viewer and manual override i
  const host=await ctx.newPage();
  await host.goto(url+'?date=2026-10-11');
  await host.evaluate(()=>{sessionStorage.setItem('ekodi-auth-token','browser-test-token');document.getElementById('studioView').classList.remove('hidden');window.dispatchEvent(new CustomEvent('ekodi:live:room',{detail:{roomId:'room_testchurch',tenant:'ekodichurch',role:'host'}}));});
- await expect(host.locator('#worshipHostSyncStatus')).toContainText('방송방 연결됨');
+ await expect(host.locator('#worshipHostSyncStatus')).toContainText('전송 완료');
+ expect(index).toBe(0);
  await host.locator('#worshipHostNext').click();
  await expect(host.locator('#worshipHostSyncStatus')).toContainText('전송 완료');
  expect(index).toBe(1);
