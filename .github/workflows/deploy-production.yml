@@ -58,6 +58,8 @@ jobs:
         run: npm run test:live:synthetic
       - name: Worship stage and portrait synthetic browser canary
         run: npx playwright test test/church-worship-prism-synthetic.spec.mjs --reporter=line
+      - name: Independent worship viewer and camera UI browser synthetic
+        run: npx playwright test test/church-live-worship-viewer-synthetic.spec.mjs --reporter=line
       - name: Validate release boundary
         shell: bash
         run: |
