@@ -98,7 +98,7 @@
     } else if (!currentVoice) {
       voiceStatus.textContent = prayers[currentLang].label + ' 음성이 기기에 준비되지 않았습니다. 브라우저 또는 운영체제의 언어별 음성팩을 확인하세요.';
     } else {
-      voiceStatus.textContent = '재생 음성: ' + currentVoice.name + ' (' + currentVoice.lang + ') · 음성은 이 기기에서 생성됩니다.';
+      voiceStatus.textContent = '재생 음성: ' + currentVoice.name + ' (' + currentVoice.lang + ') · 브라우저 음성 엔진을 사용합니다.';
     }
     playAll.disabled = !currentVoice;
     linesEl.querySelectorAll('.play-line').forEach(button => { button.disabled = !currentVoice; });
