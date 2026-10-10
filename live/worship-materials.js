@@ -8,6 +8,12 @@
   const materialPath='/ekodichurch/worship/'+date+'/materials.json';
   let packet=null;
   let slideIndex=0;
+  let roomId='';
+  let roomRole='';
+  let followPresenter=false;
+  let latestRevision=0;
+  let followInterval=null;
+  let publishing=false;
   let mode='video';
   try{const preference=sessionStorage.getItem('ekodi:church:viewer-material-mode');if(MODES.has(preference))mode=preference;}catch{}
   const status=(message)=>{if($('viewerMaterialStatus'))$('viewerMaterialStatus').textContent=message;};
@@ -39,6 +45,97 @@
     slideIndex=Math.max(0,Math.min(packet.slides.length-1,slideIndex+by));
     renderSlide();
   }
+  function renderHostSlide(){
+    if(!packet?.slides?.length)return;
+    const data=packet.slides[slideIndex];
+    if($('worshipHostCurrentSlide'))$('worshipHostCurrentSlide').textContent=(data?.title||'').replaceAll('\n',' ');
+    if($('worshipHostSlideCount'))$('worshipHostSlideCount').textContent=(slideIndex+1)+' / '+packet.slides.length;
+  }
+  function renderHostStatus(message){if($('worshipHostSyncStatus'))$('worshipHostSyncStatus').textContent=message;}
+  function renderViewerSync(message){if($('viewerSlideSyncStatus'))$('viewerSlideSyncStatus').textContent=message;}
+  function authToken(){
+    try{
+      const central=sessionStorage.getItem('ekodi-auth-token');
+      if(central)return central;
+      return JSON.parse(sessionStorage.getItem('ekodi-church-pastor-session')||'null')?.accessToken||'';
+    }catch{return''}
+  }
+  const deckId='worship-'+date;
+  const presentationEndpoint=()=>'/api/realtime/rooms/'+encodeURIComponent(roomId)+'/presentation';
+  async function sendPresenterSlide(){
+    if(!roomId||roomRole!=='host'||!packet||publishing)return;
+    const token=authToken();
+    if(!token){renderHostStatus('방송자 인증이 필요합니다. 영상 방송은 계속 가능합니다.');return}
+    publishing=true;
+    document.querySelectorAll('#worshipHostPrev,#worshipHostNext').forEach(button=>button.disabled=true);
+    const target=slideIndex;
+    try{
+      const response=await fetch(presentationEndpoint(),{method:'PUT',cache:'no-store',
+        headers:{'content-type':'application/json',authorization:'Bearer '+token},
+        body:JSON.stringify({deckId,index:target})});
+      const body=await response.json().catch(()=>({}));
+      if(!response.ok||body?.presentation?.index!==target)throw new Error(body.error||'presentation_update_failed');
+      latestRevision=Math.max(latestRevision,Number(body.presentation.revision)||0);
+      renderHostStatus('참여자 동기화 전송 완료 · '+(target+1)+' / '+packet.slides.length);
+    }catch(error){
+      renderHostStatus('참여자 동기화 미연결: '+(error.message||'확인 필요')+' · 방송 영상은 계속됩니다.');
+    }finally{
+      publishing=false;document.querySelectorAll('#worshipHostPrev,#worshipHostNext').forEach(button=>button.disabled=false);
+    }
+  }
+  function presenterMove(offset){
+    if(publishing||!packet?.slides?.length)return;
+    slideIndex=Math.min(packet.slides.length-1,Math.max(0,slideIndex+offset));
+    renderSlide();renderHostSlide();
+    void sendPresenterSlide();
+  }
+  async function readPresenterSlide(){
+    if(!followPresenter||roomRole!=='viewer'||!roomId||!packet||document.visibilityState==='hidden')return;
+    try{
+      const response=await fetch(presentationEndpoint(),{cache:'no-store',credentials:'omit'});
+      if(response.status===429||response.status===1027){
+        followPresenter=false;stopFollowPolling();
+        if($('viewerFollowPresenter'))$('viewerFollowPresenter').setAttribute('aria-pressed','false');
+        renderViewerSync('서버 보호를 위해 자동 동기화를 잠시 멈췄습니다. 직접 넘겨 보실 수 있습니다.');
+        return;
+      }
+      if(!response.ok)throw new Error('동기화 경로 확인 중');
+      const result=await response.json();
+      const cursor=result?.presentation;
+      if(!cursor){renderViewerSync('진행자가 PPT를 시작하면 여기에 자동 표시됩니다.');return;}
+      if(cursor.deckId!==deckId||!Number.isInteger(cursor.index)||cursor.index<0||cursor.index>=packet.slides.length)return;
+      const nextRevision=Number(cursor.revision)||0;
+      if(nextRevision>=latestRevision){
+        latestRevision=nextRevision;slideIndex=cursor.index;renderSlide();renderHostSlide();
+        renderViewerSync('진행자 따라가는 중 · '+(slideIndex+1)+' / '+packet.slides.length);
+      }
+    }catch{
+      renderViewerSync('진행자 연결 확인 중 · PPT 수동 넘기기는 정상 이용 가능합니다.');
+    }
+  }
+  function stopFollowPolling(){if(followInterval!==null){clearInterval(followInterval);followInterval=null;}}
+  function setFollow(enabled){
+    followPresenter=Boolean(enabled);
+    if($('viewerFollowPresenter'))$('viewerFollowPresenter').setAttribute('aria-pressed',String(followPresenter));
+    stopFollowPolling();
+    if(followPresenter){
+      renderViewerSync(roomId?'진행자 연결 중':'방송에 입장하면 진행자 따라가기가 시작됩니다.');
+      void readPresenterSlide();
+      if(roomId)followInterval=setInterval(()=>void readPresenterSlide(),10000);
+    }else renderViewerSync('내가 직접 넘기는 PPT · 방송 진행자 화면에는 영향 없음');
+  }
+  window.addEventListener('ekodi:live:room',event=>{
+    const detail=event.detail||{};
+    if(!/^room_[a-zA-Z0-9_-]+$/.test(String(detail.roomId||'')))return;
+    if(detail.tenant!=='ekodichurch')return;
+    roomId=detail.roomId;roomRole=detail.role==='host'?'host':'viewer';
+    if(roomRole==='host'){renderHostStatus('방송방 연결됨 · 슬라이드를 넘기면 참여자에게 전송합니다.');}
+    if(roomRole==='viewer'&&followPresenter)setFollow(true);
+  });
+  window.addEventListener('pagehide',stopFollowPolling);
+  document.addEventListener('visibilitychange',()=>{
+    if(followPresenter&&roomRole==='viewer'&&document.visibilityState==='visible')void readPresenterSlide();
+  });
   function renderBulletin(){
     if(!packet)return;
     const root=$('viewerBulletinBody');
@@ -67,8 +164,11 @@
   document.querySelectorAll('[data-viewer-material-mode]').forEach(button=>{
     button.addEventListener('click',()=>showMode(button.dataset.viewerMaterialMode));
   });
-  $('viewerSlidePrev')?.addEventListener('click',()=>moveSlide(-1));
-  $('viewerSlideNext')?.addEventListener('click',()=>moveSlide(1));
+  $('viewerSlidePrev')?.addEventListener('click',()=>{setFollow(false);moveSlide(-1)});
+  $('viewerSlideNext')?.addEventListener('click',()=>{setFollow(false);moveSlide(1)});
+  $('viewerFollowPresenter')?.addEventListener('click',()=>setFollow(!followPresenter));
+  $('worshipHostPrev')?.addEventListener('click',()=>presenterMove(-1));
+  $('worshipHostNext')?.addEventListener('click',()=>presenterMove(1));
   showMode(mode);
 
   async function loadPacket(){
@@ -79,7 +179,7 @@
       if(result?.schema!=='ekodi.worship.materials.v1'||result?.site!=='ekodichurch'||result.date!==date||!Array.isArray(result.slides)||result.slides.length<1||result.slides.length>120)
         throw new Error('material_schema_invalid');
       packet=result;
-      renderSlide();renderBulletin();
+      renderSlide();renderBulletin();renderHostSlide();
       status((packet.date||date)+' 주일예배 · PPT '+packet.slides.length+'장과 주보 준비됨');
     }catch(error){
       status('해당 날짜 예배자료를 불러올 수 없습니다. 영상 시청은 계속 가능합니다.');

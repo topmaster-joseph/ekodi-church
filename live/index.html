@@ -164,6 +164,12 @@
         </section>
       </details>
 
+      <section class="worship-host-control" id="worshipHostControl" aria-label="예배 PPT 송출자 조작">
+        <div class="section-heading"><strong>예배 PPT 진행</strong><small>현재 슬라이드를 참여자와 동기화</small></div>
+        <div id="worshipHostCurrentSlide" class="worship-host-current">오늘의 예배자료 확인 중</div>
+        <div class="worship-host-nav"><button type="button" id="worshipHostPrev">← 이전 장</button><span id="worshipHostSlideCount">1 / 16</span><button type="button" id="worshipHostNext">다음 장 →</button></div>
+        <div id="worshipHostSyncStatus" class="worship-host-sync" role="status">방송방이 연결되면 동기화할 수 있습니다.</div>
+      </section>
       <section class="interpretation-box" aria-label="자동동시통역">
         <strong class="interpretation-title">자동동시통역 가능</strong>
         <div class="language-chips" id="languageChips" aria-label="가능 언어"></div>
@@ -213,7 +219,8 @@
           <div class="viewer-worship-slide" id="viewerWorshipSlide" aria-live="polite">
             <small id="viewerSlideKicker"></small><h3 id="viewerSlideTitle"></h3><div id="viewerSlideLines"></div>
           </div>
-          <nav aria-label="나의 PPT 이동"><button type="button" id="viewerSlidePrev">← 이전</button><button type="button" id="viewerSlideNext">다음 →</button></nav>
+          <nav aria-label="나의 PPT 이동"><button type="button" id="viewerSlidePrev">← 이전</button><button type="button" id="viewerSlideNext">다음 →</button><button type="button" id="viewerFollowPresenter" aria-pressed="false">진행자 따라가기</button></nav>
+          <p id="viewerSlideSyncStatus" class="viewer-slide-sync" role="status">내가 직접 넘기는 PPT · 영상에는 영향 없음</p>
         </section>
         <section class="viewer-worship-bulletin hidden" id="viewerWorshipBulletin" aria-labelledby="viewerBulletinHeading">
           <header><strong id="viewerBulletinHeading">예배 주보</strong><a id="viewerBulletinLink" href="/ekodichurch/worship/2026-10-11/" target="_blank" rel="noopener">주보 전체 보기 ↗</a></header>

@@ -42,3 +42,13 @@
 .viewer-bulletin-devotions li{border-bottom:1px dashed #dce6df}
 @media(max-width:1100px){.viewer-content-layout[data-material-layout="all"],.viewer-content-layout[data-material-layout="video-ppt"],.viewer-content-layout[data-material-layout="video-bulletin"],.viewer-content-layout[data-material-layout="ppt-bulletin"]{grid-template-columns:1fr}.viewer-content-layout[data-material-layout="all"] .viewer-stage{grid-column:auto}.viewer-content-layout .viewer-stage{min-height:270px}.viewer-worship-slide{min-height:220px}.viewer-material-toolbar{padding:11px}}
 @media(max-width:580px){.camera-choice{grid-template-columns:1fr}.viewer-layout-options button{flex:1 1 auto;font-size:11px}.viewer-worship-slide h3{font-size:clamp(19px,5vw,28px)}.viewer-worship-slide p{font-size:clamp(12px,3vw,16px)}}
+
+.worship-host-control{margin:14px 0;padding:14px;background:#f7fbf7;border:1px solid var(--line);border-radius:16px}
+.worship-host-current{font-size:16px;line-height:1.55;font-weight:800;color:var(--green);padding:11px 0;min-height:54px;word-break:keep-all}
+.worship-host-nav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.worship-host-nav button{font-size:12px;padding:9px 12px;border-radius:10px}
+.worship-host-nav span{white-space:nowrap;font-size:12px;font-weight:800}
+.worship-host-sync,.viewer-slide-sync{font-size:11px;line-height:1.65;color:#64776b;margin:10px 0 0}
+.viewer-worship-slides nav{flex-wrap:wrap;gap:8px}
+.viewer-worship-slides nav button[aria-pressed=true]{background:var(--green);color:#fff}
+.viewer-slide-sync{padding:0 15px 12px;margin-top:0}
