@@ -7,7 +7,7 @@ const root=new URL('../worship/2026-10-11/',import.meta.url);
 test('presenter and stage stay synchronized, print is separate from broadcasting',async({browser})=>{
   const context=await browser.newContext({viewport:{width:1440,height:900}});
   await context.route('https://worship.ekodi.test/**',async route=>{
-    const path=new URL(route.request().url).pathname;
+    const path=new URL(route.request().url()).pathname;
     const filename=path.endsWith('/worship.js')?'worship.js':path.endsWith('/worship.css')?'worship.css':'index.html';
     const body=await readFile(new URL(filename,root),'utf8');
     const contentType=filename.endsWith('.js')?'application/javascript':filename.endsWith('.css')?'text/css':'text/html';
@@ -37,7 +37,7 @@ test('presenter and stage stay synchronized, print is separate from broadcasting
 test('portrait view preserves 9:16 source layout for Instagram composition',async({browser})=>{
   const context=await browser.newContext({viewport:{width:390,height:844}});
   await context.route('https://worship.ekodi.test/**',async route=>{
-    const name=new URL(route.request().url).pathname.split('/').pop()||'index.html';
+    const name=new URL(route.request().url()).pathname.split('/').pop()||'index.html';
     const filename=['worship.js','worship.css'].includes(name)?name:'index.html';
     const body=await readFile(new URL(filename,root),'utf8');
     await route.fulfill({status:200,contentType:filename.endsWith('.js')?'application/javascript':filename.endsWith('.css')?'text/css':'text/html',body});
