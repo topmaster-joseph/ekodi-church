@@ -60,6 +60,8 @@ jobs:
         run: npx playwright test test/church-worship-prism-synthetic.spec.mjs --reporter=line
       - name: Independent worship viewer and camera UI browser synthetic
         run: npx playwright test test/church-live-worship-viewer-synthetic.spec.mjs --reporter=line
+      - name: Cross-browser opt-in presenter slide synchronization synthetic
+        run: npx playwright test test/church-live-follow-presenter-synthetic.spec.mjs --reporter=line
       - name: Validate release boundary
         shell: bash
         run: |
