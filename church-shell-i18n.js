@@ -126,15 +126,21 @@ function run(){
 }
 function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(run);}
 function loadExtensions(){
+  // Public Church is mounted at /ekodichurch on the EKODI canonical domain.
+  // Root-relative /church-*.js requests leaked to the platform root and returned 404.
+  const scoped=location.pathname==='/ekodichurch'||location.pathname.startsWith('/ekodichurch/');
+  const assetRoot=scoped?'/ekodichurch/':'/';
   if(!document.querySelector('link[data-ekodi-church-header-tune]')){
     const link=document.createElement('link');
     link.rel='stylesheet';
-    link.href='/church-header-tune.css';
+    link.href=assetRoot+'church-header-tune.css';
     link.dataset.ekodiChurchHeaderTune='v1';
     document.head.append(link);
   }
-  for(const src of ['/church-i18n-extended.js','/church-i18n-payment-patch.js','/church-header-controls.js','/church-footer-number-i18n.js']){
-    if(document.querySelector(`script[src="${src}"]`))continue;
+  for(const name of ['church-i18n-extended.js','church-i18n-payment-patch.js','church-header-controls.js','church-footer-number-i18n.js']){
+    const src=assetRoot+name;
+    // Relative entries in the Church HTML must not be loaded a second time.
+    if([...document.scripts].some(node=>node.src&&new URL(node.src,location.href).pathname===src))continue;
     const script=document.createElement('script');
     script.src=src;
     script.defer=true;
