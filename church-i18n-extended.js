@@ -203,9 +203,9 @@ function captureFallback(){
 function applyHead(locale){
   const meta=META[locale];
   if(!meta)return;
-  document.title=meta.title;
+  if(document.title!==meta.title)document.title=meta.title;
   const description=document.querySelector('meta[name="description"]');
-  if(description)description.setAttribute('content',meta.description);
+  if(description&&description.getAttribute('content')!==meta.description)description.setAttribute('content',meta.description);
 }
 function applyText(locale){
   const root=document.body||document.documentElement;
@@ -238,17 +238,17 @@ function applyDaily(locale){
   const box=document.querySelector('.daily-verse');
   const text=box?.querySelector('.daily-verse-text');
   const ref=box?.querySelector('.daily-verse-ref');
-  if(text)text.textContent=`“${entry.text}”`;
-  if(ref)ref.textContent=entry.ref;
-  if(box){box.title=`${entry.text} · ${entry.ref}`;box.setAttribute('aria-label',`${entry.text}, ${entry.ref}`);}
+  if(text&&text.textContent!==`“${entry.text}”`)text.textContent=`“${entry.text}”`;
+  if(ref&&ref.textContent!==entry.ref)ref.textContent=entry.ref;
+  if(box){const nextTitle=`${entry.text} · ${entry.ref}`,nextAria=`${entry.text}, ${entry.ref}`;if(box.title!==nextTitle)box.title=nextTitle;if(box.getAttribute('aria-label')!==nextAria)box.setAttribute('aria-label',nextAria);}
 }
 function apply(locale=desired){
   if(capturing)return;
   desired=normalize(locale);
   if(!NEW.has(desired))return;
   captureFallback();
-  document.documentElement.lang=desired;
-  document.documentElement.dataset.ekodiLocale=desired;
+  if(document.documentElement.lang!==desired)document.documentElement.lang=desired;
+  if(document.documentElement.dataset.ekodiLocale!==desired)document.documentElement.dataset.ekodiLocale=desired;
   applyHead(desired);
   applyText(desired);
   applyDaily(desired);
