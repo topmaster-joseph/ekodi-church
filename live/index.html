@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./live.css">
+  <link rel="stylesheet" href="./worship-materials.css">
 </head>
 <body>
 <header class="church-shell-header" id="top">
@@ -88,6 +89,11 @@
         <li data-phase="ended">종료</li>
       </ol>
 
+      <div class="camera-choice" aria-label="방송자 카메라 설정">
+        <label>보여줄 카메라 <select id="primaryCameraSelect" aria-label="방송자 기본 카메라"><option value="">자동 선택</option></select></label>
+        <label>촬영 방향 <select id="cameraFacingSelect" aria-label="자기 모습 또는 주변 화면"><option value="user">본인 · 전면</option><option value="environment">주변 · 후면</option></select></label>
+        <small id="cameraChoiceStatus" role="status">방송을 시작하기 전에 카메라를 선택하세요. 방송 중 카메라 변경은 제한합니다.</small>
+      </div>
       <div class="control-grid" aria-label="방송 제어">
         <button id="cameraButton" type="button" aria-pressed="true">카메라</button>
         <button id="micButton" type="button" aria-pressed="true">마이크</button>
@@ -182,9 +188,37 @@
   </section>
 
   <section class="viewer hidden" id="viewerView" aria-label="에코디교회 실시간 참여">
-    <div class="viewer-stage">
+    <div class="viewer-content" id="viewerContent">
+      <section class="viewer-material-toolbar" aria-label="나의 예배 화면 선택">
+        <div><strong>나의 예배 화면</strong><small>영상·PPT·주보를 각각 또는 함께 선택합니다.</small></div>
+        <div class="viewer-layout-options" role="group" aria-label="보여줄 자료 선택">
+          <button type="button" data-viewer-material-mode="video" aria-pressed="true">영상</button>
+          <button type="button" data-viewer-material-mode="video-ppt" aria-pressed="false">영상 + PPT</button>
+          <button type="button" data-viewer-material-mode="video-bulletin" aria-pressed="false">영상 + 주보</button>
+          <button type="button" data-viewer-material-mode="all" aria-pressed="false">모두 보기</button>
+          <button type="button" data-viewer-material-mode="ppt" aria-pressed="false">PPT만</button>
+          <button type="button" data-viewer-material-mode="bulletin" aria-pressed="false">주보만</button>
+          <button type="button" data-viewer-material-mode="ppt-bulletin" aria-pressed="false">PPT + 주보</button>
+        </div>
+        <div class="viewer-material-status" id="viewerMaterialStatus" role="status" aria-live="polite">예배자료 확인 중</div>
+      </section>
+      <div class="viewer-content-layout" id="viewerContentLayout" data-material-layout="video">
+    <div class="viewer-stage" id="viewerVideoStage">
       <video id="viewerVideo" autoplay playsinline controls></video>
       <div class="viewer-empty" id="viewerEmpty"><strong>방송 연결 중</strong><span>현재 방송 상태를 확인하고 있습니다.</span></div>
+    </div>
+        <section class="viewer-worship-slides hidden" id="viewerWorshipSlides" aria-labelledby="viewerSlideHeading">
+          <header><strong id="viewerSlideHeading">예배 PPT</strong><span id="viewerSlideCount">1 / 16</span></header>
+          <div class="viewer-worship-slide" id="viewerWorshipSlide" aria-live="polite">
+            <small id="viewerSlideKicker"></small><h3 id="viewerSlideTitle"></h3><div id="viewerSlideLines"></div>
+          </div>
+          <nav aria-label="나의 PPT 이동"><button type="button" id="viewerSlidePrev">← 이전</button><button type="button" id="viewerSlideNext">다음 →</button></nav>
+        </section>
+        <section class="viewer-worship-bulletin hidden" id="viewerWorshipBulletin" aria-labelledby="viewerBulletinHeading">
+          <header><strong id="viewerBulletinHeading">예배 주보</strong><a id="viewerBulletinLink" href="/ekodichurch/worship/2026-10-11/" target="_blank" rel="noopener">주보 전체 보기 ↗</a></header>
+          <div class="viewer-bulletin-body" id="viewerBulletinBody"></div>
+        </section>
+      </div>
     </div>
     <aside class="viewer-panel">
       <small>LIVE PARTICIPATION</small>
@@ -222,6 +256,7 @@
   </nav>
 </footer>
 <script src="./host-intent.js" defer></script>
+<script src="./worship-materials.js" defer></script>
 <script src="./live.js" defer></script>
 </body>
 </html>
