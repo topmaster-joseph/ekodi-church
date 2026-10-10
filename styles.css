@@ -9,3 +9,8 @@
 @media(max-width:800px){.hero{padding-top:105px;padding-bottom:55px}.hero h1{font-size:39px}.overview-grid{grid-template-columns:1fr 1fr}.overview-grid a{min-height:88px;padding:13px}.online-actions{grid-template-columns:1fr}.youtube-room{padding:12px;margin-inline:-8px}.youtube-toolbar,.channel-links{flex-wrap:wrap}.channel-links{justify-content:flex-start}.accounts strong{font-size:15px}}
 @media(max-width:480px){.overview-grid{grid-template-columns:1fr}.overview-grid a{min-height:75px}.scroll-cue{display:none}}
 
+
+/* Contextual editing appears only after live Church permission verification. */
+.church-worship-admin-inline{display:inline-flex;align-items:center;justify-content:center;width:max-content;max-width:100%;margin-top:8px;padding:7px 12px;border:1px solid currentColor;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;line-height:1.35}
+.church-worship-admin-inline[hidden]{display:none!important}
+.church-worship-admin-inline:focus-visible{outline:2px solid currentColor;outline-offset:3px}
