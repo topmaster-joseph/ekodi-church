@@ -237,7 +237,8 @@ const TEXT={
 '실시간 예배를 원음 또는 선택한 언어로 듣고 참여합니다.':{en:'Join live worship in the original audio or your selected language.','zh-CN':'可用原声或所选语言收听并参加实时礼拜。',ja:'ライブ礼拝を原音または選択した言語で聞いて参加できます。'},
 '다국어 방송 참여':{en:'Join multilingual broadcast','zh-CN':'参加多语言直播',ja:'多言語配信に参加'},
 '다국어 실시간 방송 참여':{en:'Join multilingual live broadcast','zh-CN':'参加多语言实时直播',ja:'多言語ライブ配信に参加'},
-'다국어 실시간 방송 스튜디오':{en:'Multilingual live broadcast studio','zh-CN':'多语言直播演播室',ja:'多言語ライブ配信スタジオ'}
+'다국어 실시간 방송 스튜디오':{en:'Multilingual live broadcast studio','zh-CN':'多语言直播演播室',ja:'多言語ライブ配信スタジオ'},
+'예배자료 관리':{en:'Manage worship materials','zh-CN':'管理礼拜资料',ja:'礼拝資料を管理'}
 };
 
 const SCRIPTURES=[
