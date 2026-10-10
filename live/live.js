@@ -104,12 +104,24 @@ async function loadExternalDestinations(){
   catch(error){state.destinationCatalogLoaded=false;const root=$('externalDestinations');if(root)root.innerHTML='<small>외부 채널을 불러오지 못했습니다. 내부 방송과 자동 저장은 정상적으로 사용할 수 있습니다.</small>';note(`외부 채널 확인 실패: ${error.message}`);return false}
 }
 function lockDestinationSelection(){document.querySelectorAll('#externalDestinations input[data-destination]').forEach(input=>input.disabled=true);if($('refreshDestinationsButton'))$('refreshDestinationsButton').disabled=true}
-function renderLanguageOptions(){
+function renderLanguageOptions(tracks=[]){
+  // AI consent/metadata never constitutes proof that translated audio is actually published.
+  const languageTracks=(Array.isArray(tracks)?tracks:[]).filter(track=>
+    (track.source_type||track.sourceType)==='translation'&&
+    (track.media_kind||track.mediaKind||track.kind)==='audio'&&
+    Boolean(track.language_code||track.languageCode));
+  const ready=new Set(languageTracks.map(track=>String(track.language_code||track.languageCode).toLowerCase()));
   const targets=[$('languageChips'),$('viewerLanguageChips')].filter(Boolean);
   for(const chips of targets){
-    chips.replaceChildren(...SUPPORTED_LANGUAGES.map(language=>{const span=document.createElement('span');span.textContent=language.label;span.dataset.language=language.code;return span}));
+    chips.replaceChildren(...SUPPORTED_LANGUAGES.map(language=>{
+      const span=document.createElement('span');span.dataset.language=language.code;
+      span.dataset.interpretationReady=ready.has(language.code)?'track-present':'pending';
+      span.textContent=language.label+(ready.has(language.code)?' · 음성 트랙 확인':' · 준비 중');
+      return span;
+    }));
   }
-  if($('interpretationStatus'))$('interpretationStatus').textContent='자동동시통역 가능';
+  const status=ready.size?'통역 음성 트랙 확인됨 · 언어별 수신은 연결 후 검증 필요':'원음 방송 · 통역 음성 준비 중';
+  if($('interpretationStatus'))$('interpretationStatus').textContent=status;
 }
 function setPhase(phase){
   const order=['idle','ready','live','ended'];
@@ -700,8 +712,8 @@ function cleanupCollaboration(){
 async function joinViewer(roomId=''){
   show('viewerView');note('현재 방송을 찾고 있습니다.','viewerStatus');
   try{let id=roomId;if(!id){const live=await api(`/live?tenant=${TENANT}`);if(!live.live||!live.room){$('viewerEmpty').querySelector('strong').textContent='현재 생방송이 없습니다';$('viewerEmpty').querySelector('span').textContent='예정된 예배 시간에 다시 참여해 주세요.';note('현재 진행 중인 공개 방송이 없습니다.','viewerStatus');return}id=live.room.id}
-    const detail=await api(`/rooms/${encodeURIComponent(id)}`);state.room=detail.room;window.dispatchEvent(new CustomEvent('ekodi:live:room',{detail:{roomId:state.room.id,tenant:state.room.tenantId,role:'viewer'}}));$('viewerTitle').textContent=state.room.title||'에코디교회 실시간';startChatPolling();await refreshCameraDevices().catch(()=>{});await createSession(id,'viewer');state.pc.ontrack=event=>{for(const track of event.streams?.[0]?.getTracks?.()||[event.track])if(!state.remote.getTracks().some(x=>x.id===track.id))state.remote.addTrack(track);$('viewerVideo').srcObject=state.remote;$('viewerEmpty').classList.add('hidden')};
-    const pulled=await api(`/rooms/${id}/sessions/${state.session.id}/pull`,{method:'POST',session:true,body:JSON.stringify({tracks:(detail.tracks||[]).map(track=>({trackName:track.track_name||track.trackName}))})});
+    const detail=await api(`/rooms/${encodeURIComponent(id)}`);state.room=detail.room;window.dispatchEvent(new CustomEvent('ekodi:live:room',{detail:{roomId:state.room.id,tenant:state.room.tenantId,role:'viewer'}}));$('viewerTitle').textContent=state.room.title||'에코디교회 실시간';renderLanguageOptions(detail.tracks||[]);startChatPolling();await refreshCameraDevices().catch(()=>{});await createSession(id,'viewer');state.pc.ontrack=event=>{for(const track of event.streams?.[0]?.getTracks?.()||[event.track])if(!state.remote.getTracks().some(x=>x.id===track.id))state.remote.addTrack(track);$('viewerVideo').srcObject=state.remote;$('viewerEmpty').classList.add('hidden')};
+    const pulled=await api(`/rooms/${id}/sessions/${state.session.id}/pull`,{method:'POST',session:true,body:JSON.stringify({tracks:(detail.tracks||[]).filter(track=>(track.source_type||track.sourceType)!=='translation').map(track=>({trackName:track.track_name||track.trackName}))})});
     if(pulled.empty){note('방송방은 열려 있지만 아직 영상 트랙이 없습니다.','viewerStatus');return}
     const offer=providerDescription(pulled);if(!offer?.sdp)throw new Error('미디어 서버의 수신 제안이 없습니다.');await state.pc.setRemoteDescription(offer);const answer=await state.pc.createAnswer();await state.pc.setLocalDescription(answer);await waitIce(state.pc);await api(`/rooms/${id}/sessions/${state.session.id}/renegotiate`,{method:'PUT',session:true,body:JSON.stringify({sessionDescription:state.pc.localDescription})});note('실시간 방송에 연결되었습니다.','viewerStatus');
   }catch(error){note(`참여 연결 실패: ${error.message}`,'viewerStatus')}
