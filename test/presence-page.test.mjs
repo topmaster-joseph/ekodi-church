@@ -23,3 +23,4 @@ test('identity assignment uses human chosen person and reversible undo',()=>{
  assert.match(ui,/data-unlink/);
  assert.doesNotMatch(ui,/face_embedding|face_match/);
 });
+test('hidden personal confirmation controls stay hidden',()=>{assert.match(read('../presence/styles.css'),/\.ekodi-presence \[hidden\]\{display:none!important\}/);});
