@@ -30,3 +30,17 @@ test('Never infer stale owners, old sermons, songs or live broadcast readiness',
   assert.equal(policy.service.currentScripture,'신명기 33:12–19');
   assert.ok(policy.service.pending.includes('유튜브 실제 예약과 송출 실증'));
 });
+
+test('Each new prepared Sunday retains provenance to the immediately previous service',()=>{
+  const index=JSON.parse(read('worship/weekly.json'));
+  const services=[...index.services].sort((a,b)=>a.date.localeCompare(b.date));
+  assert.ok(services.length>=2);
+  for(let i=1;i<services.length;i++){
+    const item=services[i];
+    if(item.status==='archived')continue;
+    const expected=new Date(Date.parse(item.date+'T00:00:00Z')-7*24*60*60*1000).toISOString().slice(0,10);
+    assert.equal(item.previousSunday,expected,item.date+' requires a verified previous Sunday');
+    assert.equal(item.templateRule,'verified-previous-week-bulletin-and-full-presentation');
+    assert.ok(services.some(source=>source.date===expected),'previous Sunday must exist in weekly index');
+  }
+});
