@@ -52,3 +52,23 @@ test('church live still uses pre-existing session-gated external channels and in
  assert.match(html,/href="\.\/worship-materials\.css"/);
  new Function(js);
 });
+
+test('broadcast live defaults to the verified latest Sunday while keeping dated archives',()=>{
+ assert.match(js,/fetch\('\/ekodichurch\/worship\/weekly\.json'/);
+ assert.match(js,/timeZone:'Asia\/Seoul'/);
+ assert.match(js,/requestedDate!==null/);
+ assert.match(js,/return dates\.find\(day=>day>=kstDate\(\)\)\|\|dates\[dates\.length-1\]/);
+ assert.match(js,/result\.date!==date/);
+ assert.doesNotMatch(js,/const requestedDate=query\.get\('date'\)\|\|'2026-10-11'/);
+ assert.match(html,/id="viewerBulletinLink" href="\/ekodichurch\/worship\/2026-10-18\//);
+ const weekly=JSON.parse(read('worship/weekly.json'));
+ assert.deepEqual(weekly.services.map(item=>item.date),['2026-10-11','2026-10-18']);
+ const next=JSON.parse(read('worship/2026-10-18/materials.json'));
+ assert.equal(next.date,'2026-10-18');
+ assert.equal(next.scripture,'신명기 33:12–19');
+ assert.equal(next.slides.length,16);
+ const bulletin=read('worship/2026-10-18/index.html');
+ assert.match(bulletin,/이번 주 매일묵상 <small>10\.18–10\.24<\/small>/);
+ assert.doesNotMatch(bulletin,/10\.11–10\.17/);
+ new Function(js);
+});

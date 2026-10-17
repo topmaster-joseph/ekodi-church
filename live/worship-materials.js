@@ -3,9 +3,32 @@
   const $=id=>document.getElementById(id);
   const MODES=new Set(['video','video-ppt','video-bulletin','all','ppt','bulletin','ppt-bulletin']);
   const query=new URLSearchParams(location.search);
-  const requestedDate=query.get('date')||'2026-10-11';
-  const date=/^20\d{2}-\d{2}-\d{2}$/.test(requestedDate)?requestedDate:'2026-10-11';
-  const materialPath='/ekodichurch/worship/'+date+'/materials.json';
+  // The public weekly registry, not last week's copied live settings, selects the default deck.
+  // An explicit ?date=YYYY-MM-DD continues to support rehearsal and archived services.
+  const requestedDate=query.get('date');
+  const ISO_DATE=/^20\d{2}-\d{2}-\d{2}$/;
+  let date='';
+  function kstDate(){
+    const parts=new Intl.DateTimeFormat('en',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+    const fields=Object.fromEntries(parts.map(part=>[part.type,part.value]));
+    return fields.year+'-'+fields.month+'-'+fields.day;
+  }
+  async function resolveServiceDate(){
+    if(requestedDate!==null){
+      if(!ISO_DATE.test(requestedDate))throw new Error('invalid_service_date');
+      return requestedDate;
+    }
+    const response=await fetch('/ekodichurch/worship/weekly.json',{cache:'no-store',credentials:'omit'});
+    if(!response.ok)throw new Error('weekly_index_unavailable');
+    const index=await response.json();
+    if(index?.schema!=='ekodi.church.worship.index.v1'||!Array.isArray(index.services))
+      throw new Error('weekly_index_invalid');
+    const dates=[...new Set(index.services
+      .filter(item=>item&&ISO_DATE.test(item.date)&&item.page==='/ekodichurch/worship/'+item.date+'/')
+      .map(item=>item.date))].sort();
+    if(!dates.length)throw new Error('no_published_sunday');
+    return dates.find(day=>day>=kstDate())||dates[dates.length-1];
+  }
   let packet=null;
   let slideIndex=0;
   let roomId='';
@@ -60,7 +83,7 @@
       return JSON.parse(sessionStorage.getItem('ekodi-church-pastor-session')||'null')?.accessToken||'';
     }catch{return''}
   }
-  const deckId='worship-'+date;
+  let deckId='';
   const presentationEndpoint=()=>'/api/realtime/rooms/'+encodeURIComponent(roomId)+'/presentation';
   async function sendPresenterSlide(){
     if(!roomId||roomRole!=='host'||!packet||publishing)return;
@@ -185,6 +208,9 @@
 
   async function loadPacket(){
     try{
+      date=await resolveServiceDate();
+      deckId='worship-'+date;
+      const materialPath='/ekodichurch/worship/'+date+'/materials.json';
       const response=await fetch(materialPath,{cache:'no-store',credentials:'omit'});
       if(!response.ok)throw new Error('HTTP '+response.status);
       const result=await response.json();
