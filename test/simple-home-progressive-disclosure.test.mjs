@@ -11,7 +11,7 @@ test('church homepage starts simple while preserving every primary destination',
     ['#life-hub', '오늘의 삶'],
     ['#community', '공동체 활동'],
     ['#worship', '예배'],
-    ['#online', '실시간 연결'],
+    ['#online', '라이브 방송'],
     ['#partner-news', '협력 소식'],
     ['#location', '함께하기'],
   ];
