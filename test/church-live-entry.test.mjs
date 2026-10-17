@@ -46,7 +46,7 @@ test('church header presents online as one hub while preserving EKODI Live and Y
   const [html,css]=await Promise.all([read('index.html'),read('church-live-entry.css')]);
   assert.match(html,/class="nav-online" href="#online"/);
   assert.match(html,/ONLINE · EKODI CHURCH/);
-  assert.match(html,/https:\/\/ekodi\.kr\/ekodichurch\/live\/\?mode=studio/);
+  assert.match(html,/\/live\/church\/\?mode=studio&amp;activity=sunday/);
   assert.match(html,/https:\/\/www\.youtube\.com\/@ekodichurch/);
   assert.match(html,/에코디교회 채널 ↗/);
   assert.match(css,/\.site-header \.nav-online/);
