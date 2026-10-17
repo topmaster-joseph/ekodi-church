@@ -28,7 +28,7 @@ test.describe('approved Church first view in isolated first-party Chromium',()=>
       const visible=page.locator('.hero .overview-grid:not(.church-overview-secondary) > a');
       await expect(visible).toHaveCount(4);
       for(const href of ['#life-hub','#weekly-worship','#community','#online']){
-        await expect(visible.locator('[href="'+href+'"]')).toHaveCount(1);
+        await expect(page.locator('.hero .overview-grid:not(.church-overview-secondary) > a[href="'+href+'"]')).toHaveCount(1);
       }
       const more=page.locator('details.church-more-menu');
       await expect(more).not.toHaveAttribute('open');
