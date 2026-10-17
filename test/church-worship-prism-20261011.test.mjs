@@ -37,9 +37,10 @@ test('worship slide content contains exactly 16 authored slides and never receiv
   assert.doesNotMatch(js,/RTMP_[A-Z_]*KEY|PRISM_STREAM_KEY|PRIVATE_KEY|SUPABASE_SERVICE_ROLE/);
   assert.ok(!html.includes('<script>') && !html.includes('onclick='),'church CSP requires external scripts');
 });
-test('main church page links to the public worship presentation',()=>{
+test('October 11 published archive remains intact while the homepage points to October 18',()=>{
   const home=readFileSync(new URL('../index.html',import.meta.url),'utf8');
-  assert.match(home,/\/ekodichurch\/worship\/2026-10-11\//);
+  assert.match(home,/\/ekodichurch\/worship\/2026-10-18\//);
+  assert.match(html,/\/ekodichurch\/worship\/2026-10-11\//);
 });
 test('operator JavaScript parses without external dependencies',()=>{
   new Function(js);
