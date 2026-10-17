@@ -20,13 +20,9 @@ test('My EKODI routes through central auth and returns to the requested page',()
   assert.match(status,/link\.href=login\.toString\(\)/);
 });
 
-test('multilingual live opens inside the church site with full-page fallback',()=>{
-  assert.match(status,/dialog\.id='churchLiveDialog'/);
-  assert.match(status,/<iframe id="churchLiveDialogFrame"/);
-  assert.match(status,/allow="camera; microphone; autoplay; fullscreen; display-capture; clipboard-write"/);
-  assert.match(status,/openIntegratedLive\(join\.href,'다국어 실시간 방송 참여'\)/);
-  assert.match(status,/openIntegratedLive\(host\.href,'다국어 실시간 방송 스튜디오'\)/);
-  assert.match(status,/if\(typeof dialog\.showModal!=='function'\)\{\s*location\.assign\(href\)/s);
-  assert.match(styles,/\.church-live-dialog\{/);
-  assert.match(styles,/\.church-live-dialog iframe\{/);
+test('church delegates media to EKODI Live without modal or camera iframe',()=>{
+  assert.match(status,/const baseJoin='\/live\/church\/'/);
+  assert.match(status,/tenant=ekodichurch/);
+  assert.doesNotMatch(status,/churchLiveDialog|openIntegratedLive|wireIntegratedLive|<iframe/);
+  assert.doesNotMatch(styles,/\.church-live-dialog/);
 });

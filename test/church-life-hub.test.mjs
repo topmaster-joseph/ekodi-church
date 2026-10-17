@@ -32,9 +32,10 @@ test('private-first records do not require a backend account', () => {
   assert.doesNotMatch(html, /로그인해야|회원만 이용|login-required/i);
 });
 
-test('real-time fellowship remains available', () => {
-  assert.ok(html.includes('https://meet.jit.si/EKODIChurchLive'));
-  assert.ok(html.includes('실시간 화상 교제실'));
+test('life hub uses EKODI Live rather than standalone Jitsi meeting', () => {
+  assert.ok(html.includes('href="/live/church/"'));
+  assert.ok(html.includes('주일예배·교회 활동 실시간 시청'));
+  assert.doesNotMatch(html, /meet\.jit\.si|EKODIChurchLive/);
 });
 
 test('life hub styles cover responsive layouts', () => {
