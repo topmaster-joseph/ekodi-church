@@ -10,6 +10,7 @@ const metadata=$('[data-weekly-meta]');
 const bulletin=$('[data-weekly-bulletin]');
 const slides=$('[data-weekly-slides]');
 const broadcast=$('[data-weekly-broadcast]');
+const liveHost=$('[data-weekly-live-host]');
 const editorLink=$('[data-church-worship-admin]');
 const panel=$('[data-weekly-editor]');
 const form=$('[data-weekly-form]');
@@ -49,9 +50,18 @@ function metadataText(data){
   if(weeklyLocale()==='ko-KR')return [data.date+' (일) · '+(data.time||'11:00'),data.scripture||'본문 확인 중','말씀나눔 '+(data.preacher||'담당 확인 중')].join(' · ');
   return [data.date+' (Sunday) · '+(data.time||'11:00'),localize(data.scripture||'본문 확인 중','Scripture details in bulletin'),localize(data.preacher||'담당 확인 중','Speaker details in bulletin')].join(' · ');
 }
+function studioUrl(date,sermon=''){
+  const url=new URL('/live/church/',location.origin);
+  url.searchParams.set('mode','studio');
+  url.searchParams.set('activity','sunday');
+  url.searchParams.set('date',date);
+  if(sermon)url.searchParams.set('title',(date+' 주일모임 · '+sermon).slice(0,150));
+  return url.pathname+url.search;
+}
 function archivePath(entry){return entry.page;}
 function showPacket(data){
   packet=data;
+  if(liveHost)liveHost.href=studioUrl(data.date,data.title||'');
   title.textContent=localize(data.title||'주일모임 예배','Sunday worship');
   metadata.textContent=metadataText(data);
   status.textContent=localize(data.youtube?.status==='scheduled'?'방송 예약 연결 확인 필요':'방송 예약 확인 전 · 예배자료 준비','Broadcast scheduling not verified');
@@ -59,6 +69,7 @@ function showPacket(data){
 }
 async function load(entry){
   selected=entry;
+  if(liveHost)liveHost.href=studioUrl(entry.date);
   const href=archivePath(entry);
   bulletin.href=href;
   slides.href=href+'?view=stage';
