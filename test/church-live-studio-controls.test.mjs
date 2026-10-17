@@ -136,3 +136,12 @@ test('Church director QR camera uses authorized existing first-party pairing',as
  assert.match(qr,/function qrMatrixV5/);assert.doesNotMatch(qr,/qrserver|quickchart|googleapis/);
  new Function(live);new Function(qr);
 });
+
+test('video participant presenter and chat can resize in the emitted canvas without republishing',async()=>{
+ const [page,live,styles]=await Promise.all([read('live/index.html'),read('live/live.js'),read('live/live.css')]);
+ assert.match(page,/id="presenterResizeGrip"/);assert.match(live,/function beginOverlayResize\(/);assert.match(live,/function moveOverlayResize\(/);
+ assert.match(live,/function resizeOverlay\(/);assert.match(live,/function beginPresenterResize\(/);assert.match(live,/function movePresenterResize\(/);
+ assert.match(live,/drawOverlaySources\(ctx,w,h\)/);assert.match(styles,/\.overlay-resize-grip/);
+ const start=live.indexOf('function resizeOverlay('),end=live.indexOf('function sourceCard(',start);
+ assert.doesNotMatch(live.slice(start,end),/publishStream\(|addTrack\(/);new Function(live);
+});

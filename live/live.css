@@ -129,3 +129,9 @@
 .management-pair-actions{display:flex;gap:5px}.management-pair-actions button{font-size:11px;padding:7px}
 .management-camera-security{color:#62766a;font-size:11px!important}.management-camera-open{width:100%;margin-top:8px;min-height:40px;font-weight:700}
 @media(max-width:640px){.management-camera-dialog{padding:14px}.management-pair-row{align-items:start;flex-direction:column}}
+
+/* Direct-touch resizing of program video, audience and chat overlays. */
+.overlay-resize-grip{position:absolute!important;right:-2px;bottom:-2px;top:auto!important;width:28px!important;height:28px!important;cursor:nwse-resize!important;touch-action:none;border:2px solid #fff!important;border-radius:8px 0 8px 0!important;background:#265d42!important;color:#fff!important;pointer-events:auto}
+.overlay-resize-grip:before{content:'◢';display:block;line-height:19px;font-size:17px}
+.program-drag-handle:focus-visible,.presenter-drag-handle:focus-visible,.overlay-resize-grip:focus-visible{outline:3px solid #c5ff9a}
+@media(max-width:640px){.overlay-resize-grip{width:34px!important;height:34px!important}}

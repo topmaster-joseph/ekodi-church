@@ -21,7 +21,7 @@ const LAYOUTS=new Set(['presenter','pip','side','equal','screen']);
 const SHARE_MODES=new Set(['screen','window','tab']);
 const setupParams=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
-const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),viewerIdentity:null,participantRequests:new Map(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,shareMode:'screen',presentationFile:null,chatMessages:[],chatTimer:null,participantTimer:null,participantWatchMode:'',managementCameraPair:null,managementCameraTimer:null,recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
+const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),viewerIdentity:null,participantRequests:new Map(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlayResize:null,presenterResize:null,presenterSize:{w:.25,h:.25},overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,shareMode:'screen',presentationFile:null,chatMessages:[],chatTimer:null,participantTimer:null,participantWatchMode:'',managementCameraPair:null,managementCameraTimer:null,recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
 
 function viewerIdentity(){
   if(state.viewerIdentity)return state.viewerIdentity;
@@ -350,7 +350,7 @@ function drawProgram(){
   }else if(layout==='equal'){
     const split=Math.round(w*.5);drawContained(ctx,screen,0,0,split,h);drawCovered(ctx,camera,split,0,w-split,h);
   }else if(layout==='pip'){
-    drawContained(ctx,screen,0,0,w,h);const pw=Math.round(w*PIP_SIZE);const ph=Math.round(h*PIP_SIZE);const px=Math.round(w*state.presenterPosition.x);const py=Math.round(h*state.presenterPosition.y);ctx.fillStyle='#f6f1e8';ctx.fillRect(px-4,py-4,pw+8,ph+8);drawCovered(ctx,camera,px,py,pw,ph);
+    drawContained(ctx,screen,0,0,w,h);const pw=Math.round(w*state.presenterSize.w);const ph=Math.round(h*state.presenterSize.h);const px=Math.round(w*state.presenterPosition.x);const py=Math.round(h*state.presenterPosition.y);ctx.fillStyle='#f6f1e8';ctx.fillRect(px-4,py-4,pw+8,ph+8);drawCovered(ctx,camera,px,py,pw,ph);
   }else drawContained(ctx,camera,0,0,w,h,'#142019');
   drawOverlaySources(ctx,w,h);
   state.animationFrame=requestAnimationFrame(drawProgram);
@@ -386,7 +386,10 @@ function overlayHandle(id){
   handle=document.createElement('div');handle.className='program-drag-handle';handle.dataset.programOverlay=id;handle.tabIndex=0;
   const title=document.createElement('span');title.textContent=overlay.label;
   const close=document.createElement('button');close.type='button';close.className='overlay-remove';close.textContent='×';close.setAttribute('aria-label',`${overlay.label} 삭제`);close.addEventListener('click',event=>{event.stopPropagation();removeOverlay(id)});
-  handle.append(title,close);layer.append(handle);
+  const grip=document.createElement('button');grip.type='button';grip.className='overlay-resize-grip';grip.setAttribute('aria-label',overlay.label+' 크기 조절');grip.title='드래그하여 크기 조절';
+  handle.append(title,close,grip);layer.append(handle);
+  grip.addEventListener('pointerdown',event=>beginOverlayResize(event,id));grip.addEventListener('pointermove',moveOverlayResize);grip.addEventListener('pointerup',endOverlayResize);grip.addEventListener('pointercancel',endOverlayResize);
+  handle.addEventListener('keydown',event=>{if(!event.shiftKey||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;event.preventDefault();const o=state.overlays.get(id);if(!o)return;resizeOverlay(o,o.w+(event.key==='ArrowRight'?.02:event.key==='ArrowLeft'?-.02:0),o.h+(event.key==='ArrowDown'?.02:event.key==='ArrowUp'?-.02:0));syncOverlayHandles()});
   handle.addEventListener('pointerdown',beginOverlayDrag);handle.addEventListener('pointermove',moveOverlayDrag);handle.addEventListener('pointerup',endOverlayDrag);handle.addEventListener('pointercancel',endOverlayDrag);
   return handle;
 }
@@ -405,7 +408,7 @@ function removeOverlay(id){
   const overlay=state.overlays.get(id);if(!overlay)return;overlay.visible=false;syncOverlayHandles();renderSourceCards();note(`${overlay.label}을 방송화면에서 제거했습니다.`);
 }
 function beginOverlayDrag(event){
-  if(event.target.closest('.overlay-remove'))return;
+  if(event.target.closest('.overlay-remove,.overlay-resize-grip'))return;
   const id=event.currentTarget.dataset.programOverlay,overlay=state.overlays.get(id),box=programContentBox();if(!overlay||!box)return;
   const rect=event.currentTarget.getBoundingClientRect();state.overlayDrag={id,pointerId:event.pointerId,offsetX:event.clientX-rect.left,offsetY:event.clientY-rect.top};
   event.currentTarget.setPointerCapture?.(event.pointerId);event.currentTarget.classList.add('dragging');event.preventDefault();
@@ -416,6 +419,23 @@ function moveOverlayDrag(event){
   overlay.x=Math.max(0,Math.min(1-overlay.w,(event.clientX-left-drag.offsetX)/box.width));overlay.y=Math.max(0,Math.min(1-overlay.h,(event.clientY-top-drag.offsetY)/box.height));syncOverlayHandles();
 }
 function endOverlayDrag(event){if(!state.overlayDrag||state.overlayDrag.pointerId!==event.pointerId)return;event.currentTarget.classList.remove('dragging');state.overlayDrag=null}
+function resizeOverlay(o,w,h){
+ const min=o.type==='chat'?{w:.20,h:.18}:{w:.14,h:.12};
+ o.w=Math.max(min.w,Math.min(1-o.x,w));o.h=Math.max(min.h,Math.min(1-o.y,h));
+}
+function beginOverlayResize(e,id){
+ if(e.pointerType==='mouse'&&e.button!==0)return;
+ const o=state.overlays.get(id),box=programContentBox();if(!o||!o.visible||!box)return;
+ e.stopPropagation();e.preventDefault();state.overlayResize={id,pointerId:e.pointerId,x:e.clientX,y:e.clientY,w:o.w,h:o.h};e.currentTarget.setPointerCapture?.(e.pointerId);
+}
+function moveOverlayResize(e){
+ const drag=state.overlayResize;if(!drag||drag.pointerId!==e.pointerId)return;const o=state.overlays.get(drag.id),box=programContentBox();if(!o||!box)return;
+ resizeOverlay(o,drag.w+(e.clientX-drag.x)/box.width,drag.h+(e.clientY-drag.y)/box.height);syncOverlayHandles();
+}
+function endOverlayResize(e){
+ const drag=state.overlayResize;if(!drag||drag.pointerId!==e.pointerId)return;
+ state.overlayResize=null;e.currentTarget.releasePointerCapture?.(e.pointerId);note((state.overlays.get(drag.id)?.label||'영상')+' 크기를 방송 화면에 반영했습니다.');
+}
 function sourceCard(id,label,{subtitle='화면에 추가',onDelete=null}={}){
   const card=document.createElement('div');card.className='source-card-row';card.draggable=true;card.dataset.overlayId=id;
   const copy=document.createElement('div');const strong=document.createElement('strong');strong.textContent=label;const small=document.createElement('small');small.textContent=subtitle;copy.append(strong,small);
@@ -542,11 +562,11 @@ function syncPresenterDragHandle(){
   const box=programContentBox();if(!box)return;
   handle.style.left=`${box.left+state.presenterPosition.x*box.width}px`;
   handle.style.top=`${box.top+state.presenterPosition.y*box.height}px`;
-  handle.style.width=`${PIP_SIZE*box.width}px`;
-  handle.style.height=`${PIP_SIZE*box.height}px`;
+  handle.style.width=`${state.presenterSize.w*box.width}px`;
+  handle.style.height=`${state.presenterSize.h*box.height}px`;
 }
 function beginPresenterDrag(event){
-  if(event.target.closest?.('.overlay-remove'))return;
+  if(event.target.closest?.('.overlay-remove,.overlay-resize-grip'))return;
   if(!state.screen||state.layout!=='pip')return;
   const handle=$('presenterDragHandle');const box=programContentBox();if(!handle||!box)return;
   const rect=handle.getBoundingClientRect();state.presenterDrag={pointerId:event.pointerId,offsetX:event.clientX-rect.left,offsetY:event.clientY-rect.top};
@@ -555,13 +575,25 @@ function beginPresenterDrag(event){
 function movePresenterDrag(event){
   const drag=state.presenterDrag;if(!drag||drag.pointerId!==event.pointerId)return;
   const box=programContentBox();if(!box)return;
-  const left=box.screenRect.left+box.left;const top=box.screenRect.top+box.top;const max=1-PIP_SIZE;
+  const left=box.screenRect.left+box.left;const top=box.screenRect.top+box.top;const maxX=1-state.presenterSize.w,maxY=1-state.presenterSize.h;
   const x=(event.clientX-left-drag.offsetX)/box.width;const y=(event.clientY-top-drag.offsetY)/box.height;
-  state.presenterPosition.x=Math.max(0,Math.min(max,x));state.presenterPosition.y=Math.max(0,Math.min(max,y));syncPresenterDragHandle();
+  state.presenterPosition.x=Math.max(0,Math.min(maxX,x));state.presenterPosition.y=Math.max(0,Math.min(maxY,y));syncPresenterDragHandle();
 }
 function endPresenterDrag(event){
   if(!state.presenterDrag||state.presenterDrag.pointerId!==event.pointerId)return;
   $('presenterDragHandle')?.classList.remove('dragging');state.presenterDrag=null;note('발표자 위치를 방송 화면에 반영했습니다.');
+}
+function beginPresenterResize(e){
+ if(e.pointerType==='mouse'&&e.button!==0)return;if(!state.screen||state.layout!=='pip')return;
+ e.preventDefault();e.stopPropagation();state.presenterResize={pointerId:e.pointerId,x:e.clientX,y:e.clientY,w:state.presenterSize.w,h:state.presenterSize.h};e.currentTarget.setPointerCapture?.(e.pointerId);
+}
+function movePresenterResize(e){
+ const d=state.presenterResize;if(!d||d.pointerId!==e.pointerId)return;const box=programContentBox();if(!box)return;
+ state.presenterSize.w=Math.max(.14,Math.min(1-state.presenterPosition.x,d.w+(e.clientX-d.x)/box.width));
+ state.presenterSize.h=Math.max(.12,Math.min(1-state.presenterPosition.y,d.h+(e.clientY-d.y)/box.height));syncPresenterDragHandle();
+}
+function endPresenterResize(e){
+ if(!state.presenterResize||state.presenterResize.pointerId!==e.pointerId)return;state.presenterResize=null;e.currentTarget.releasePointerCapture?.(e.pointerId);note('발표자 크기를 방송 화면에 반영했습니다.');
 }
 function setLayout(layout){
   if(!LAYOUTS.has(layout))return;if(layout!=='presenter'&&!state.screen)return;state.layout=layout;
@@ -828,6 +860,10 @@ document.addEventListener('visibilitychange',()=>{
 });
 document.addEventListener('fullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});document.addEventListener('webkitfullscreenchange',()=>{syncFullscreenLabel();syncPresenterDragHandle();syncOverlayHandles()});window.addEventListener('resize',()=>{syncPresenterDragHandle();syncOverlayHandles()});
 $('presenterDragHandle')?.addEventListener('pointerdown',beginPresenterDrag);$('presenterDragHandle')?.addEventListener('pointermove',movePresenterDrag);$('presenterDragHandle')?.addEventListener('pointerup',endPresenterDrag);$('presenterDragHandle')?.addEventListener('pointercancel',endPresenterDrag);$('presenterRemoveButton')?.addEventListener('click',event=>{event.stopPropagation();setLayout('screen')});
+ $('presenterResizeGrip')?.addEventListener('pointerdown',beginPresenterResize);
+ $('presenterResizeGrip')?.addEventListener('pointermove',movePresenterResize);
+ $('presenterResizeGrip')?.addEventListener('pointerup',endPresenterResize);
+ $('presenterResizeGrip')?.addEventListener('pointercancel',endPresenterResize);
 document.querySelectorAll('[data-share-mode]').forEach(button=>button.addEventListener('click',()=>setShareMode(button.dataset.shareMode)));
 $('presentationFileButton')?.addEventListener('click',()=>$('presentationFileInput')?.click());
 $('presentationFileInput')?.addEventListener('change',presentationFileChanged);
