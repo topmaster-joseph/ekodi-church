@@ -8,10 +8,10 @@ const read=name=>readFile(new URL(name,root),'utf8');
 test('church homepage exposes canonical broadcast and participation actions',async()=>{
   const html=await read('index.html');
   assert.match(html,/data-ekodi-church-live-entry/);
-  assert.match(html,/https:\/\/ekodi\.kr\/ekodichurch\/live\/\?mode=studio/);
-  assert.match(html,/https:\/\/ekodi\.kr\/ekodichurch\/live\//);
-  assert.match(html,/방송하기/);
-  assert.match(html,/참여하기/);
+  assert.match(html,/\/live\/church\/\?mode=studio&amp;activity=sunday/);
+  assert.match(html,/href="\/live\/church\/"/);
+  assert.match(html,/주일예배 방송 준비/);
+  assert.match(html,/EKODI Live 시청/);
 });
 
 test('church live studio keeps provider secrets server-side',async()=>{
