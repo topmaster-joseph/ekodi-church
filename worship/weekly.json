@@ -1,0 +1,15 @@
+{
+  "schema": "ekodi.church.worship.index.v1",
+  "services": [
+    {
+      "date": "2026-10-11",
+      "status": "archived",
+      "page": "/ekodichurch/worship/2026-10-11/"
+    },
+    {
+      "date": "2026-10-18",
+      "status": "prepared",
+      "page": "/ekodichurch/worship/2026-10-18/"
+    }
+  ]
+}
