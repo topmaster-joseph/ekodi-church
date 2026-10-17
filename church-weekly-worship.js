@@ -28,12 +28,33 @@ function token(){
 }
 function kstToday(){const parts=new Intl.DateTimeFormat('en',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const map=Object.fromEntries(parts.map(part=>[part.type,part.value]));return map.year+'-'+map.month+'-'+map.day;}
 function sunday(date){return /^\d{4}-\d{2}-\d{2}$/.test(date)&&new Date(date+'T00:00:00Z').getUTCDay()===0;}
+// Use the canonical Church locale selection for newly fetched weekly data.
+// Never display untranslated Korean metadata in a non-Korean language surface.
+function weeklyLocale(){
+  const query=new URLSearchParams(location.search).get('lang');
+  const raw=String(query||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||'ko-KR');
+  if(raw==='ko'||raw.startsWith('ko-'))return 'ko-KR';
+  if(raw==='zh'||raw.startsWith('zh-'))return 'zh-CN';
+  if(raw==='ja'||raw.startsWith('ja-'))return 'ja';
+  return 'en';
+}
+function localize(value,fallback){
+  const original=String(value??'');
+  const target=weeklyLocale();
+  if(target==='ko-KR')return original;
+  const translated=window.EKODIChurchI18n?.translate?.(original,target)||original;
+  return /[가-힣]/.test(translated)?String(fallback||'See the full bulletin'):translated;
+}
+function metadataText(data){
+  if(weeklyLocale()==='ko-KR')return [data.date+' (일) · '+(data.time||'11:00'),data.scripture||'본문 확인 중','말씀나눔 '+(data.preacher||'담당 확인 중')].join(' · ');
+  return [data.date+' (Sunday) · '+(data.time||'11:00'),localize(data.scripture||'본문 확인 중','Scripture details in bulletin'),localize(data.preacher||'담당 확인 중','Speaker details in bulletin')].join(' · ');
+}
 function archivePath(entry){return entry.page;}
 function showPacket(data){
   packet=data;
-  title.textContent=data.title||'주일모임 예배';
-  metadata.textContent=[data.date+' (일) · '+(data.time||'11:00'),data.scripture||'본문 확인 중','말씀나눔 '+(data.preacher||'담당 확인 중')].join(' · ');
-  status.textContent=data.youtube?.status==='scheduled'?'방송 예약 연결 확인 필요':'방송 예약 확인 전 · 예배자료 준비';
+  title.textContent=localize(data.title||'주일모임 예배','Sunday worship');
+  metadata.textContent=metadataText(data);
+  status.textContent=localize(data.youtube?.status==='scheduled'?'방송 예약 연결 확인 필요':'방송 예약 확인 전 · 예배자료 준비','Broadcast scheduling not verified');
   panel.hidden=true;form.reset();
 }
 async function load(entry){
@@ -49,9 +70,9 @@ async function load(entry){
     if(data.date!==entry.date)throw new Error('자료의 예배 날짜가 일치하지 않습니다.');
     showPacket(data);
   }catch(error){
-    packet=null;title.textContent=entry.date+' 예배자료';
-    metadata.textContent='자료 확인 필요';
-    status.textContent=error.message;
+    packet=null;title.textContent=entry.date+' '+(weeklyLocale()==='ko-KR'?'예배자료':'worship materials');
+    metadata.textContent=localize('자료 확인 필요','Verification required');
+    status.textContent=localize(error.message,'Could not load worship materials');
     panel.hidden=true;
   }
 }
@@ -63,9 +84,9 @@ async function init(){
     entries=(data.services||[]).filter(v=>sunday(v.date)&&/^\/ekodichurch\/worship\/\d{4}-\d{2}-\d{2}\/$/.test(v.page)).sort((a,b)=>a.date.localeCompare(b.date));
     if(!entries.length)throw new Error('등록된 예배가 없습니다.');
     const next=entries.find(v=>v.date>=kstToday())||entries[entries.length-1];
-    for(const item of [...entries].reverse()){const o=document.createElement('option');o.value=item.date;o.textContent=item.date+' 주일모임';select.append(o);}
+    for(const item of [...entries].reverse()){const o=document.createElement('option');o.value=item.date;o.textContent=item.date+' '+localize('주일모임','Sunday worship');select.append(o);}
     select.value=next.date;await load(next);
-  }catch(error){status.textContent=error.message;}
+  }catch(error){status.textContent=localize(error.message,'Unable to load worship dates');}
 }
 select.addEventListener('change',()=>{const entry=entries.find(v=>v.date===select.value);if(entry)load(entry);});
 editorLink.addEventListener('click',async event=>{
@@ -117,6 +138,10 @@ form?.addEventListener('submit',async event=>{
     if(!saved.ok){const error=await saved.json().catch(()=>({}));throw new Error(error.message||'저장에 실패했습니다: '+saved.status);}
     flash.textContent=publish?'예배 기록 게시 완료 · 정적 주보·PPT는 별도 배포 확인이 필요합니다.':'예배 기록 초안 저장 완료 · 일반 사용자에게 공개되지 않습니다.';
   }catch(error){flash.textContent=error.message;}
+});
+window.addEventListener('ekodi:locale-change',()=>{
+  for(const option of select.options){option.textContent=option.value+' '+localize('주일모임','Sunday worship');}
+  if(packet)showPacket(packet);
 });
 window.addEventListener('ekodi:auth-logout',()=>{panel.hidden=true;form?.reset();});
 init();
