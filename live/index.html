@@ -59,7 +59,7 @@
         <video id="mainVideo" autoplay playsinline muted></video>
         <video id="cameraSource" class="source-video" autoplay playsinline muted aria-hidden="true"></video>
         <video id="screenSource" class="source-video" autoplay playsinline muted aria-hidden="true"></video>
-        <div class="presenter-drag-handle hidden" id="presenterDragHandle" role="button" aria-label="발표자 화면 위치 이동"><span>발표자</span><button class="overlay-remove" id="presenterRemoveButton" type="button" aria-label="발표자 화면에서 제거">×</button></div>
+        <div class="presenter-drag-handle hidden" id="presenterDragHandle" role="button" aria-label="발표자 화면 위치 이동"><span>발표자</span><button class="overlay-remove" id="presenterRemoveButton" type="button" aria-label="발표자 화면에서 제거">×</button><button class="overlay-resize-grip" id="presenterResizeGrip" type="button" aria-label="발표자 크기 조절"></button></div>
         <div class="program-overlay-layer" id="programOverlayLayer" aria-label="방송 화면 추가 소스"></div>
         <div class="program-placeholder" id="programPlaceholder">
           <strong>EKODI CHURCH LIVE</strong>
@@ -133,6 +133,10 @@
         </div>
         <small class="camera-limit-note">방송자 추가 카메라는 최대 2대까지 연결할 수 있습니다.</small>
         <div class="source-list" id="extraCameraSources" aria-label="추가 카메라 목록"></div>
+ <div class="participant-source-head"><strong>방송진행자 QR 촬영 카메라</strong><span id="managementCameraState" role="status">대기</span></div>
+ <button id="openManagementCameraButton" class="management-camera-open" type="button">QR로 추가 휴대전화 카메라 연결</button>
+ <small class="camera-limit-note">진행자가 QR을 표시한 뒤 추가 촬영용 휴대전화로 스캔합니다. 진행자 승인 후 연결되며, 일반 참여자 요청과 분리됩니다.</small>
+ <div class="source-list" id="managementCameraSources" aria-label="진행자 전용 추가 카메라"></div>
         <div class="participant-source-head"><strong>참여자 관리</strong><button id="refreshParticipantSourcesButton" type="button">새로고침</button></div><small class="participant-policy-note">요청 즉시 비공개 대기영역에 연결되며, 공개 방송에는 방송자가 선택한 참여자만 표시됩니다.</small>
         <div class="participant-requests" id="participantRequests" aria-label="카메라 참여 요청"></div>
         <div class="source-list" id="participantSources" aria-label="참여자 카메라 목록"></div>
@@ -254,6 +258,16 @@
   </section>
 </main>
 
+<dialog id="managementCameraDialog" class="management-camera-dialog" aria-label="방송진행자 QR 촬영 카메라 연결">
+ <form method="dialog" class="management-camera-close"><button type="submit">닫기 ×</button></form>
+ <p class="eyebrow">EKODI CHURCH · DIRECTOR CAMERA</p><h2>QR 카메라 연결</h2>
+ <p>추가 촬영할 휴대전화로 QR을 스캔 → 카메라 허용 → 방송 진행자가 승인하세요. 연결된 카메라는 비공개 소스에서 대기하며 진행자가 화면에 올려야만 송출됩니다.</p>
+ <canvas id="managementCameraQr" width="230" height="230" role="img" aria-label="추가 카메라 QR 코드"></canvas>
+ <label class="management-camera-url-label">연결 주소<input id="managementCameraUrl" readonly aria-label="QR 연결 주소"></label>
+ <div class="management-camera-actions"><button id="copyManagementCameraUrlButton" type="button">링크 복사</button><button id="newManagementCameraPairButton" type="button">새 QR 생성</button></div>
+ <div id="managementCameraPairs" class="management-camera-pairs" aria-label="QR 승인 대기 및 연결 해제"></div>
+ <p class="management-camera-security">QR은 30분 유효하며 추가 카메라는 방송 운영 권한을 갖지 않습니다.</p>
+</dialog>
 <footer class="church-shell-footer">
   <a href="https://ekodi.kr/ekodichurch/" aria-label="에코디교회 홈"><strong>에코디교회</strong><small>EKODI CHURCH</small></a>
   <p>말씀으로 삶을 읽고, 함께 살아내고 증언하는 공동체</p>
@@ -265,6 +279,7 @@
 </footer>
 <script src="./host-intent.js" defer></script>
 <script src="./worship-materials.js" defer></script>
+<script src="./management-camera-qr.js" defer></script>
 <script src="./live.js" defer></script>
 </body>
 </html>

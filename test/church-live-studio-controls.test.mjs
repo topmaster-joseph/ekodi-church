@@ -125,3 +125,23 @@ test('recording link recognizes shared-drive archive response shape',async()=>{
   assert.match(js,/recording\?\.driveWebViewLink/);
   assert.match(js,/archive\?\.file\?\.webViewLink/);
 });
+
+test('Church director QR camera uses authorized existing first-party pairing',async()=>{
+ const [page,live,qr]=await Promise.all([read('live/index.html'),read('live/live.js'),read('live/management-camera-qr.js')]);
+ for(const id of ['openManagementCameraButton','managementCameraDialog','managementCameraQr','managementCameraPairs','managementCameraSources'])assert.match(page,new RegExp('id="'+id+'"'));
+ assert.match(live,/async function createManagementCameraPair\(/);
+ assert.match(live,/async function decideManagementCameraPair\(/);
+ assert.match(live,/source\.sourceRole==='management_camera'/);
+ assert.match(live,/if\(!state\.room\)\{const created=await createRoom\(/);
+ assert.match(qr,/function qrMatrixV5/);assert.doesNotMatch(qr,/qrserver|quickchart|googleapis/);
+ new Function(live);new Function(qr);
+});
+
+test('video participant presenter and chat can resize in the emitted canvas without republishing',async()=>{
+ const [page,live,styles]=await Promise.all([read('live/index.html'),read('live/live.js'),read('live/live.css')]);
+ assert.match(page,/id="presenterResizeGrip"/);assert.match(live,/function beginOverlayResize\(/);assert.match(live,/function moveOverlayResize\(/);
+ assert.match(live,/function resizeOverlay\(/);assert.match(live,/function beginPresenterResize\(/);assert.match(live,/function movePresenterResize\(/);
+ assert.match(live,/drawOverlaySources\(ctx,w,h\)/);assert.match(styles,/\.overlay-resize-grip/);
+ const start=live.indexOf('function resizeOverlay('),end=live.indexOf('function sourceCard(',start);
+ assert.doesNotMatch(live.slice(start,end),/publishStream\(|addTrack\(/);new Function(live);
+});
