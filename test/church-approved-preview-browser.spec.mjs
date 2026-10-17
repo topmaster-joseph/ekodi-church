@@ -36,7 +36,7 @@ test.describe('approved Church first view in isolated first-party Chromium',()=>
       await expect(more).toHaveAttribute('open','');
       await expect(more.locator('a')).toHaveCount(4);
       const first=await page.locator('.hero').boundingBox();
-      await visible.locator('[href="#weekly-worship"]').click();
+      await page.locator('.hero .overview-grid:not(.church-overview-secondary) > a[href="#weekly-worship"]').click();
       await expect(page).toHaveURL(/#weekly-worship$/);
       const after=await page.locator('.hero').boundingBox();
       expect(after.height).toBeLessThan(first.height);
