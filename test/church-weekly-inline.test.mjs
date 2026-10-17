@@ -38,5 +38,6 @@ test('writes demand verified worship capability and server RLS; YouTube action c
   assert.match(client,/on_conflict=service_type,service_date/);
   assert.doesNotMatch(client,/RTMP_KEY|SUPABASE_SERVICE_ROLE_KEY|sb_secret_/);
   assert.doesNotMatch(client,/youtube\.googleapis\.com|liveBroadcasts\/insert/);
-  assert.match(home,/실제 예약 상태는 별도 확인/);
+  assert.match(home,/외부 채널은 실제 송출 준비 확인 후 선택/);
+  assert.match(home,/data-weekly-live-host/);
 });
