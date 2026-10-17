@@ -310,6 +310,29 @@ Object.assign(TEXT,{
 "정찬균 목사":{en:"Pastor Jeong Chan-gyun",'zh-CN':"郑灿均牧师",ja:"チョン・チャングン牧師"}
 });
 
+// EKODI Live is the single Church broadcast engine; no old video meeting UI.
+Object.assign(TEXT,{
+"라이브 방송":{en:"Live broadcast",'zh-CN':"直播",ja:"ライブ配信"},
+"주일예배·활동 동시송출":{en:"Sunday worship & activity simulcast",'zh-CN':"主日礼拜与活动同步直播",ja:"主日礼拝・活動の同時配信"},
+"EKODI Live 예배와 방송 →":{en:"EKODI Live worship & broadcast →",'zh-CN':"EKODI Live 礼拜与直播 →",ja:"EKODI Live 礼拝・配信 →"},
+"예배와 활동은 EKODI Live에서 연결됩니다. 외부 동시송출은 채널별 연결·준비 확인 후 선택합니다.":{en:"Worship and activities stream on EKODI Live. External destinations can be selected only after their readiness is verified.",'zh-CN':"礼拜与活动通过 EKODI Live 直播。外部频道仅在连接与准备状态确认后可选。",ja:"礼拝と活動は EKODI Live で配信します。外部チャンネルは接続と準備状態を確認した後に選択できます。"},
+"주일예배 방송 준비":{en:"Prepare Sunday broadcast",'zh-CN':"准备主日礼拜直播",ja:"主日礼拝配信の準備"},
+"활동·행사 방송 준비":{en:"Prepare event broadcast",'zh-CN':"准备活动直播",ja:"行事配信の準備"},
+"EKODI Live 시청":{en:"Watch EKODI Live",'zh-CN':"观看 EKODI Live",ja:"EKODI Live を視聴"},
+"EKODI Live 방송 준비":{en:"Prepare EKODI Live",'zh-CN':"准备 EKODI Live",ja:"EKODI Live を準備"},
+"03 EKODI Live · 다중 채널":{en:"03 EKODI Live · Multichannel",'zh-CN':"03 EKODI Live · 多频道",ja:"03 EKODI Live · 複数チャンネル"},
+"내부 방송·녹화 기본, 외부 채널은 실제 송출 준비 확인 후 선택":{en:"Internal live and recording by default; choose external channels only when ready",'zh-CN':"默认内部直播与录制；外部频道确认可用后选择",ja:"内部配信と録画は標準、外部チャンネルは配信準備確認後に選択"},
+"EKODI Live 방송":{en:"EKODI Live broadcast",'zh-CN':"EKODI Live 直播",ja:"EKODI Live 配信"},
+"주일예배·교회 활동 실시간 시청":{en:"Watch Sunday worship and church events live",'zh-CN':"实时观看主日礼拜和教会活动",ja:"主日礼拝・教会活動をライブで視聴"},
+"말씀과 방송으로 연결됩니다.":{en:"Connected by the Word and live broadcast.",'zh-CN':"以圣言与直播相连。",ja:"みことばと配信でつながります。"},
+"지난 예배를 보고, 말씀을 묵상하고, 주일예배와 교회 활동을 EKODI Live에서 시청하고 송출합니다.":{en:"Watch past worship, reflect on Scripture, and stream Sunday services and church activities through EKODI Live.",'zh-CN':"观看历次礼拜、默想圣经，并通过 EKODI Live 收看和直播主日礼拜与教会活动。",ja:"過去の礼拝を見て聖書を黙想し、主日礼拝と教会活動を EKODI Live で視聴・配信します。"},
+"EKODI Live 동시방송":{en:"EKODI Live simulcast",'zh-CN':"EKODI Live 同步直播",ja:"EKODI Live 同時配信"},
+"주일예배·기도·찬양·교회 활동을 하나의 EKODI Live 스튜디오에서 방송합니다. 채널 연결과 실시간 송출은 관리자 권한 확인 후 진행합니다.":{en:"Stream worship, prayer, praise and church events from one EKODI Live studio. Channel connection and go-live require verified admin permissions.",'zh-CN':"通过一个 EKODI Live 工作室直播礼拜、祷告、赞美和教会活动。频道连接和开播须经管理员授权。",ja:"一つの EKODI Live スタジオから礼拝・祈り・賛美・教会行事を配信します。接続と開始には管理権限の確認が必要です。"},
+"실시간 방송 시청":{en:"Watch live broadcast",'zh-CN':"观看直播",ja:"ライブ配信を見る"},
+"활동 방송 준비":{en:"Prepare event broadcast",'zh-CN':"准备活动直播",ja:"行事配信の準備"},
+"내부 방송·녹화 기본 · 외부 동시송출은 준비된 채널만 선택":{en:"Internal live + recording by default · External simulcast only to ready channels",'zh-CN':"默认内部直播与录制 · 外部仅选择已准备好的频道",ja:"内部配信・録画は標準 · 外部同時配信は準備済みチャンネルのみ"}
+});
+
 const SCRIPTURES=[
 ['시편 23:1','여호와는 나의 목자시니 내게 부족함이 없으리로다','Psalm 23:1','The Lord is my shepherd; I shall not want.','诗篇 23:1','耶和华是我的牧者，我必不致缺乏。','詩篇 23:1','主は私の羊飼い。私は乏しいことがありません。'],
 ['시편 46:10','너희는 가만히 있어 내가 하나님 됨을 알지어다','Psalm 46:10','Be still, and know that I am God.','诗篇 46:10','你们要休息，要知道我是上帝。','詩篇 46:10','静まって、わたしこそ神であることを知れ。'],
