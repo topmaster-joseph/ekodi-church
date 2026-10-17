@@ -10,7 +10,8 @@ test('church homepage starts simple while preserving every primary destination',
     ['#about', '우리의 정체성'],
     ['#life-hub', '오늘의 삶'],
     ['#community', '공동체 활동'],
-    ['#worship', '예배'],
+    ['#weekly-worship', '예배 자료'],
+    ['#worship', '예배안내'],
     ['#online', '라이브 방송'],
     ['#partner-news', '협력 소식'],
     ['#location', '함께하기'],
@@ -27,4 +28,7 @@ test('church homepage starts simple while preserving every primary destination',
   assert.ok(css.includes('#about,#worship,#message,#life-hub,#community,#partner-news,#online,#location{display:none!important}'));
   assert.ok(css.includes('#online:has(:target)'));
   assert.ok(css.includes('.church-live-entry{display:none!important}'));
+  assert.ok(html.includes('<details class="church-more-menu" data-church-more-menu>'));
+  assert.ok(css.includes('.hero .overview-grid:not(.church-overview-secondary)'));
+  assert.ok(css.includes('.hero:has(~ #weekly-worship:target)'));
 });

@@ -58,6 +58,16 @@ jobs:
         run: npm run test:live:synthetic
       - name: Worship stage and portrait synthetic browser canary
         run: npx playwright test test/church-worship-prism-synthetic.spec.mjs --reporter=line
+      - name: Approved Church homepage · virtual Chromium PC and mobile
+        run: npx playwright test test/church-approved-preview-browser.spec.mjs --reporter=line
+      - name: Preserve Church homepage visual proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ekodi-church-approved-home-preview
+          path: test-results/church-home-*.png
+          if-no-files-found: warn
+          retention-days: 7
       - name: Independent worship viewer and camera UI browser synthetic
         run: npx playwright test test/church-live-worship-viewer-synthetic.spec.mjs --reporter=line
       - name: Cross-browser opt-in presenter slide synchronization synthetic

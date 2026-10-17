@@ -25,3 +25,53 @@
 .church-inline-panel textarea{width:100%;min-height:92px;resize:vertical}
 .church-inline-panel .status{min-height:24px;font-size:13px;white-space:pre-wrap}
 @media(max-width:760px){.church-weekly-body{grid-template-columns:1fr}.church-weekly-progress{border-left:0;border-top:1px solid #e2e7df;padding:16px 0 0}.church-inline-grid{grid-template-columns:1fr}.church-weekly-actions a,.church-weekly-actions button{flex:1 1 auto;text-align:center}.church-weekly-inner{padding:18px}}
+
+
+/* Approved user-first Sunday workspace: essentials visible, optional broadcast
+   controls expanded only on request. Editor remains server-permission-gated. */
+.church-weekly-head{align-items:center}
+.church-weekly-body{grid-template-columns:minmax(0,1.7fr) minmax(235px,.8fr)}
+.church-weekly-progress{
+  background:rgba(234,241,231,.45);
+  border:1px solid #e2e7df;
+  border-radius:14px;
+  padding:17px 20px;
+}
+.church-weekly-progress strong{color:#173730}
+.church-weekly-progress p:last-child{border-bottom:0}
+.church-weekly-actions{gap:9px}
+.church-weekly-actions>a:focus-visible,.church-weekly-extras summary:focus-visible{
+  outline:3px solid #9dbca5;
+  outline-offset:3px;
+}
+.church-weekly-actions [data-weekly-live-host]{
+  background:#f8f2e6;
+  border-color:#cfb77e;
+}
+.church-weekly-extras{margin-top:15px;color:#173730}
+.church-weekly-extras summary{
+  width:fit-content;
+  min-height:38px;
+  display:flex;
+  align-items:center;
+  border:1px solid #cddbd0;
+  border-radius:999px;
+  padding:8px 14px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:700;
+  list-style:none;
+  background:#fff;
+}
+.church-weekly-extras summary::-webkit-details-marker{display:none}
+.church-weekly-extras summary:after{content:'⌄';padding-left:11px}
+.church-weekly-extras[open] summary:after{content:'⌃'}
+.church-weekly-extras>.church-weekly-actions{
+  padding-top:4px;
+  margin-top:10px;
+}
+@media(max-width:760px){
+  .church-weekly-body{grid-template-columns:1fr}
+  .church-weekly-progress{border:1px solid #e2e7df;padding:16px}
+  .church-weekly-extras>.church-weekly-actions a{flex:1 1 135px}
+}

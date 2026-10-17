@@ -333,6 +333,17 @@ Object.assign(TEXT,{
 "내부 방송·녹화 기본 · 외부 동시송출은 준비된 채널만 선택":{en:"Internal live + recording by default · External simulcast only to ready channels",'zh-CN':"默认内部直播与录制 · 外部仅选择已准备好的频道",ja:"内部配信・録画は標準 · 外部同時配信は準備済みチャンネルのみ"}
 });
 
+// Progressive first-view design: localized navigation and optional worship tools.
+Object.assign(TEXT,{
+"예배 자료":{en:"Worship materials",'zh-CN':"礼拜资料",ja:"礼拝資料"},
+"날짜별 주보 · PPT · 방송":{en:"Bulletin · Slides · Live by date",'zh-CN':"按日期查看周报 · PPT · 直播",ja:"日付別の週報・PPT・配信"},
+"교회 메뉴 더 보기":{en:"More church menus",'zh-CN':"更多教会菜单",ja:"その他の教会メニュー"},
+"예배안내":{en:"Worship schedule",'zh-CN':"礼拜安排",ja:"礼拝のご案内"},
+"모임과 시간 안내":{en:"Meetings and times",'zh-CN':"聚会及时间",ja:"集会と時間"},
+"방송·운영 더 보기":{en:"More broadcast tools",'zh-CN':"更多直播工具",ja:"配信・運営ツール"},
+"방송 시청":{en:"Watch broadcast",'zh-CN':"观看直播",ja:"配信を見る"}
+});
+
 const SCRIPTURES=[
 ['시편 23:1','여호와는 나의 목자시니 내게 부족함이 없으리로다','Psalm 23:1','The Lord is my shepherd; I shall not want.','诗篇 23:1','耶和华是我的牧者，我必不致缺乏。','詩篇 23:1','主は私の羊飼い。私は乏しいことがありません。'],
 ['시편 46:10','너희는 가만히 있어 내가 하나님 됨을 알지어다','Psalm 46:10','Be still, and know that I am God.','诗篇 46:10','你们要休息，要知道我是上帝。','詩篇 46:10','静まって、わたしこそ神であることを知れ。'],
