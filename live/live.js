@@ -21,7 +21,7 @@ const LAYOUTS=new Set(['presenter','pip','side','equal','screen']);
 const SHARE_MODES=new Set(['screen','window','tab']);
 const setupParams=new URLSearchParams(location.search);
 const $=id=>document.getElementById(id);
-const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),viewerIdentity:null,participantRequests:new Map(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,shareMode:'screen',presentationFile:null,chatMessages:[],chatTimer:null,participantTimer:null,participantWatchMode:'',recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
+const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),viewerIdentity:null,participantRequests:new Map(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,shareMode:'screen',presentationFile:null,chatMessages:[],chatTimer:null,participantTimer:null,participantWatchMode:'',managementCameraPair:null,managementCameraTimer:null,recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
 
 function viewerIdentity(){
   if(state.viewerIdentity)return state.viewerIdentity;
@@ -427,13 +427,76 @@ function sourceCard(id,label,{subtitle='화면에 추가',onDelete=null}={}){
 function renderSourceCards(){
   const chat=$('chatOverlaySource');if(chat){const active=state.overlays.get('chat')?.visible;chat.querySelector('span').textContent=active?'화면에서 빼기':'화면에 추가';chat.classList.toggle('active',Boolean(active))}
   const cameras=$('extraCameraSources');if(cameras){cameras.replaceChildren();for(const [id,item] of state.extraCameras)cameras.append(sourceCard(id,item.label,{onDelete:()=>disconnectExtraCamera(id)}))}
-  const participants=$('participantSources');if(participants){participants.replaceChildren();for(const [id,item] of state.participantPulls){
+  const participants=$('participantSources'),managed=$('managementCameraSources');
+  participants?.replaceChildren();managed?.replaceChildren();
+  for(const [id,item] of state.participantPulls){
     const visible=state.overlays.get(id)?.visible;
     const request=state.participantRequests.get(String(item.source?.actorKey||''));const requestedAt=request?.requestedAt||request?.createdAt||request?.created_at;
     const when=requestedAt?new Date(requestedAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):'';
     const subtitle=visible?`공개 방송 노출 중${when?' · 요청 '+when:''}`:item.ready?`비공개 대기${when?' · 요청 '+when:''}`:'연결 중';
-    participants.append(sourceCard(id,item.label,{subtitle}));
-  }}
+    const card=sourceCard(id,item.label,{subtitle});if(item.kind==='management_camera')managed?.append(card);else participants?.append(card);
+  }
+}
+const pairLabel=status=>({issued:'QR 발급',pending:'승인 대기',approved:'승인됨',connected:'촬영 중',revoked:'해제됨',expired:'만료됨'})[status]||status;
+function renderManagementCameraPairs(rows=[]){
+ const root=$('managementCameraPairs');if(!root)return;root.replaceChildren();let waiting=0,connected=0;
+ for(const row of rows){
+  if(row.status==='pending')waiting++;if(row.status==='connected')connected++;
+  const div=document.createElement('div');div.className='management-pair-row';
+  const label=document.createElement('span');label.textContent=(row.label||'QR 촬영 카메라')+' · '+pairLabel(row.status);
+  const actions=document.createElement('span');actions.className='management-pair-actions';
+  for(const status of ['approved','revoked']){
+   if(status==='approved'&&row.status!=='pending'||status==='revoked'&&['revoked','expired'].includes(row.status))continue;
+   const button=document.createElement('button');button.type='button';button.textContent=status==='approved'?'연결 승인':'연결 해제';
+   button.addEventListener('click',()=>void decideManagementCameraPair(row.id,status));actions.append(button);
+  }
+  div.append(label,actions);root.append(div);
+ }
+ $('managementCameraState').textContent=connected?connected+'대 연결':waiting?waiting+'대 승인 대기':'대기';
+}
+async function ensureRoomForManagementCamera(){
+ if(state.room)return state.room;
+ if(!token())return login(true);
+ const data=await createRoom();if(!data)return null;state.room=data.room;
+ $('roomTitle').textContent=state.room.title;$('shareLink').value='https://ekodi.kr/ekodichurch/live/?room='+encodeURIComponent(state.room.id);$('roomLinks').classList.remove('hidden');return state.room;
+}
+async function refreshManagementCameraPairs(){
+ if(!state.room||!token())return;
+ try{const data=await api('/rooms/'+encodeURIComponent(state.room.id)+'/management-cameras');renderManagementCameraPairs(data.pairs||[]);if((data.pairs||[]).some(x=>x.status==='connected'))await refreshParticipantSources()}
+ catch(error){$('managementCameraState').textContent='확인 실패';note('QR 촬영 카메라 오류: '+error.message)}
+}
+function stopManagementCameraPolling(){clearTimeout(state.managementCameraTimer);state.managementCameraTimer=null}
+function startManagementCameraPolling(){
+ stopManagementCameraPolling();
+ const poll=async()=>{if(!$('managementCameraDialog')?.open||!state.room)return;await refreshManagementCameraPairs();if($('managementCameraDialog')?.open)state.managementCameraTimer=setTimeout(poll,3500)};void poll();
+}
+async function createManagementCameraPair(){
+ const room=await ensureRoomForManagementCamera();if(!room)return;
+ try{
+  const data=await api('/rooms/'+encodeURIComponent(room.id)+'/management-cameras',{method:'POST',body:JSON.stringify({label:'에코디교회 촬영 카메라'})});
+  if(!/^https:\/\/ekodi\.kr\/live\/c\/[A-Za-z0-9_-]+$/.test(data.cameraUrl||''))throw Error('공식 EKODI QR 주소가 아닙니다.');
+  state.managementCameraPair=data.pair;$('managementCameraUrl').value=data.cameraUrl;
+  if(!window.EKODIManagementCameraQr?.draw)throw Error('QR 출력 기능이 준비되지 않았습니다.');
+  window.EKODIManagementCameraQr.draw($('managementCameraQr'),data.cameraUrl);
+  const dialog=$('managementCameraDialog');if(!dialog.open)dialog.showModal();await refreshManagementCameraPairs();startManagementCameraPolling();
+ }catch(error){note('QR 카메라 생성 실패: '+error.message)}
+}
+async function openManagementCameraDialog(){
+ if(state.managementCameraPair&&$('managementCameraUrl').value){if(!$('managementCameraDialog').open)$('managementCameraDialog').showModal();await refreshManagementCameraPairs();startManagementCameraPolling()}
+ else await createManagementCameraPair();
+}
+async function decideManagementCameraPair(id,status){
+ if(!state.room||!token())return;
+ try{
+  await api('/rooms/'+encodeURIComponent(state.room.id)+'/management-cameras/'+encodeURIComponent(id),{method:'PATCH',body:JSON.stringify({status})});
+  if(status==='revoked'){
+   for(const [key,item] of state.participantPulls){
+    if(item.kind!=='management_camera'||!key.endsWith(id))continue;
+    item.pc?.close();item.stream?.getTracks?.().forEach(track=>track.stop());item.overlay?.video?.remove?.();state.participantPulls.delete(key);state.overlays.delete(key);
+   }syncOverlayHandles();renderSourceCards();
+  }
+  await refreshManagementCameraPairs();await refreshParticipantSources();
+ }catch(error){note('QR 카메라 승인/해제 실패: '+error.message)}
 }
 async function refreshCameraDevices(){
   if(!navigator.mediaDevices?.enumerateDevices)return;
@@ -546,7 +609,7 @@ async function startHost(){
   if(state.room&&state.session&&state.pc)return true;
   if(state.hosting)return false;state.hosting=true;show('studioView');setPhase('preparing');note('방송 서버에 연결하고 있습니다.');
   try{
-    const created=await createRoom();if(!created){state.hosting=false;return false}state.room=created.room;window.dispatchEvent(new CustomEvent('ekodi:live:room',{detail:{roomId:state.room.id,tenant:state.room.tenantId,role:'host'}}));$('roomTitle').textContent=state.room.title;$('shareLink').value=`https://ekodi.kr/ekodichurch/live/?room=${encodeURIComponent(state.room.id)}`;$('roomLinks').classList.remove('hidden');
+    if(!state.room){const created=await createRoom();if(!created){state.hosting=false;return false}state.room=created.room;}window.dispatchEvent(new CustomEvent('ekodi:live:room',{detail:{roomId:state.room.id,tenant:state.room.tenantId,role:'host'}}));$('roomTitle').textContent=state.room.title;$('shareLink').value=`https://ekodi.kr/ekodichurch/live/?room=${encodeURIComponent(state.room.id)}`;$('roomLinks').classList.remove('hidden');
     const local=state.local||await acquireCamera();const program=ensureProgramStream()||local;await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'starting'})});await createSession(state.room.id,'owner');await publishStream(program,'program');startChatPolling();startParticipantMonitoring();setPhase('ready');note('미디어 연결이 완료되었습니다. 방송을 시작합니다.');setRecordingState(false,'녹화 준비');return true;
   }catch(error){state.hosting=false;setPhase('error');$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 준비 실패: ${error.message}`);return false}
 }
@@ -568,7 +631,7 @@ async function endLive(){
     await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ending'})});
     const recordingResult=await stopManagedRecording();
     if(state.session)await api(`/rooms/${state.room.id}/sessions/${state.session.id}/leave`,{method:'POST',session:true,body:'{}'}).catch(()=>{});
-    state.pc?.close();state.isLive=false;stopLiveClock();
+    state.pc?.close();state.isLive=false;stopLiveClock();stopManagementCameraPolling();
     if(state.screen)stopScreenShare('');
     state.local?.getTracks().forEach(t=>t.stop());state.canvasStream?.getTracks().forEach(t=>t.stop());cancelAnimationFrame(state.animationFrame);
     await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'ended'})});
@@ -636,11 +699,12 @@ function renderParticipationRequests(rows=[]){
   }
 }
 async function ensureParticipantPull(source){
-  const id=`participant:${source.actorKey}`;if(state.participantPulls.has(id))return state.participantPulls.get(id);
+  const kind=source.sourceRole==='management_camera'?'management_camera':'participant';
+  const id=`${kind}:${source.actorKey}`;if(state.participantPulls.has(id))return state.participantPulls.get(id);
   const created=await api(`/rooms/${encodeURIComponent(state.room.id)}/sessions`,{method:'POST',body:JSON.stringify({role:'viewer'})});
   const session=created.session,pc=new RTCPeerConnection({iceServers:created.iceServers||[]}),stream=new MediaStream();
   const label=source.displayName||'참여자 카메라';
-  const overlay=ensureOverlay(id,{type:'video',label,stream});const item={id,label,source,session,pc,stream,overlay,ready:false};state.participantPulls.set(id,item);renderSourceCards();
+  const overlay=ensureOverlay(id,{type:'video',label,stream});const item={id,label,kind,source,session,pc,stream,overlay,ready:false};state.participantPulls.set(id,item);renderSourceCards();
   pc.ontrack=event=>{for(const track of event.streams?.[0]?.getTracks?.()||[event.track])if(!stream.getTracks().some(x=>x.id===track.id))stream.addTrack(track);item.ready=true;overlay.video?.play?.().catch(()=>{});renderSourceCards()};
   const pulled=await sessionApi(`/rooms/${encodeURIComponent(state.room.id)}/sessions/${encodeURIComponent(session.id)}/pull`,session.accessKey,{method:'POST',body:JSON.stringify({tracks:(source.tracks||[]).map(track=>({trackName:track.trackName}))})});
   if(!pulled.empty){const offer=providerDescription(pulled);if(offer?.sdp){await pc.setRemoteDescription(offer);const answer=await pc.createAnswer();await pc.setLocalDescription(answer);await waitIce(pc);await sessionApi(`/rooms/${encodeURIComponent(state.room.id)}/sessions/${encodeURIComponent(session.id)}/renegotiate`,session.accessKey,{method:'PUT',body:JSON.stringify({sessionDescription:pc.localDescription})})}}
@@ -654,7 +718,10 @@ async function refreshParticipantSources(){
       api(`/rooms/${encodeURIComponent(state.room.id)}/participant-sources`)
     ]);
     renderParticipationRequests(requests.requests||[]);
-    for(const source of (sources.sources||[]).slice(0,6))if(!state.participantPulls.has(`participant:${source.actorKey}`))await ensureParticipantPull(source).catch(error=>note(`참여자 카메라 연결 실패: ${error.message}`));
+    for(const source of (sources.sources||[]).slice(0,8)){
+    const kind=source.sourceRole==='management_camera'?'management_camera':'participant';
+    if(!state.participantPulls.has(`${kind}:${source.actorKey}`))await ensureParticipantPull(source).catch(error=>note('촬영 소스 연결 실패: '+error.message))
+   }
     renderSourceCards();
   }catch(error){if(error.status!==404)note(`참여자 상태 확인 실패: ${error.message}`)}
 }
@@ -704,9 +771,9 @@ async function startParticipantCameraPublish(){
   }catch(error){if($('participantCameraState'))$('participantCameraState').textContent='연결 실패';note(`카메라 연결 실패: ${error.message}`,'viewerStatus')}
 }
 function cleanupCollaboration(){
-  clearTimeout(state.chatTimer);clearTimeout(state.participantTimer);state.chatTimer=null;state.participantTimer=null;state.participantWatchMode='';
+  stopManagementCameraPolling();clearTimeout(state.chatTimer);clearTimeout(state.participantTimer);state.chatTimer=null;state.participantTimer=null;state.participantWatchMode='';
   for(const item of state.participantPulls.values()){item.pc?.close();item.stream?.getTracks?.().forEach(track=>track.stop());item.overlay?.video?.remove?.()}
-  state.participantPulls.clear();state.participantRequests.clear();
+  state.participantPulls.clear();state.participantRequests.clear();state.managementCameraPair=null;
   if(state.participantPublish){state.participantPublish.pc?.close();state.participantPublish.stream?.getTracks?.().forEach(track=>track.stop());state.participantPublish=null}
 }
 function roomNeedsPublisherCheck(room){
@@ -741,6 +808,11 @@ $('chatOverlaySource')?.addEventListener('dragstart',event=>event.dataTransfer?.
 $('chatOverlaySource')?.addEventListener('click',()=>state.overlays.get('chat')?.visible?removeOverlay('chat'):addOverlay('chat'));
 $('applyPrimaryCameraButton')?.addEventListener('click',applyPrimaryCamera);
 $('connectExtraCameraButton')?.addEventListener('click',connectExtraCamera);
+ $('openManagementCameraButton')?.addEventListener('click',()=>void openManagementCameraDialog());
+ $('newManagementCameraPairButton')?.addEventListener('click',()=>void createManagementCameraPair());
+ $('managementCameraDialog')?.addEventListener('close',stopManagementCameraPolling);
+ $('copyManagementCameraUrlButton')?.addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('managementCameraUrl').value);note('QR 링크 복사 완료')}catch{note('QR 링크를 직접 복사해 주세요')}});
+
 $('refreshParticipantSourcesButton')?.addEventListener('click',refreshParticipantSources);
 $('studioChatForm')?.addEventListener('submit',event=>{event.preventDefault();void sendChat('studioChatInput','방송자')});
 $('viewerChatForm')?.addEventListener('submit',event=>{event.preventDefault();void sendChat('viewerChatInput','참여자')});

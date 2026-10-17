@@ -125,3 +125,14 @@ test('recording link recognizes shared-drive archive response shape',async()=>{
   assert.match(js,/recording\?\.driveWebViewLink/);
   assert.match(js,/archive\?\.file\?\.webViewLink/);
 });
+
+test('Church director QR camera uses authorized existing first-party pairing',async()=>{
+ const [page,live,qr]=await Promise.all([read('live/index.html'),read('live/live.js'),read('live/management-camera-qr.js')]);
+ for(const id of ['openManagementCameraButton','managementCameraDialog','managementCameraQr','managementCameraPairs','managementCameraSources'])assert.match(page,new RegExp('id="'+id+'"'));
+ assert.match(live,/async function createManagementCameraPair\(/);
+ assert.match(live,/async function decideManagementCameraPair\(/);
+ assert.match(live,/source\.sourceRole==='management_camera'/);
+ assert.match(live,/if\(!state\.room\)\{const created=await createRoom\(/);
+ assert.match(qr,/function qrMatrixV5/);assert.doesNotMatch(qr,/qrserver|quickchart|googleapis/);
+ new Function(live);new Function(qr);
+});
