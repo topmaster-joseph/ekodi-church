@@ -26,7 +26,7 @@ function token(){
   }catch{}
   return window.EKODI_MY_AUTH?.getAccessToken?.()||sessionStorage.getItem('ekodi-auth-token')||'';
 }
-function kstToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
+function kstToday(){const parts=new Intl.DateTimeFormat('en',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const map=Object.fromEntries(parts.map(part=>[part.type,part.value]));return map.year+'-'+map.month+'-'+map.day;}
 function sunday(date){return /^\d{4}-\d{2}-\d{2}$/.test(date)&&new Date(date+'T00:00:00Z').getUTCDay()===0;}
 function archivePath(entry){return entry.page;}
 function showPacket(data){
