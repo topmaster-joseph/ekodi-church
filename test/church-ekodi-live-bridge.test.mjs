@@ -36,3 +36,13 @@ test('new Church EKODI Live copy is in shared 9-language chain',async()=>{
  const extended=await load('church-i18n-extended.js');
  assert.match(extended,/EKODIChurchI18n\?\.translate/);
 });
+
+test('Church status badge no longer opens a video popup or overrides canonical Live links',async()=>{
+ const source=await load('church-online-status.js');
+ new Function(source);
+ assert.match(source,/const baseJoin='\/live\/church\/'/);
+ assert.match(source,/const endpoint='https:\/\/ekodi\.kr\/api\/realtime\/live\?tenant=ekodichurch'/);
+ assert.doesNotMatch(source,/meet\.jit\.si|ensureLiveDialog|wireIntegratedLive|openIntegratedLive|churchLiveDialog|iframe/);
+ const css=await load('church-live-entry.css');
+ assert.doesNotMatch(css,/church-live-dialog/);
+});
