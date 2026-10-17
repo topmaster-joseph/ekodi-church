@@ -9,6 +9,8 @@ const files=new Map([
  ['/ekodichurch/live/worship-materials.css','live/worship-materials.css'],
  ['/ekodichurch/live/worship-materials.js','live/worship-materials.js'],
  ['/ekodichurch/worship/2026-10-11/materials.json','worship/2026-10-11/materials.json'],
+ ['/ekodichurch/worship/2026-10-18/materials.json','worship/2026-10-18/materials.json'],
+ ['/ekodichurch/worship/weekly.json','worship/weekly.json'],
  ['/ekodichurch/live/live.js',null],
  ['/ekodichurch/live/host-intent.js',null],
 ]);
@@ -65,4 +67,27 @@ test('viewer mobile mode supports independent bulletin without requiring a login
  await expect(page.locator('#viewerBulletinBody')).toContainText('대표기도');
  await expect(page.locator('#viewerBulletinBody')).toContainText('박은희');
  await context.close();
+});
+
+test('default live worship selects October 18 on Saturday in KST on PC and mobile',async({browser})=>{
+ for(const viewport of [{width:1366,height:900},{width:390,height:844}]){
+  const context=await browser.newContext({viewport});
+  await context.route('**/*',async route=>{
+   const url=new URL(route.request().url());
+   if(url.hostname!=='live.ekodi.test')return route.abort();
+   const file=files.get(url.pathname);
+   if(file===undefined)return route.fulfill({status:404,body:'not found'});
+   await route.fulfill({status:200,contentType:url.pathname.endsWith('.json')?'application/json':url.pathname.endsWith('.js')?'application/javascript':url.pathname.endsWith('.css')?'text/css':'text/html',body:file?await readFile(new URL(file,fixture),'utf8'):''});
+  });
+  const page=await context.newPage();
+  await page.clock.setFixedTime(new Date('2026-10-17T06:30:00Z'));
+  await page.goto(fake);
+  await expect(page.locator('#viewerMaterialStatus')).toContainText('2026-10-18 주일예배');
+  await expect(page.locator('#viewerBulletinLink')).toHaveAttribute('href','/ekodichurch/worship/2026-10-18/');
+  await page.locator('#viewerView').evaluate(el=>el.classList.remove('hidden'));
+  await page.locator('[data-viewer-material-mode=ppt-bulletin]').click();
+  await expect(page.locator('#viewerSlideTitle')).toContainText('품 안에서');
+  await expect(page.locator('#viewerBulletinBody')).toContainText('신명기 33:12–19');
+  await context.close();
+ }
 });
