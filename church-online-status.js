@@ -23,17 +23,15 @@
     select.style.borderRadius='999px';
   }
 
-  function wireMyEkodi(){
-    const link=document.querySelector('.shell-my');
+  function syncChurchMemberLink(){
+    const link=document.querySelector('.site-header .shell-my');
     if(!link)return;
-    const rawDestination=link.dataset.ekodiDestination||link.getAttribute('href')||'/my/';
-    const destination=new URL(rawDestination,location.origin).toString();
-    link.dataset.ekodiDestination=destination;
-    const login=new URL('/auth/',location.origin);
-    login.searchParams.set('site','church');
-    login.searchParams.set('return_to',destination);
-    link.href=login.toString();
-    link.setAttribute('aria-label','My EKODI 로그인 후 이동');
+    // The Church member home determines whether login is needed and handles
+    // its own return_to. Never hijack the public nav into global /auth/ or /my/.
+    const local='/ekodichurch/my/';
+    if(link.getAttribute('href')!==local)link.setAttribute('href',local);
+    link.removeAttribute('data-ekodi-destination');
+    link.setAttribute('aria-label','에코디교회 마이페이지');
   }
 
   function apply(live,roomId=''){
@@ -84,14 +82,14 @@
     return inFlight;
   }
 
-  wireMyEkodi();
+  syncChurchMemberLink();
   normalizeLanguageControl();
 
   const header=document.querySelector('.site-header');
   if(header){
     const observer=new MutationObserver(()=>{
       normalizeLanguageControl();
-      wireMyEkodi();
+      syncChurchMemberLink();
     });
     observer.observe(header,{childList:true,subtree:true});
     window.addEventListener('pagehide',()=>observer.disconnect(),{once:true});
