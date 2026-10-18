@@ -65,7 +65,10 @@
   };
 
   const langs = Object.keys(prayers);
-  const requested = new URLSearchParams(location.search).get('lang');
+  const params = new URLSearchParams(location.search);
+  const slideMode = params.get('view') === 'slide';
+  document.body.dataset.view = slideMode ? 'slide' : 'practice';
+  const requested = params.get('lang');
   let currentLang = langs.includes(requested) ? requested : 'ko';
   const synth = 'speechSynthesis' in window ? window.speechSynthesis : null;
   const voiceStatus = document.getElementById('voice-status');
@@ -84,6 +87,12 @@
   let generation = 0;
   let playing = false;
   let paused = false;
+  // Worship projection uses one uninterrupted reading, not practice repetition.
+  if (slideMode) {
+    repeat.checked = false;
+    rate.value = '0.90';
+    rateLabel.textContent = '0.90×';
+  }
 
   function chooseVoice() {
     voices = synth ? synth.getVoices() : [];
@@ -227,6 +236,34 @@
     synth.addEventListener('voiceschanged',chooseVoice);
   } else if (synth) {
     synth.onvoiceschanged = chooseVoice;
+  }
+  if (slideMode) {
+    document.addEventListener('keydown', event => {
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target?.tagName)) return;
+      const pos = Number(event.key);
+      if (Number.isInteger(pos) && pos >= 1 && pos <= langs.length) {
+        event.preventDefault();
+        selectLanguage(langs[pos-1]);
+        return;
+      }
+      if (event.key.toLowerCase() === 'p') {
+        event.preventDefault();
+        if (!playing) start(prayers[currentLang].lines.map((_,i)=>i));
+        else if (paused) pause.click();
+        return;
+      }
+      if (event.key.toLowerCase() === 's') {
+        event.preventDefault();
+        cancel('재생을 정지했습니다.');
+        return;
+      }
+      if (event.key.toLowerCase() === 'f') {
+        event.preventDefault();
+        if (document.fullscreenElement) document.exitFullscreen?.();
+        else document.querySelector('main')?.requestFullscreen?.();
+      }
+    });
   }
   selectLanguage(currentLang);
 })();
