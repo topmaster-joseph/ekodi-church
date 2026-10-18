@@ -121,7 +121,7 @@ editorLink.addEventListener('click',async event=>{
     // Advisory PCK calendar suggestions: never replace confirmed pastor-entered notices.
     if(!data.notice){
       try{
-        const calendarResult=await fetch('/api/public/church-calendar?date='+encodeURIComponent(selected.date),{cache:'no-store'});
+        const calendarResult=await fetch('/api/public/church-calendar?week=1&date='+encodeURIComponent(selected.date),{cache:'no-store'});
         if(calendarResult.ok){
           const registry=await calendarResult.json();
           const suggestions=(registry.events||[])
