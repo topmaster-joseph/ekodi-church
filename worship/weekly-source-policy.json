@@ -15,7 +15,7 @@
     "ministryAndPartnerSections",
     "presentationAspectRatio",
     "slideArchetypesAndTransitions",
-    "prayerLanguageSlidesAndWorkingMedia"
+    "singleInteractivePrayerSlideAndOriginalLanguageTexts"
   ],
   "refreshEveryWeek": [
     "dateAndIssueNumberAfterVerification",
@@ -34,14 +34,15 @@
     "한국어·영어·중국어·일본어·베트남어 등 전주 다국어 주기도문 자산과 링크 보존",
     "실제 예배 진행자·참여자·스트림키/토큰은 공개 소스·문서에 기록 금지",
     "방송용 요약 슬라이드와 전체 예배 PPT는 별개로 명시; 실제 송출 성공은 계정 검증으로만 판정",
-    "보호된 CI·PR·배포 출처 검증과 운영 증거 없이 배포 완료로 판정 금지"
+    "보호된 CI·PR·배포 출처 검증과 운영 증거 없이 배포 완료로 판정 금지",
+    "주기도문은 예배 PPT에서 언어별 5장 대신 언어 선택·음성 재생이 가능한 하나의 웹 연결 슬라이드로 제공한다; TTS 음성 미설치 시 무음 실패로 판정"
   ],
   "verification": [
     "previousSundayDateEqualsCurrentDateMinusSevenDays",
     "sourceDocAndDeckOwnershipAndPermissions",
     "sameSectionTypesAndRelevantSlides",
     "newScriptureAndDateNotStale",
-    "multilingualPrayerSlidesPreserved",
+    "singleMultilingualPrayerSlideAndPlaybackVerified",
     "weeklyRosterAndSongReadiness",
     "websiteLinksToOfficialArtifacts",
     "CIAndBrowserLiveReadback"
@@ -54,13 +55,24 @@
     "finalBulletin": "https://docs.google.com/document/d/1MRDupBDrocLBZJzggqAY_mk9decuQS8eWS0Gsr37WDI/edit",
     "finalPresentation": "https://docs.google.com/presentation/d/1iRnAtGWqFgyPq4xEmhJjnoq-MHPkQ2Sfx438AB5O9Gk/edit",
     "sourcePresentationSlideCount": 42,
-    "finalPresentationSlideCount": 42,
+    "finalPresentationSlideCount": 38,
     "currentScripture": "신명기 33:12–19",
     "worshipTitle": "품 안에서, 세상으로",
     "pending": [
       "대표기도 확정",
       "찬양곡 확정",
       "유튜브 실제 예약과 송출 실증"
-    ]
+    ],
+    "interactivePrayerSlide": {
+      "position": 38,
+      "web": "https://ekodi.kr/ekodichurch/worship/2026-10-18/prayer/?view=slide",
+      "languages": [
+        "ko",
+        "en",
+        "zh",
+        "ja",
+        "vi"
+      ]
+    }
   }
 }
