@@ -16,7 +16,7 @@ test('The web bulletin displays the actual predecessor-format document, not a si
  assert.match(css,/original-document iframe/);
 });
 test('The web full-PPT view preserves all 42 real Slides and keeps live 16-slide mode separate',()=>{
- assert.match(html,/10-oyTzG-XZqJf3JF6iFVU40UjnCW71UzXbDUmOTKzxA\/preview/);
+ assert.match(html,/1iRnAtGWqFgyPq4xEmhJjnoq-MHPkQ2Sfx438AB5O9Gk\/preview/);
  assert.match(html,/view=fullppt/);
  assert.match(script,/fullppt/);
  assert.equal(packet.officialPresentationSlideCount,42);
