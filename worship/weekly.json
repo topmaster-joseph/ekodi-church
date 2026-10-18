@@ -9,7 +9,9 @@
     {
       "date": "2026-10-18",
       "status": "prepared",
-      "page": "/ekodichurch/worship/2026-10-18/"
+      "page": "/ekodichurch/worship/2026-10-18/",
+      "previousSunday": "2026-10-11",
+      "templateRule": "verified-previous-week-bulletin-and-full-presentation"
     }
   ]
 }
