@@ -1,12 +1,31 @@
 (() => {
   'use strict';
-  const allowedViews = new Set(['bulletin','operator','stage','vertical']);
+  const allowedViews = new Set(['bulletin','operator','stage','vertical','fullppt']);
   const query = new URLSearchParams(location.search);
   const view = allowedViews.has(query.get('view')) ? query.get('view') : 'bulletin';
   document.body.dataset.view = view;
   document.querySelectorAll('[data-mode-link]').forEach(link => {
     if (link.dataset.modeLink === view) link.setAttribute('aria-current','page');
   });
+
+  async function showCalendarContext(){
+    const label=document.querySelector('#church-calendar-summary');
+    if(!label)return;
+    try {
+      const r=await fetch('/api/public/church-calendar?date=2026-10-18',{headers:{accept:'application/json'},cache:'no-store'});
+      if(!r.ok)throw new Error('calendar_api_unavailable');
+      const payload=await r.json();
+      const events=(payload.events||[]).filter(v=>v.approval!=='draft'&&v.approval!=='archived');
+      if(!events.length){label.textContent='해당 주일에 검토된 공통 교회력 항목이 없습니다.';return;}
+      label.replaceChildren();
+      for(const event of events){
+        const p=document.createElement('p');
+        p.textContent=event.name+' · '+(event.approval==='approved'?'승인됨':'공식 목회달력 원문 최종 대조 전 참고')+' — '+(event.bulletin||event.sermonFocus||'');
+        label.append(p);
+      }
+    } catch {label.textContent='공통 교회력 API 연결 전입니다. 정식 주보의 교회소식을 참고해 주세요.';}
+  }
+  showCalendarContext();
 
   // Public, fixed data derived from the 2026-10-18 worship preparation packet.
   // No viewer data, platform tokens, stream keys or unpublished member content.
