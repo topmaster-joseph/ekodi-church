@@ -250,7 +250,7 @@
   },
   "officialBulletin": "https://docs.google.com/document/d/1MRDupBDrocLBZJzggqAY_mk9decuQS8eWS0Gsr37WDI/edit",
   "officialPresentation": "https://docs.google.com/presentation/d/1iRnAtGWqFgyPq4xEmhJjnoq-MHPkQ2Sfx438AB5O9Gk/edit",
-  "officialPresentationSlideCount": 42,
+  "officialPresentationSlideCount": 38,
   "liturgicalCalendar": {
     "registry": "/api/public/church-calendar",
     "date": "2026-10-18",
@@ -261,5 +261,19 @@
     ],
     "approval": "pastor-review-required",
     "policy": "church calendar is advisory and never overrides approved Scripture"
+  },
+  "prayerSlide": {
+    "slideNumber": 38,
+    "mode": "single-interactive-language-selector",
+    "url": "https://ekodi.kr/ekodichurch/worship/2026-10-18/prayer/?view=slide&lang=ko",
+    "languages": [
+      "ko",
+      "en",
+      "zh",
+      "ja",
+      "vi"
+    ],
+    "playback": "browser-speech-synthesis-requires-matching-installed-voice",
+    "noAutoplay": true
   }
 }
