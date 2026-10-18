@@ -36,6 +36,6 @@ test('Church calendar page has public source links, role-checked edit, and visib
 test('Weekday memorials cannot silently become approved Sunday common Scripture',()=>{
  assert.equal(packet.scripture,'신명기 33:12–19');
  assert.equal(packet.liturgicalCalendar.approval,'pastor-review-required');
- assert.match(read('church-weekly-worship.js'),/공통 교회력/);
+ assert.match(read('church-weekly-worship.js'),/church-calendar/);
  assert.match(read('church-weekly-worship.js'),/notice\.value/);
 });
