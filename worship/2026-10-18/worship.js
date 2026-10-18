@@ -240,7 +240,6 @@
     'operator-prev':()=>goTo(slideIndex-1),'operator-next':()=>goTo(slideIndex+1),
     'blackout':toggleBlackout,'operator-blackout':toggleBlackout,
     'fullscreen':()=>{if(document.fullscreenElement){document.exitFullscreen?.();}else{document.querySelector('#presentation').requestFullscreen?.();}},
-    'print-bulletin':()=>window.print(),
     'open-stage':()=>window.open('?view=stage','ekodi-church-stage'),
     'open-vertical':()=>window.open('?view=vertical','ekodi-church-vertical'),
     'copy-stage-url':async()=>{
