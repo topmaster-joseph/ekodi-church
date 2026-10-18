@@ -241,5 +241,25 @@
     "dvr": true,
     "latency": "normal",
     "status": "metadata-prepared-not-scheduled"
+  },
+  "sourceTemplate": {
+    "date": "2026-10-11",
+    "type": "verified-actual-previous-week",
+    "bulletin": "https://docs.google.com/document/d/1VA3uLoJCOVoL5PlXIPIY2kfK1WYtQxFFLQqODU28o_U/edit",
+    "presentation": "https://docs.google.com/presentation/d/1wJhndsrFK7GrwnJsmWMvarivlNCfgTE97RGQTRJ3CfI/edit"
+  },
+  "officialBulletin": "https://docs.google.com/document/d/1MRDupBDrocLBZJzggqAY_mk9decuQS8eWS0Gsr37WDI/edit",
+  "officialPresentation": "https://docs.google.com/presentation/d/10-oyTzG-XZqJf3JF6iFVU40UjnCW71UzXbDUmOTKzxA/edit",
+  "officialPresentationSlideCount": 42,
+  "liturgicalCalendar": {
+    "registry": "/api/public/church-calendar",
+    "date": "2026-10-18",
+    "source": "https://new.pck.or.kr/bbs/board.php?bo_table=SM02_03_12&wr_id=457",
+    "observances": [
+      "직장선교주일",
+      "기독교교육주간(10/19–10/24)"
+    ],
+    "approval": "pastor-review-required",
+    "policy": "church calendar is advisory and never overrides approved Scripture"
   }
 }
