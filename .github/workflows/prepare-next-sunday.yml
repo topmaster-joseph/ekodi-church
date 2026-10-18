@@ -1,0 +1,72 @@
+name: EKODI Wednesday Sunday Preparation
+
+on:
+  schedule:
+    # 09:10 Wednesday Asia/Seoul (00:10 UTC, no Korean DST)
+    - cron: '10 0 * * 3'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: ekodi-wednesday-sunday-preparation
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify preparation contract
+        run: node --test test/weekly-sunday-preparation.test.mjs
+      - name: Resolve approved next Sunday
+        id: target
+        run: node scripts/prepare-next-sunday.mjs --dry-run
+      - name: Generate review-only preparation task
+        if: steps.target.outputs.status == 'validated'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUNDAY: ${{ steps.target.outputs.sunday }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch="ai/ekodi/weekly-sunday-${SUNDAY}"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            echo "Existing branch $branch — no duplicate."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b "$branch"
+          node scripts/prepare-next-sunday.mjs
+          if [[ ! -d "preparation/${SUNDAY}" ]]; then
+            echo 'Approved weekly record already exists; no changes.'
+            exit 0
+          fi
+          git add -- "preparation/${SUNDAY}/"
+          if git diff --cached --quiet; then
+            echo 'No new preparation task.'
+            exit 0
+          fi
+          git commit -m "chore(church): prepare coming Sunday ${SUNDAY}"
+          git push --set-upstream origin "$branch"
+          body=$(cat <<'BODY'
+          EKODI first-party Wednesday preparation task.
+
+          This PR creates only a review-only preparation request. EKODI AI and authorized pastor must finish the actual sermon, Sunday bulletin, previous-week-formatted PPT, PCK calendar and YouTube setup according to its checklist.
+
+          The four sermon-background levels are passage, full biblical book, entire Bible gospel narrative, and PCK liturgical context.
+          Nothing in this PR grants publication permission. Exact-SHA Human Gate, required CI, protected merge and native-browser verification remain mandatory.
+          BODY
+          )
+          if ! gh pr create --draft --base main --head "$branch" --title "EKODI AI Sunday preparation ${SUNDAY}" --body "$body"; then
+            echo 'PR creation blocked. Recording a work item instead; branch remains isolated.'
+            gh issue create --title "EKODI AI Sunday preparation ${SUNDAY} awaits guarded PR" --body "Prepared branch: \`$branch\`. Follow the EKODI review, exact-SHA owner gate, and guarded release. No worship content published."
+          fi
