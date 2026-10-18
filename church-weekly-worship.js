@@ -72,7 +72,7 @@ async function load(entry){
   if(liveHost)liveHost.href=studioUrl(entry.date);
   const href=archivePath(entry);
   bulletin.href=href;
-  slides.href=href+'?view=stage';
+  slides.href=href+(entry.date==='2026-10-18'?'?view=fullppt':'?view=stage');
   broadcast.href=href+'?view=operator';
   try{
     const response=await fetch(href+'materials.json',{cache:'no-store'});
@@ -118,6 +118,21 @@ editorLink.addEventListener('click',async event=>{
     const db=Array.isArray(list)?list[0]||{}:{};
     const data={service_date:selected.date,service_time:db.service_time||packet.time||'11:00',scripture:db.scripture||packet.scripture||'',title:db.title||packet.title||'',preacher:db.preacher||packet.preacher||'',songs:db.songs||'',prayer:db.prayer||'',notice:db.notice||''};
     for(const [k,v] of Object.entries(data)){const field=form.elements.namedItem(k);if(field)field.value=v;}
+    // Advisory PCK calendar suggestions: never replace confirmed pastor-entered notices.
+    if(!data.notice){
+      try{
+        const calendarResult=await fetch('/api/public/church-calendar?date='+encodeURIComponent(selected.date),{cache:'no-store'});
+        if(calendarResult.ok){
+          const registry=await calendarResult.json();
+          const suggestions=(registry.events||[])
+            .filter(e=>e.approval==='approved'||e.approval==='provisional')
+            .map(e=>(e.approval==='provisional'?'[교회력 원문 대조 전 참고] ':'')+e.bulletin).filter(Boolean);
+          const notice=form.elements.namedItem('notice');
+          if(notice&&suggestions.length)notice.value=suggestions.join('\n');
+        }
+      }catch{/* Offline calendar cannot block existing worship editing. */}
+    }
+
     flash.textContent='서버에서 편집 권한 확인 완료 · 저장 후 게시 상태를 확인해 주세요.';
     panel.scrollIntoView({behavior:'smooth',block:'start'});
   }catch(error){panel.hidden=true;flash.textContent=error.message;status.textContent=error.message;}
