@@ -44,7 +44,7 @@ test('Interactive projector changes prayer text in place, speaks selected native
  };
  const context={
   document,location:{search:'?view=slide&lang=ko',href:'https://ekodi.kr/ekodichurch/worship/2026-10-18/prayer/?view=slide&lang=ko'},
-  history:{replaceState(){}},URL,
+  history:{replaceState(){}},URL,URLSearchParams,
   window:{speechSynthesis:synth,SpeechSynthesisUtterance:class{constructor(text){this.text=text}},addEventListener(){},},
  };
  runInNewContext(js,context,{timeout:2000});
