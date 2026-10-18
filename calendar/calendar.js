@@ -15,7 +15,7 @@ function setForm(item={}){
  const f=$('calendar-form');f.reset();
  for(const name of ['id','date','endDate','name','category','approval','bulletin','sermonFocus','sourceUrl','sourceNote']){
    const field=f.elements.namedItem(name);
-   if(field)field.value=item[name]||({date:$('day').value,endDate:$('day').value,category:'denominational',approval:'draft',sourceUrl:SOURCE}[name]||'');
+   if(field)field.value=(name==='approval'&&item[name]==='provisional'?'draft':item[name])||({date:$('day').value,endDate:$('day').value,category:'denominational',approval:'draft',sourceUrl:SOURCE}[name]||'');
  }
  $('archive').disabled=!item.id;
  $('event-id').value=item.id||'';
