@@ -15,14 +15,14 @@ test('The web bulletin displays the actual predecessor-format document, not a si
  assert.equal(packet.sourceTemplate.date,'2026-10-11');
  assert.match(css,/original-document iframe/);
 });
-test('The web full-PPT view preserves all 42 real Slides and keeps live 16-slide mode separate',()=>{
+test('The web full-PPT view preserves 38 real Slides (five language prayers unified) and keeps live 16-slide mode separate',()=>{
  assert.match(html,/1iRnAtGWqFgyPq4xEmhJjnoq-MHPkQ2Sfx438AB5O9Gk\/preview/);
  assert.match(html,/view=fullppt/);
  assert.match(script,/fullppt/);
- assert.equal(packet.officialPresentationSlideCount,42);
+ assert.equal(packet.officialPresentationSlideCount,38);
  assert.equal(packet.slides.length,16);
  assert.match(css,/data-view=fullppt/);
- assert.match(read('index.html'),/전체 예배 PPT 42장/);
+ assert.match(read('index.html'),/전체 예배 PPT 38장/);
 });
 test('Church calendar page has public source links, role-checked edit, and visible Scripture separation',()=>{
  assert.match(page,/공통 교회력/);
