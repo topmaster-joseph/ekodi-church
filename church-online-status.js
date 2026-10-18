@@ -31,7 +31,8 @@
     const local='/ekodichurch/my/';
     if(link.getAttribute('href')!==local)link.setAttribute('href',local);
     link.removeAttribute('data-ekodi-destination');
-    link.setAttribute('aria-label','에코디교회 마이페이지');
+    // Use the visible localized nav text as its accessible name.
+    link.removeAttribute('aria-label');
   }
 
   function apply(live,roomId=''){
