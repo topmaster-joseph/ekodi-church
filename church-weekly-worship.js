@@ -71,8 +71,11 @@ async function load(entry){
   selected=entry;
   if(liveHost)liveHost.href=studioUrl(entry.date);
   const href=archivePath(entry);
-  bulletin.href=href;
-  slides.href=href+'?view=stage';
+  bulletin.href=entry.date==='2026-10-18'?'https://docs.google.com/document/d/1MRDupBDrocLBZJzggqAY_mk9decuQS8eWS0Gsr37WDI/edit':href;
+  slides.href=entry.date==='2026-10-18'?'https://docs.google.com/presentation/d/10-oyTzG-XZqJf3JF6iFVU40UjnCW71UzXbDUmOTKzxA/edit':href+'?view=stage';
+  bulletin.target=slides.target=entry.date==='2026-10-18'?'_blank':'_self';
+  bulletin.rel=slides.rel='noopener noreferrer';
+  window.dispatchEvent(new CustomEvent('ekodi:weekly-service-selected',{detail:{date:entry.date}}));
   broadcast.href=href+'?view=operator';
   try{
     const response=await fetch(href+'materials.json',{cache:'no-store'});
