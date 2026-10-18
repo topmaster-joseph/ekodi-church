@@ -31,7 +31,7 @@ test('Church member header remains site-local and its member page independently 
   const sync=new Function('document',status.slice(begin,next)+'\nreturn syncChurchMemberLink;')(mockDocument);
   sync();
   assert.equal(attrs.href,'/ekodichurch/my/');
-  assert.equal(attrs['aria-label'],'에코디교회 마이페이지');
+  assert.equal(attrs['aria-label'],undefined);
   sync();
   assert.equal(attrs.href,'/ekodichurch/my/');
 });
