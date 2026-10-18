@@ -20,7 +20,7 @@ test('The public source links resolve to the new previous-week-based files',()=>
   assert.ok(html.includes(policy.service.finalPresentation));
   assert.ok(!html.includes('docs.google.com/document/d/1JBhESagh3lFaP_YCwkabb_pI7gRk70RMdKdrrsAg6-I/edit'));
   assert.ok(!html.includes('docs.google.com/presentation/d/1ni6n5nnIu5jgxVizvrwFg0Ej9tzZ4hG6RSJ5_MRI3mI/edit'));
-  assert.match(html,/42장/);
+  assert.match(html,/38장/);
   assert.match(html,/요약 16장/);
 });
 
