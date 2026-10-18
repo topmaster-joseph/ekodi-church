@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="index,follow"><title>EKODI 공통 교회력 | 에코디교회</title>
+<link rel="stylesheet" href="./calendar.css"><script src="./calendar.js" defer></script></head>
+<body><header class="top"><a href="/ekodichurch/"><b>에코디교회</b> EKODI CHURCH</a>
+<nav><a href="/ekodichurch/worship/2026-10-18/">예배자료</a><a href="/ekodichurch/">교회 첫 화면</a></nav></header>
+<main>
+<section class="intro"><p class="eyebrow">COMMON CHURCH CALENDAR</p><h1>EKODI 공통 교회력</h1>
+<p>대한예수교장로회 통합 총회의 공식 목회달력을 참고하여 절기와 교단 기념주일을 기록합니다. 성경본문과 교회력은 별도로 관리하며, 목회자가 검토한 뒤 예배자료에 반영합니다.</p>
+<p class="source"><a href="https://new.pck.or.kr/bbs/board.php?bo_table=SM02_03_12&amp;wr_id=457" target="_blank" rel="noopener noreferrer">교단 2026 목회달력 공식 안내</a> · 원본 PDF의 복제·재배포 없이 날짜와 출처만 등록합니다.</p></section>
+<div class="tools"><label>연도 <input id="year" inputmode="numeric" type="number" min="2020" max="2099" value="2026"></label>
+<label>날짜 <input id="day" type="date" value="2026-10-18"></label><button id="lookup" type="button">조회</button>
+<button id="manage" type="button" class="secondary">교회력 등록·관리</button></div>
+<p id="status" class="status" role="status" aria-live="polite">자료를 불러오고 있습니다.</p>
+<section id="events" class="events" aria-label="교회력"></section>
+<section id="editor" class="editor" hidden aria-labelledby="edit-title">
+<h2 id="edit-title">교회력 등록·수정</h2><p>등록·수정은 교회 예배 운영 권한을 확인한 뒤 저장합니다. 공식 자료 대조 전에는 ‘초안’으로 남겨 주세요.</p>
+<form id="calendar-form">
+<input id="event-id" name="id" type="hidden">
+<div class="form-grid"><label>시작일 <input required id="event-date" name="date" type="date"></label>
+<label>종료일 <input required name="endDate" id="event-end" type="date"></label>
+<label>행사·절기명 <input required name="name" id="event-name" maxlength="120"></label>
+<label>구분 <select name="category" id="category"><option value="liturgical">교회 절기</option><option value="denominational">교단 기념주일·주간</option><option value="local">교회 자체 일정</option></select></label>
+<label>검토 상태 <select name="approval" id="approval"><option value="draft">초안 · 비공개</option><option value="approved">승인 · 공개</option></select></label>
+<label>출처 링크 <input name="sourceUrl" id="sourceUrl" type="url" placeholder="https://..." maxlength="800"></label></div>
+<label>주보 · 교회소식 반영 문구 <textarea name="bulletin" id="bulletin" maxlength="900" rows="3"></textarea></label>
+<label>설교 원고 연결 메모 <textarea name="sermonFocus" id="sermonFocus" maxlength="800" rows="3"></textarea></label>
+<label>출처 및 검증 기록 <textarea name="sourceNote" id="sourceNote" maxlength="320" rows="2"></textarea></label>
+<div class="actions"><button type="submit">저장</button><button id="reset" type="button" class="secondary">신규 등록</button><button id="archive" type="button" class="danger" disabled>선택 항목 보관</button></div></form></section>
+<section class="notes"><h2>예배자료 자동 준비 원칙</h2>
+<p>이번 주 본문은 EKODI 공통 성경본문을 유지합니다. 교회력의 교단 기념주일은 교회소식과 설교 적용 문안의 참고자료로 제안하며, 승인되지 않은 초안은 공개 자료에 사용하지 않습니다.</p></section>
+</main></body></html>
