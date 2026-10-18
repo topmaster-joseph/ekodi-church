@@ -1,0 +1,30 @@
+{
+  "schema": "ekodi.church.worship.canonical-google-drive.v1",
+  "basis": "immediate-previous-sunday-published-documents",
+  "cadence": "weekly",
+  "updatePolicy": "edit-google-original-only;website-is-read-through-cache",
+  "refreshSeconds": 60,
+  "services": [
+    {
+      "date": "2026-10-18",
+      "label": "2026년 10월 18일 주일모임",
+      "bulletin": {
+        "id": "1MRDupBDrocLBZJzggqAY_mk9decuQS8eWS0Gsr37WDI",
+        "kind": "google-doc",
+        "displayName": "261018 에코디 주보",
+        "pages": 4
+      },
+      "presentation": {
+        "id": "10-oyTzG-XZqJf3JF6iFVU40UjnCW71UzXbDUmOTKzxA",
+        "kind": "google-slides",
+        "displayName": "261018 에코디 PPT",
+        "slidesVerified": 36
+      },
+      "scripture": "신명기 33:12–19",
+      "previousSunday": "2026-10-11",
+      "publicationState": "linked-to-original",
+      "notes": "원본 편집은 Google Docs/Slides 작성권한에서 수행. 웹은 60초마다 원본을 다시 불러온다. 새 주차 원본 등록 전에는 과거 자료를 임의 복사 노출하지 않는다."
+    }
+  ],
+  "sermonPrivacy": "sermon-document-id-not-in-public-registry;requires-admin-endpoint"
+}
