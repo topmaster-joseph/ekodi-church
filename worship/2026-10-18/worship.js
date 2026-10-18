@@ -12,7 +12,7 @@
     const label=document.querySelector('#church-calendar-summary');
     if(!label)return;
     try {
-      const r=await fetch('/api/public/church-calendar?date=2026-10-18',{headers:{accept:'application/json'},cache:'no-store'});
+      const r=await fetch('/api/public/church-calendar?week=1&date=2026-10-18',{headers:{accept:'application/json'},cache:'no-store'});
       if(!r.ok)throw new Error('calendar_api_unavailable');
       const payload=await r.json();
       const events=(payload.events||[]).filter(v=>v.approval!=='draft'&&v.approval!=='archived');
