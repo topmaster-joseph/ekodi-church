@@ -4,6 +4,7 @@ if(window.__EKODI_CHURCH_SHELL_I18N_BOOTED)return;
 window.__EKODI_CHURCH_SHELL_I18N_BOOTED=true;
 
 const MAP=Object.freeze({
+  '마이페이지':{en:'My Page','zh-CN':'我的页面',ja:'マイページ',my:'ကျွန်ုပ်၏စာမျက်နှာ',kac:'Nye page',vi:'Trang của tôi',mn:'Миний хуудас',id:'Halaman saya'},
   '♫ MR 재생':{en:'♫ Play MR','zh-CN':'♫ 播放 MR',ja:'♫ MR 再生'},
   'MR 재생':{en:'Play MR','zh-CN':'播放 MR',ja:'MR 再生'},
   '♫ MR 일시정지':{en:'♫ Pause MR','zh-CN':'♫ 暂停 MR',ja:'♫ MR 一時停止'},
