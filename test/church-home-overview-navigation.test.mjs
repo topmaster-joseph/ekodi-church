@@ -29,3 +29,13 @@ test('main navigation links to the shared QTIN group-order page for the church',
   assert.ok(nav.includes('<a class="nav-qtin" href="/qtin/church">큐티인 신청</a>'));
   assert.ok(nav.indexOf('nav-qtin') < nav.indexOf('shell-my'), 'QTIN link sits before My Page');
 });
+
+test('the runtime header (script.js) keeps the QTIN group-order link, translated in all nine languages', () => {
+  const script = readFileSync(new URL('../script.js', import.meta.url), 'utf8');
+  assert.ok(script.includes("{ href: '/qtin/church', label: '큐티인 신청', className: 'nav-qtin' }"));
+  assert.ok(script.indexOf("'/qtin/church'") < script.indexOf("'/ekodichurch/my/'"));
+  const ext = readFileSync(new URL('../church-i18n-extended.js', import.meta.url), 'utf8');
+  assert.ok(ext.includes("add('큐티인 신청',"));
+  const base = readFileSync(new URL('../church-i18n.js', import.meta.url), 'utf8');
+  assert.ok(base.includes("'큐티인 신청':{en:"));
+});
