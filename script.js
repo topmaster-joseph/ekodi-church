@@ -83,6 +83,7 @@ if (nav) {
     { href: '#worship', label: '예배안내' },
     { href: '#online', label: '온라인' },
     { href: '#location', label: '오시는 길' },
+    { href: '/qtin/church', label: '큐티인 신청', className: 'nav-qtin' },
     { href: '/ekodichurch/my/', label: '마이페이지', className: 'shell-my' },
   ];
   const links = items.map((item) => {
