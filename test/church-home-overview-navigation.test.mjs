@@ -21,3 +21,11 @@ test('partner news is hidden until selected, including direct deep links', () =>
   assert.match(css, /\.hero:has\(~ #partner-news:target\)/);
   assert.match(css, /\.hero:has\(~ #partner-news :target\)/);
 });
+
+test('main navigation links to the shared QTIN group-order page for the church', async () => {
+  const { readFile: rf } = await import('node:fs/promises');
+  const html = await rf(new URL('../index.html', import.meta.url), 'utf8');
+  const nav = html.slice(html.indexOf('<nav id="main-nav"'), html.indexOf('</nav>', html.indexOf('<nav id="main-nav"')));
+  assert.ok(nav.includes('<a class="nav-qtin" href="/qtin/church">큐티인 신청</a>'));
+  assert.ok(nav.indexOf('nav-qtin') < nav.indexOf('shell-my'), 'QTIN link sits before My Page');
+});
