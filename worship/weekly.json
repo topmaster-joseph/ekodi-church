@@ -8,8 +8,13 @@
     },
     {
       "date": "2026-10-18",
-      "status": "prepared",
+      "status": "archived",
       "page": "/ekodichurch/worship/2026-10-18/"
+    },
+    {
+      "date": "2026-10-25",
+      "status": "prepared",
+      "page": "/ekodichurch/worship/2026-10-25/"
     }
   ]
 }
