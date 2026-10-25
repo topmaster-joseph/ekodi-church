@@ -8,47 +8,90 @@
   <title>에코디교회 마이페이지</title>
   <link rel="canonical" href="https://ekodi.kr/ekodichurch/my/">
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./dashboard.css">
 </head>
 <body>
+  <a class="skip-link" href="#church-services">교회 바로가기</a>
   <header class="topbar" data-ekodi-user-header-root="church-local">
-    <a class="brand" data-ekodi-header-home href="/ekodichurch/">에코디교회</a>
-    <nav data-ekodi-header-actions aria-label="사이트 도구"></nav>
+    <div class="topbar-inner">
+      <a class="brand" data-ekodi-header-home href="/ekodichurch/" aria-label="에코디교회">
+        <span class="brand-mark" aria-hidden="true"><span class="brand-cross"></span><span class="brand-leaves"></span></span>
+        <span class="brand-wordmark">에코디교회<small>EKODI CHURCH</small></span>
+      </a>
+      <nav class="main-nav" aria-label="교회 바로가기">
+        <a href="/ekodichurch/#worship">예배</a>
+        <a href="/ekodichurch/#life-hub">오늘의 삶</a>
+        <a href="/ekodichurch/#community">공동체 활동</a>
+        <a href="/ekodichurch/live/">실시간 연결</a>
+        <a class="is-current" href="/ekodichurch/my/" aria-current="page">마이페이지</a>
+      </nav>
+      <div class="topbar-right">
+        <span class="header-avatar" aria-hidden="true">◉</span>
+        <nav data-ekodi-header-actions aria-label="사이트 도구"></nav>
+      </div>
+    </div>
   </header>
 
   <main class="wrap">
-    <section class="hero">
-      <p class="eyebrow">EKODI CHURCH · MY PAGE</p>
-      <h1>교회에서 필요한 것을 한곳에서 확인합니다.</h1>
-      <p>예배와 말씀, 공동체 활동, 실시간 연결을 교회 안에서 바로 찾습니다.</p>
-      <div id="memberState" class="member-state" role="status">로그인 상태를 확인하고 있습니다.</div>
-      <a id="loginAction" class="primary" href="https://ekodi.kr/auth/?site=church&return_to=https%3A%2F%2Fekodi.kr%2Fekodichurch%2Fmy%2F&direct=1" hidden>Google 계정으로 로그인</a>
+    <section class="hero" aria-labelledby="memberHeroTitle">
+      <div class="hero-content">
+        <p class="eyebrow">EKODI CHURCH · MY PAGE</p>
+        <h1 id="memberHeroTitle">교회에서 필요한 것을 한곳에서 확인합니다.</h1>
+        <p class="hero-description">예배와 말씀, 공동체 활동, 실시간 연결을 교회 안에서 바로 찾습니다.</p>
+        <div class="member-auth-panel">
+          <span class="auth-avatar" aria-hidden="true">◉</span>
+          <div id="memberState" class="member-state" role="status" aria-live="polite">로그인 상태를 확인하고 있습니다.</div>
+          <a id="loginAction" class="primary" href="https://ekodi.kr/auth/?site=church&return_to=https%3A%2F%2Fekodi.kr%2Fekodichurch%2Fmy%2F&direct=1" hidden>Google 계정으로 로그인</a>
+        </div>
+      </div>
+      <div class="hero-cross" aria-hidden="true"></div>
     </section>
 
-    <section class="quick-grid" aria-label="교회 바로가기">
-      <a class="card" href="/ekodichurch/#worship">
-        <small>WORSHIP</small><strong>예배</strong><span>다음 예배와 말씀 흐름을 확인합니다.</span>
+    <section id="church-services" class="quick-grid" aria-label="교회 바로가기">
+      <a class="card card--worship" href="/ekodichurch/#worship">
+        <span class="card-icon" aria-hidden="true">✝</span>
+        <small>WORSHIP</small><strong>예배</strong><span class="card-description">다음 예배와 말씀 흐름을 확인합니다.</span>
+        <span class="card-arrow" aria-hidden="true">→</span>
       </a>
-      <a class="card" href="/ekodichurch/#life-hub">
-        <small>TODAY</small><strong>오늘의 삶</strong><span>말씀을 오늘의 삶과 연결합니다.</span>
+      <a class="card card--today" href="/ekodichurch/#life-hub">
+        <span class="card-icon" aria-hidden="true">✦</span>
+        <small>TODAY</small><strong>오늘의 삶</strong><span class="card-description">말씀을 오늘의 삶과 연결합니다.</span>
+        <span class="card-arrow" aria-hidden="true">→</span>
       </a>
-      <a class="card" href="/ekodichurch/#community">
-        <small>COMMUNITY</small><strong>공동체 활동</strong><span>함께하는 모임과 활동을 확인합니다.</span>
+      <a class="card card--community" href="/ekodichurch/#community">
+        <span class="card-icon" aria-hidden="true">♡</span>
+        <small>COMMUNITY</small><strong>공동체 활동</strong><span class="card-description">함께하는 모임과 활동을 확인합니다.</span>
+        <span class="card-arrow" aria-hidden="true">→</span>
       </a>
-      <a class="card" href="/ekodichurch/live/">
-        <small>LIVE</small><strong>실시간 연결</strong><span>예배와 모임 방송에 참여합니다.</span>
+      <a class="card card--live" href="/ekodichurch/live/">
+        <span class="card-icon" aria-hidden="true">◉</span>
+        <small>LIVE</small><strong>실시간 연결</strong><span class="card-description">예배와 모임 방송에 참여합니다.</span>
+        <span class="card-arrow" aria-hidden="true">→</span>
       </a>
-      <a class="card" href="/ekodichurch/my/giving/">
-        <small>MY GIVING</small><strong>나의 헌금</strong><span>본인 헌금내역과 기부금영수증 요청을 확인합니다.</span>
+      <a class="card card--giving" href="/ekodichurch/my/giving/">
+        <span class="card-icon" aria-hidden="true">♥</span>
+        <small>MY GIVING</small><strong>나의 헌금</strong><span class="card-description">본인 헌금내역과 기부금영수증 요청을 확인합니다.</span>
+        <span class="card-arrow" aria-hidden="true">→</span>
       </a>
-      <a class="card" href="/ekodichurch/my/attendance/">
-        <small>MY ATTENDANCE</small><strong>나의 출결</strong><span>본인의 예배·모임 출결현황과 기록 기준 출석률을 확인합니다.</span>
+      <a class="card card--attendance" href="/ekodichurch/my/attendance/">
+        <span class="card-icon" aria-hidden="true">▣</span>
+        <small>MY ATTENDANCE</small><strong>나의 출결</strong><span class="card-description">본인의 예배·모임 출결현황과 기록 기준 출석률을 확인합니다.</span>
+        <span class="card-arrow" aria-hidden="true">→</span>
       </a>
-      <a class="card" id="presenceAdminLink" href="/ekodichurch/presence/" hidden style="display:none">
-        <small>ONSITE ATTENDANCE</small><strong>현장 출결 관리</strong><span>관리 권한이 있을 때만 표시됩니다.</span>
+      <a class="card card--presence" id="presenceAdminLink" href="/ekodichurch/presence/" hidden style="display:none">
+        <span class="card-icon" aria-hidden="true">⌖</span>
+        <small>ONSITE ATTENDANCE</small><strong>현장 출결 관리</strong><span class="card-description">관리 권한이 있을 때만 표시됩니다.</span>
+        <span class="card-arrow" aria-hidden="true">→</span>
       </a>
     </section>
-
   </main>
+
+  <nav class="mobile-dock" aria-label="교회 바로가기">
+    <a href="/ekodichurch/#worship"><span aria-hidden="true">✝</span><span>예배</span></a>
+    <a href="/ekodichurch/#life-hub"><span aria-hidden="true">✦</span><span>오늘의 삶</span></a>
+    <a href="/ekodichurch/#community"><span aria-hidden="true">♡</span><span>공동체 활동</span></a>
+    <a href="/ekodichurch/my/" aria-current="page"><span aria-hidden="true">◉</span><span>마이페이지</span></a>
+  </nav>
 
   <footer><a href="/ekodichurch/">에코디교회</a><span>내 정보와 참여 서비스는 필요한 범위에서만 연결합니다.</span></footer>
   <script src="./language.js" defer></script>
