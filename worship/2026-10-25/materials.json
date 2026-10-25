@@ -369,8 +369,21 @@
   },
   "occasion": "종교개혁주일",
   "sources": {
-    "slides": "https://docs.google.com/presentation/d/16KCxfnfCidVniIl95Y00RfwmvEvj_1x-xKSVnydfbNs/edit",
-    "bulletin": "https://docs.google.com/document/d/1XkF991QYwAPUfHytXMa8SEV4P7O1xVcmSPSbjZLIi5k/edit"
+    "bulletin": {
+      "title": "261025 에코디 주보",
+      "fileId": "1XkF991QYwAPUfHytXMa8SEV4P7O1xVcmSPSbjZLIi5k",
+      "url": "https://docs.google.com/document/d/1XkF991QYwAPUfHytXMa8SEV4P7O1xVcmSPSbjZLIi5k/edit"
+    },
+    "slides": {
+      "title": "261025 에코디 주일예배 PPT",
+      "fileId": "16KCxfnfCidVniIl95Y00RfwmvEvj_1x-xKSVnydfbNs",
+      "url": "https://docs.google.com/presentation/d/16KCxfnfCidVniIl95Y00RfwmvEvj_1x-xKSVnydfbNs/edit"
+    },
+    "sermon": {
+      "title": "261025 에코디 말씀 | 깨어진 형제애, 다시 세울 공동체",
+      "fileId": "1EyCeESE-oTRe4pUfyuSMncvs3uKMYeNbKFHyhgj7lLk",
+      "url": "https://docs.google.com/document/d/1EyCeESE-oTRe4pUfyuSMncvs3uKMYeNbKFHyhgj7lLk/edit"
+    }
   },
   "slideSource": {
     "type": "google-slides-export",
@@ -387,5 +400,6 @@
       33
     ],
     "omittedReason": "찬양 악보 화면은 저작권 보호를 위해 공개 웹에서 제외(현장 PPT에서 사용)"
-  }
+  },
+  "stage": "final"
 }
