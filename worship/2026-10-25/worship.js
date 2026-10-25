@@ -367,4 +367,18 @@
     if(fn){event.preventDefault();fn();}
   });
   render();
+
+  // Bulletin sheets keep the A4-landscape layout and scale proportionally so a
+  // whole page always fits one screen (window resize and browser zoom alike).
+  function fitSheets(){
+    const top=(document.querySelector('#topbar')?.offsetHeight||0)+24;
+    document.querySelectorAll('.bp-frame').forEach(frame=>{
+      const avail=frame.parentElement.clientWidth;
+      const scale=Math.min(avail/1123,Math.max(.2,(window.innerHeight-top)/794));
+      frame.style.setProperty('--bp-scale',String(scale));
+      frame.style.width=Math.floor(1123*scale)+'px';frame.style.height=Math.floor(794*scale)+'px';frame.style.margin='0 auto';
+    });
+  }
+  fitSheets();window.addEventListener('resize',fitSheets);
+  if(window.ResizeObserver){const ro=new ResizeObserver(fitSheets);document.querySelectorAll('.bp-pages').forEach(el=>ro.observe(el));}
 })();
