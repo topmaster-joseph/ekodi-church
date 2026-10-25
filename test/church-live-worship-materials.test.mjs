@@ -66,9 +66,9 @@ test('broadcast live defaults to the verified latest Sunday while keeping dated 
  const next=JSON.parse(read('worship/2026-10-25/materials.json'));
  assert.equal(next.date,'2026-10-25');
  assert.equal(next.scripture,'오바댜 1:10–16');
- assert.equal(next.slides.length,16);
+ assert.equal(next.slides.length,28);
  const bulletin=read('worship/2026-10-25/index.html');
- assert.match(bulletin,/이번 주 매일묵상 <small>10\.25–10\.31<\/small>/);
+ assert.match(bulletin,/This Week’s Scripture for Meditation and Sharing · 10\/25–10\/31/);
  assert.doesNotMatch(bulletin,/10\.18–10\.24/);
  new Function(js);
 });
