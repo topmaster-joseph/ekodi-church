@@ -9,6 +9,8 @@ test('church member page offers logout when authenticated, clears central local 
   assert.match(page,/id="logoutAction"[^>]+hidden/);
   assert.match(script,/logout\.hidden=false/);
   assert.match(script,/logout\.hidden=true/);
+  assert.ok(script.includes("const raw=localStorage.getItem('sb-renzehysxirjilvdxacv-auth-token')"));
+  assert.ok(!script.includes('/^sb-.*-auth-token$/'), 'unrelated Supabase sessions cannot sign users back into Church');
   assert.match(script,/auth\.signOut\(\{scope:'local'\}\)/);
   assert.match(script,/localStorage\.removeItem\('sb-renzehysxirjilvdxacv-auth-token'\)/);
   assert.match(script,/location\.replace\('\/ekodichurch\/'\)/);
