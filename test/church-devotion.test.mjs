@@ -34,3 +34,10 @@ test('homepage and runtime header link to the devotion page before QTIN', () => 
   assert.ok(script.includes("{ href: '/ekodichurch/devotion/', label: '매일묵상', className: 'nav-devotion' }"));
   assert.ok(script.indexOf("'/ekodichurch/devotion/'") < script.indexOf("'/qtin/church'"));
 });
+
+test('devotion header spans the centre column and tabs are not offset onto the panel', () => {
+  const css = readFileSync(new URL('../devotion/devotion.css', import.meta.url), 'utf8');
+  assert.match(css, /--dv-column:840px/);
+  assert.match(css, /padding-inline:max\(16px,calc\(\(100% - var\(--dv-column\)\)\/2 \+ 16px\)\)/);
+  assert.doesNotMatch(css, /\.dv-tabs\{top:/);
+});
