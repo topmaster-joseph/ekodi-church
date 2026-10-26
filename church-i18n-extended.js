@@ -25,6 +25,7 @@ add('주요 메뉴','အဓိက မီနူး','Main menu','Menu chính','Ү
 add('예배안내','ဝတ်ပြုခြင်း','Nawku','Thờ phượng','Мөргөл','Ibadah');
 add('온라인','အွန်လိုင်း','Online','Trực tuyến','Онлайн','Online');
 add('큐티인 신청','QTIN မှာယူရန်','QTIN Order','Đặt QTIN','QTIN захиалах','Pesan QTIN');
+add('매일묵상','နေ့စဉ်ဆင်ခြင်ခြင်း','Daily Devotion','Tĩnh nguyện hằng ngày','Өдөр тутмын бясалгал','Renungan Harian');
 add('말씀으로 오늘 읽기','ယနေ့ကို နှုတ်ကပတ်တော်ဖြင့် ဖတ်ရန်','Dai ni hpe Mungga hte hti','Đọc hôm nay qua Lời Chúa','Өнөөдрийг Үгээр унших','Membaca hari ini melalui Firman');
 add('말씀이 오늘의 삶을 해석하게 합니다.','နှုတ်ကပတ်တော်က ယနေ့ဘဝကို အဓိပ္ပာယ်ဖွင့်စေသည်။','Mungga gaw dai ni asak hpe hkrang shapraw shangun ai.','Hãy để Lời Chúa soi nghĩa cho đời sống hôm nay.','Үг өнөөдрийн амьдралыг тайлбарлана.','Biarkan Firman menafsirkan kehidupan hari ini.');
 add('묵상 · 해석 · 한 걸음','ဆင်ခြင်ခြင်း · အဓိပ္ပာယ်ဖွင့်ခြင်း · ခြေလှမ်းတစ်လှမ်း','Myit yu · hkrang hti · lagaw langai','Suy niệm · Giải nghĩa · Một bước','Бясалгал · Тайлбар · Нэг алхам','Renungan · Tafsir · Satu langkah');

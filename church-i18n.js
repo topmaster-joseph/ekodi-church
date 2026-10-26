@@ -198,6 +198,7 @@ const TEXT={
 '협력소식':{en:'Partner news','zh-CN':'合作消息',ja:'協力ニュース'},
 '마이페이지':{en:'My Page','zh-CN':'我的页面',ja:'マイページ'},
 '큐티인 신청':{en:'QTIN Order','zh-CN':'QTIN 订购',ja:'QTIN申込'},
+'매일묵상':{en:'Daily Devotion','zh-CN':'每日灵修',ja:'毎日のデボーション'},
 '협력 소식':{en:'Partner news','zh-CN':'合作消息',ja:'協力ニュース'},
 '함께하는 기관·단체의 이야기':{en:'Stories from partner organizations','zh-CN':'合作机构与团体的消息',ja:'協力機関・団体のニュース'},
 '함께 걷는 이들의 소식':{en:'News from those walking with us','zh-CN':'同行伙伴的消息',ja:'ともに歩む仲間のニュース'},
