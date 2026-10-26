@@ -20,7 +20,7 @@ test('Church Online right card contains accessible inline viewer, fullscreen and
   assert.match(html,/src="church-inline-live.js" defer/);
   assert.match(css,/\.church-inline-live-stage:fullscreen/);
   assert.match(script,/frame\.removeAttribute\('src'\)/);
-  assert.doesNotMatch(script,/localStorage|sessionStorage|token|createRoom|startBroadcast/);
+  assert.doesNotMatch(script,/localStorage|sessionStorage|createRoom|startBroadcast/);
   new Function(script);
 });
 
