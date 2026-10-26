@@ -81,6 +81,7 @@ if (siteHeader) {
 if (nav) {
   const items = [
     { href: '#worship', label: '예배안내' },
+    { href: '/ekodichurch/devotion/', label: '매일묵상', className: 'nav-devotion' },
     { href: '#online', label: '온라인' },
     { href: '#location', label: '오시는 길' },
     { href: '/qtin/church', label: '큐티인 신청', className: 'nav-qtin' },
