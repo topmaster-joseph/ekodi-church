@@ -10,6 +10,12 @@ const LANGUAGES=Object.freeze([
 const VALUES=new Set(LANGUAGES.map(([value])=>value));
 const STORAGE_KEY='ekodi_user_locale';
 const MAP=Object.freeze({
+  '마이페이지':{en:'My Page','zh-CN':'我的页面',ja:'マイページ',my:'My Page',kac:'Nye Page',vi:'Trang của tôi',mn:'Миний хуудас',id:'Halaman Saya'},
+  '나의 출결':{en:'My attendance','zh-CN':'我的出席',ja:'私の出席',my:'My attendance',kac:'Nye Attendance',vi:'Điểm danh của tôi',mn:'Миний ирц',id:'Kehadiran saya'},
+  '본인의 예배·모임 출결현황과 기록 기준 출석률을 확인합니다.':{en:'View your recorded worship and gathering attendance.','zh-CN':'查看您的礼拜及聚会出席记录。',ja:'ご自身の礼拝と集会の出席記録を確認します。',my:'View your recorded attendance.',kac:'Nang a attendance record hpe yu.',vi:'Xem ghi nhận tham dự thờ phượng và nhóm họp của bạn.',mn:'Мөргөл, уулзалтын бүртгэлтэй ирцээ харна.',id:'Lihat riwayat kehadiran ibadah dan pertemuan Anda.'},
+  '현장 출결 관리':{en:'Onsite attendance','zh-CN':'现场出席管理',ja:'現地出席管理',my:'Onsite attendance',kac:'Onsite Attendance',vi:'Quản lý điểm danh tại chỗ',mn:'Танхимын ирцийн удирдлага',id:'Kelola kehadiran di lokasi'},
+  '관리 권한이 있을 때만 표시됩니다.':{en:'Visible only with permission.','zh-CN':'仅对获授权用户显示。',ja:'管理権限がある場合のみ表示します。',my:'Visible only with permission.',kac:'Permission nga yang sha mu ai.',vi:'Chỉ hiển thị khi có quyền quản lý.',mn:'Зөвхөн эрхтэй үед харагдана.',id:'Hanya tampil bagi yang berwenang.'},
+
   '에코디교회':{en:'EKODI Church','zh-CN':'EKODI教会',ja:'EKODI教会',my:'EKODI Church',kac:'EKODI Nawku Htingnu',vi:'Hội thánh EKODI',mn:'EKODI Сүм',id:'Gereja EKODI'},
   '사이트 도구':{en:'Site tools','zh-CN':'站点工具',ja:'サイトツール',my:'Site tools',kac:'Site tools',vi:'Công cụ trang',mn:'Сайтын хэрэгсэл',id:'Alat situs'},
   '교회에서 필요한 것을 한곳에서 확인합니다.':{en:'Find what you need for church in one place.','zh-CN':'在一个页面查看教会所需内容。',ja:'教会で必要なものを一か所で確認できます。',my:'Find what you need for church in one place.',kac:'Nawku Htingnu a lam ni hpe shara langai hta yu.',vi:'Xem những gì bạn cần cho hội thánh tại một nơi.',mn:'Сүмд хэрэгтэй зүйлсээ нэг дороос харна.',id:'Temukan kebutuhan gereja di satu tempat.'},
