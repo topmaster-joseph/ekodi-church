@@ -27,7 +27,7 @@ test('Online view uses exactly YouTube worship and shared EKODI Live, not a redu
  assert.match(online,/id="youtube-player"/);
  assert.match(online,/id="churchInlineLiveFrame"/);
  assert.match(online,/id="churchWatchFullscreen"/);
- assert.match(online,/href="\/live\/church\/"/);
+ assert.match(online,/href="\/ekodichurch\/live\/\?mode=viewer"/);
  assert.match(online,/href="\/ekodichurch\/live\/\?mode=studio&amp;activity=event"/);
  assert.doesNotMatch(online,/devotion-card|meet\.jit\.si|EKODIChurchLive/);
  assert.equal((html.match(/id="daily-devotion"/g)||[]).length,1);
