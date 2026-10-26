@@ -17,7 +17,8 @@ test('church-local My Page is user-facing and separated from admin operations',a
   assert.doesNotMatch(html,/내 EKODI|MY EKODI|다른 EKODI 활동/);
   assert.doesNotMatch(html,/운영자 기능은 별도 관리자 화면에서 처리합니다/);
   assert.doesNotMatch(html,/church_worship_materials|current_site_access|tenant_admin/);
-  assert.match(app,/sb-\.\*-auth-token/);
+  assert.match(app,/sb-renzehysxirjilvdxacv-auth-token/);
+  assert.doesNotMatch(app,/\^sb-\.\*-auth-token\$/,'unrelated Supabase sessions are never used as Church logins');
   assert.match(app,/clearAuthReturnFragment/);
   assert.match(app,/location\.hash\.startsWith\('#ekodi_'\)/);
   assert.match(publicIndex,/href="\/ekodichurch\/my\//);

@@ -35,7 +35,7 @@ async function ensureAuth(){
     const {data,error}=await sb.auth.getSession();
     if(error)throw error;
     activeSession=data?.session||null;
-    if(!activeSession){location.replace(loginUrl());return false}
+    if(!activeSession){location.replace('/ekodichurch/');return false}
     sessionStorage.setItem('ekodi-auth-token',activeSession.access_token);
     const {data:access,error:accessError}=await sb.rpc('current_site_access',{p_site_key:'church'});
     if(accessError)throw accessError;
@@ -86,5 +86,14 @@ $('downloadPpt').addEventListener('click',downloadPpt);
 $('prepareWeb').addEventListener('click',()=>void publishWebsite());
 $('openLive').addEventListener('click',openLive);
 $('prepareAll').addEventListener('click',async()=>{saveLocal();setStatus('bulletinStatus','생성 가능');setStatus('pptStatus','생성 가능');const published=await publishWebsite();if(published)setStatus('liveStatus','설정값 준비됨')});
+$('worshipLogout')?.addEventListener('click',async()=>{
+  try{if(sb)await sb.auth.signOut({scope:'local'})}
+  catch(error){console.warn('[EKODI Church worship logout]',error)}
+  finally{
+    try{localStorage.removeItem('sb-renzehysxirjilvdxacv-auth-token');sessionStorage.removeItem('ekodi-auth-token')}catch{}
+    window.google?.accounts?.id?.disableAutoSelect?.();
+    location.replace('/ekodichurch/');
+  }
+});
 loadLocal();
 void ensureAuth();
