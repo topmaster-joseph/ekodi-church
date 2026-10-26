@@ -40,6 +40,8 @@ test('click mounts the same-origin public viewer, toggles fullscreen, and closes
     getElementById:id=>elements[id],addEventListener(name,cb){this.events[name]=cb},
     async exitFullscreen(){this.fullscreenElement=null;this.events.fullscreenchange()}
   };
+  // Match the actual HTML disabled attribute before the runtime boots.
+  elements.churchWatchFullscreen.disabled=true;
   elements.churchInlineLiveStage.requestFullscreen=async()=>{
     document.fullscreenElement=elements.churchInlineLiveStage;
     document.events.fullscreenchange();
