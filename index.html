@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="partner-news.css">
   <link rel="stylesheet" href="church-weekly-worship.css">
   <link rel="stylesheet" href="church-homepage-layout.css">
+  <link rel="stylesheet" href="church-inline-live.css">
 </head>
 <body data-ekodi-footer-mode="service">
   <header class="site-header" id="top">
@@ -258,9 +259,22 @@
           <div class="ministry-kicker"><span>02</span><small>LIVE</small></div>
           <h3>EKODI Live 동시방송</h3>
           <p>주일예배·기도·찬양·교회 활동을 하나의 EKODI Live 스튜디오에서 방송합니다. 채널 연결과 실시간 송출은 관리자 권한 확인 후 진행합니다.</p>
-          <div class="live-orbit" aria-hidden="true"><span></span><span></span><span></span><b>LIVE</b></div>
-          <a class="button primary" href="/live/church/">실시간 방송 시청</a>
-          <a class="button text" href="/live/church/?mode=studio&amp;activity=event">활동 방송 준비</a>
+          <div class="church-inline-live" id="churchInlineLive">
+            <div class="church-inline-live-stage" id="churchInlineLiveStage">
+              <div class="church-inline-live-placeholder" id="churchInlineLivePlaceholder">
+                <div class="live-orbit" aria-hidden="true"><span></span><span></span><span></span><b>LIVE</b></div>
+                <span>방송 시청을 누르면 이곳에서 바로 재생됩니다.</span>
+              </div>
+              <iframe id="churchInlineLiveFrame" title="에코디교회 실시간 방송 영상" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="same-origin" hidden></iframe>
+            </div>
+            <div class="church-inline-live-actions">
+              <button class="button primary" id="churchWatchLive" type="button" aria-controls="churchInlineLiveFrame" aria-expanded="false">실시간 방송 시청</button>
+              <button class="button text" id="churchWatchFullscreen" type="button" disabled>전체화면</button>
+            </div>
+            <p class="church-inline-live-status" id="churchInlineLiveStatus" role="status" aria-live="polite">공개 방송은 로그인 없이 볼 수 있습니다.</p>
+            <a class="church-inline-live-fallback" href="/ekodichurch/live/?mode=viewer">별도 화면에서 시청</a>
+          </div>
+          <a class="button text church-live-studio-link" href="/ekodichurch/live/?mode=studio&amp;activity=event">실시간 방송 준비</a>
           <small>내부 방송·녹화 기본 · 외부 동시송출은 준비된 채널만 선택</small>
         </article>
       </div>
@@ -323,6 +337,7 @@
   </footer>
   <script src="church-character-identity.js"></script>
   <script src="church-online-status.js"></script>
+  <script src="church-inline-live.js" defer></script>
   <script src="script.js"></script>
   <script src="church-worship-admin.js" defer></script>
   <script src="church-weekly-worship.js" defer></script>
