@@ -1,0 +1,62 @@
+/* Same site-owned ivory/forest header and dark church footer as /ekodichurch/. */
+.church-shell-header{
+  display:flex;align-items:center;gap:clamp(8px,1.2vw,18px);
+  min-height:84px;padding:12px max(18px,calc((100% - 1120px)/2))!important;
+  background:#fbfaf6!important;color:#173730!important;
+  border-bottom:1px solid rgba(23,55,48,.14)!important;
+  box-shadow:0 4px 22px rgba(20,45,35,.04);z-index:100;
+}
+.church-shell-brand{flex:0 0 auto}
+.church-shell-brand,.church-shell-nav a{color:#173730!important}
+.church-shell-brand strong{font-size:19px}
+.church-shell-header .daily-verse{min-width:0;flex:1 1 145px;max-width:345px;display:flex;align-items:center;gap:8px;font-size:11px;line-height:1.4;color:#4b6658;overflow:hidden}
+.church-shell-header .daily-verse-text{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.church-shell-header .daily-verse-ref{font-size:10px;font-weight:700;color:#71867a;white-space:nowrap}
+.church-shell-nav{flex:0 1 auto;gap:clamp(6px,.9vw,15px)}
+.church-shell-nav a{font-size:clamp(12px,1vw,14px);font-weight:650;white-space:nowrap}
+.church-shell-nav a:hover,.church-shell-nav a:focus-visible{text-decoration:underline;text-underline-offset:5px}
+.church-shell-actions{flex:0 0 auto;gap:8px}
+.church-shell-actions a{font-size:11px}
+.church-shell-menu-button{display:none}
+.church-shell-footer{display:none}
+.site-footer.church-footer{margin-top:0}
+@media(max-width:1130px) and (min-width:801px){
+  .church-shell-header{padding-inline:16px!important;gap:8px}
+  .church-shell-nav{gap:6px}
+  .church-shell-header .daily-verse{font-size:10px}
+  .church-shell-actions .live-state{display:none}
+}
+@media(max-width:800px){
+  .church-shell-header{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px 10px;padding:12px 18px!important}
+  .church-shell-brand{grid-column:1}
+  .church-shell-header .daily-verse{grid-column:2;grid-row:1;min-width:0;max-width:none}
+  .church-shell-actions{grid-column:3;grid-row:1}
+  .church-shell-actions .live-state{display:none}
+  .church-shell-menu-button{grid-column:3;grid-row:2;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;width:44px;height:44px;padding:8px;border:1px solid #cbd9ce;border-radius:10px;background:#fff;cursor:pointer}
+  .church-shell-menu-button span{display:block;width:20px;height:2px;background:#173730}
+  .church-shell-nav{display:none;grid-column:1 / -1;grid-row:3;flex-direction:column;align-items:stretch;gap:0;overflow:visible;padding:8px 0 2px}
+  .church-shell-nav.open{display:flex}
+  .church-shell-nav a{display:flex;align-items:center;min-height:44px;padding:9px 12px;font-size:16px}
+}
+@media(max-width:460px){
+  .church-shell-header{padding-inline:14px!important}
+  .church-shell-brand strong{font-size:16px}
+  .church-shell-header .daily-verse-ref{display:none}
+  .church-shell-actions>a{display:none}
+}
+html[data-church-live-embed="viewer"] .church-shell-header,
+html[data-church-live-embed="viewer"] .live-page-banner,
+html[data-church-live-embed="viewer"] .church-footer,
+html[data-church-live-embed="viewer"] .live-intro{display:none!important}
+html[data-church-live-embed="viewer"],html[data-church-live-embed="viewer"] body{height:100%;min-height:0;margin:0;overflow:hidden;background:#07120e}
+html[data-church-live-embed="viewer"] .live-shell{width:100%;height:100%;margin:0;padding:0}
+html[data-church-live-embed="viewer"] #viewerView{display:grid;grid-template-columns:1fr;gap:0;height:100%}
+html[data-church-live-embed="viewer"] .viewer-content{height:100%;min-width:0}
+html[data-church-live-embed="viewer"] .viewer-material-toolbar,
+html[data-church-live-embed="viewer"] .viewer-panel,
+html[data-church-live-embed="viewer"] .viewer-worship-slides,
+html[data-church-live-embed="viewer"] .viewer-worship-bulletin{display:none!important}
+html[data-church-live-embed="viewer"] .viewer-content-layout{display:block;height:100%;width:100%}
+html[data-church-live-embed="viewer"] .viewer-stage{width:100%;height:100%;min-height:0;aspect-ratio:auto;border-radius:0;box-shadow:none}
+html[data-church-live-embed="viewer"] .viewer-stage video{height:100%;width:100%;object-fit:contain}
+html[data-church-live-embed="viewer"] .viewer-empty{font-size:12px;padding:14px}
