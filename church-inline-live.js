@@ -11,7 +11,7 @@
 
   // The same-origin Church viewer owns room discovery and WebRTC media.
   // The homepage never gains broadcast permissions or access to a studio token.
-  const viewerUrl = new URL('/ekodichurch/live/', location.origin);
+  const viewerUrl = new URL('/live/church/', location.origin);
   viewerUrl.searchParams.set('mode', 'viewer');
   viewerUrl.searchParams.set('embed', 'church-online');
   let watching = false;
