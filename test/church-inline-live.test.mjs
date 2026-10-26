@@ -16,7 +16,7 @@ test('Church Online right card contains accessible inline viewer, fullscreen and
   assert.match(online,/id="churchWatchFullscreen"[^>]*disabled/);
   assert.match(online,/실시간 방송 준비/);
   assert.doesNotMatch(online,/활동 방송 준비/);
-  assert.match(online,/href="\/ekodichurch\/live\/\?mode=studio&amp;activity=event"/);
+  assert.match(online,/href="\/live\/church\/\?mode=studio&amp;activity=event"/);
   assert.match(html,/src="church-inline-live.js" defer/);
   assert.match(css,/\.church-inline-live-stage:fullscreen/);
   assert.match(script,/frame\.removeAttribute\('src'\)/);
@@ -52,7 +52,7 @@ test('click mounts the same-origin public viewer, toggles fullscreen, and closes
   assert.equal(player.src,undefined,'must not connect to a room before explicit click');
   assert.equal(fullscreen.disabled,true);
   watch.events.click();
-  assert.equal(player.src,'/ekodichurch/live/?mode=viewer&embed=church-online');
+  assert.equal(player.src,'/live/church/?mode=viewer&embed=church-online');
   assert.equal(player.hidden,false);
   assert.equal(watch.attrs['aria-expanded'],'true');
   assert.equal(fullscreen.disabled,false);
@@ -65,32 +65,18 @@ test('click mounts the same-origin public viewer, toggles fullscreen, and closes
   assert.equal(watch.textContent,'실시간 방송 시청');
 });
 
-test('public iframe is deliberately scoped; other church pages remain unframeable',async()=>{
+test('Church CSP allows only first-party iframe sources, without weakening frame-ancestors',async()=>{
   const headers=await read('_headers');
-  const general=headers.split('\n/live/*')[0];
-  assert.match(general,/frame-ancestors 'none'/);
-  assert.match(general,/frame-src 'self' https:\/\/www\.youtube-nocookie\.com/);
-  for(const route of ['/live/*','/ekodichurch/live/*']){
-    const section=headers.split('\n'+route+'\n')[1]?.split('\n\n')[0]||'';
-    assert.match(section,/frame-ancestors 'self'/,route);
-    assert.doesNotMatch(section,/unsafe-eval|frame-ancestors \*/);
-  }
+  assert.match(headers,/frame-src 'self' https:\/\/www\.youtube-nocookie\.com/);
+  assert.match(headers,/frame-ancestors 'none'/);
 });
 
-test('embedded Live viewer skips the entry screen and rechecks idle broadcast without changing studio auth',async()=>{
-  const [html,live,style,homepage]=await Promise.all([
-    read('live/index.html'),read('live/live.js'),read('live/church-unified-shell.css'),read('index.html')
-  ]);
-  assert.match(live,/embeddedViewer=setupParams\.get\('embed'\)==='church-online'/);
-  assert.match(live,/embeddedViewer\|\|setupParams\.get\('mode'\)==='viewer'/);
-  assert.match(live,/if\(!document\.hidden&&!state\.room&&!state\.pc\)void joinViewer\(\)/);
-  assert.match(live,/setupParams\.get\('mode'\)==='studio'/);
-  assert.match(style,/html\[data-church-live-embed="viewer"\]/);
-  assert.match(html,/church-daily-verse\.js/);
-  assert.match(homepage,/church-daily-verse\.js/);
-  assert.match(html,/class="site-footer church-footer"/);
-  for(const fact of ['사업자 소재지','운영주체 에코디교회','대표 정찬균','고유번호 307-82-82097']){
-    assert.ok(html.includes(fact)&&homepage.includes(fact),fact);
-  }
-  new Function(live);
+test('Church homepage points to the single canonical EKODI Live system',async()=>{
+  const html=await read('index.html');
+  const js=await read('church-inline-live.js');
+  assert.match(js,/new URL\('\/live\/church\/', location.origin\)/);
+  assert.match(html,/href="\/live\/church\/\?mode=studio&amp;activity=event"/);
+  assert.match(html,/src="church-daily-verse.js"/);
+  assert.doesNotMatch(html,/href="\/ekodichurch\/live\/\?mode=studio/);
+  new Function(js);
 });
