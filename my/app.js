@@ -10,10 +10,10 @@ function clearAuthReturnFragment(){
 
 function storedSession(){
   try{
-    for(let i=0;i<localStorage.length;i++){
-      const key=localStorage.key(i)||'';
-      if(!/^sb-.*-auth-token$/.test(key))continue;
-      const raw=localStorage.getItem(key);if(!raw)continue;
+    // Only the central EKODI identity is authoritative for this Church page.
+    // Other Supabase projects on the same origin must not trigger a false login.
+    const raw=localStorage.getItem('sb-renzehysxirjilvdxacv-auth-token');
+    if(raw){
       const parsed=JSON.parse(raw);
       const session=parsed?.currentSession||parsed?.session||parsed;
       if(session?.access_token&&session?.user)return session;
