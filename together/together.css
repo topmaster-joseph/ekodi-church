@@ -1,0 +1,45 @@
+.together-main{background:var(--paper)}
+.together-hero{background:var(--deep);color:#fff;padding:150px 5vw 90px}
+.together-hero .eyebrow{color:var(--gold);letter-spacing:.2em;font-size:12px;margin:0 0 18px}
+.together-hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(32px,5vw,56px);line-height:1.3;margin:0 0 24px}
+.together-hero h1 em{font-style:normal;color:var(--sage)}
+.together-hero p{max-width:680px;line-height:1.9;color:#ffffffd9;margin:0}
+.together-hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+.together-main .button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;border-radius:999px;font:600 15px var(--sans);cursor:pointer;border:1px solid var(--green)}
+.together-main .button.primary{background:var(--gold);border-color:var(--gold);color:var(--deep)}
+.together-main .button.primary:disabled{opacity:.55;cursor:not-allowed}
+.together-main .button.text{background:transparent;color:#fff;border-color:#ffffff66}
+.together-ways,.together-give,.together-join{padding:80px 5vw;max-width:1180px;margin:0 auto}
+.together-main h2{font-family:var(--serif);font-weight:400;font-size:clamp(26px,3.4vw,38px);margin:0 0 18px}
+.together-lead{line-height:1.8;max-width:720px;margin:0 0 30px}
+.together-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.together-grid article,.together-org{background:#fff;border:1px solid #d7ddd7;border-radius:18px;padding:28px}
+.together-grid span{font-size:11px;letter-spacing:.18em;color:var(--green)}
+.together-grid h3,.together-org h3{font-family:var(--serif);font-weight:700;font-size:22px;margin:12px 0}
+.together-grid p{line-height:1.8;margin:0}
+.together-give{border-top:1px solid #d7ddd7}
+.together-give-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.together-org header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.together-org h3{margin:0}
+.badge{font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px}
+.badge.ok{background:#e3efe6;color:var(--green)}
+.badge.muted{background:var(--cream);color:#6b6b5f}
+.together-org dl{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;margin:22px 0}
+.together-org dt{color:#5d6d68;font-size:14px}
+.together-org dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+.copy-account{margin-left:6px;font-size:12px;border:1px solid #c9d3cc;background:#fff;border-radius:999px;padding:3px 10px;cursor:pointer;color:var(--ink)}
+.together-org small,.together-help{display:block;margin-top:10px;color:#5d6d68;line-height:1.6}
+.together-note{line-height:1.8;margin:0}.together-note a,.together-consent a{color:var(--green);text-decoration:underline}
+.together-join{border-top:1px solid #d7ddd7}
+#together-form{background:#fff;border:1px solid #d7ddd7;border-radius:18px;padding:30px;display:grid;gap:18px}
+.together-fields{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#together-form label{display:grid;gap:7px;font-size:14px;font-weight:600}
+#together-form input:not([type=checkbox]),#together-form textarea{font:400 16px var(--sans);padding:12px 14px;border:1px solid #c9d3cc;border-radius:10px;background:var(--paper);color:var(--ink);width:100%}
+.together-ways-pick{border:1px solid #d7ddd7;border-radius:12px;padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.together-ways-pick legend{font-size:14px;font-weight:600;padding:0 6px}
+#together-form .together-ways-pick label,#together-form .together-consent{display:flex;gap:10px;align-items:flex-start;font-weight:400;line-height:1.6}
+.together-hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;overflow:hidden}
+#together-form-status{margin:0;line-height:1.7;min-height:1.7em}
+#together-form-status[data-state=ok]{color:var(--green);font-weight:600}
+#together-form-status[data-state=error]{color:#a33a2a}
+@media(max-width:800px){.together-hero{padding:120px 20px 70px}.together-ways,.together-give,.together-join{padding:60px 16px}.together-grid,.together-give-grid,.together-fields,.together-ways-pick{grid-template-columns:1fr}#together-form{padding:22px 16px}}

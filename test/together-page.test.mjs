@@ -1,0 +1,38 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+
+const html = readFileSync(new URL('../together/index.html', import.meta.url), 'utf8');
+const js = readFileSync(new URL('../together/together.js', import.meta.url), 'utf8');
+const home = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const headers = readFileSync(new URL('../_headers', import.meta.url), 'utf8');
+
+test('together page states receipt eligibility per organization', () => {
+  assert.match(html, /<h3>에코디교회<\/h3><span class="badge ok">기부금영수증 발급 가능<\/span>[\s\S]*307-82-82097/);
+  assert.match(html, /<h3>에코디선교회<\/h3><span class="badge muted">기부금영수증 발급 불가<\/span>[\s\S]*120-82-72255/);
+});
+
+test('together page uses only same-origin scripts (CSP script-src self)', () => {
+  const srcs = [...html.matchAll(/<script[^>]*src="([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(srcs.length > 0);
+  for (const s of srcs) assert.ok(s.startsWith('/'), s);
+  assert.doesNotMatch(html, /<script(?![^>]*(src=|application\/ld\+json))[^>]*>/);
+  assert.match(headers, /form-action 'self'/);
+});
+
+test('form posts to standing mission application API and shows completion + contact', () => {
+  assert.match(js, /\/ekodimission\/api\/activities\/261028-together-partners\/applications/);
+  assert.match(js, /정상 접수되었습니다/);
+  assert.match(js, /010-3501-8542/);
+  assert.match(html, /name="privacy" required/);
+  assert.match(html, /name="website"/); // honeypot
+});
+
+test('card giving only opens trusted missionfund host', () => {
+  assert.match(js, /hostname === 'go\.missionfund\.org'/);
+  assert.match(js, /noopener,noreferrer/);
+});
+
+test('homepage links to together page', () => {
+  assert.match(home, /href="\/ekodichurch\/together\/">함께하기</);
+});
