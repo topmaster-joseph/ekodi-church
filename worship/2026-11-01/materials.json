@@ -1,0 +1,129 @@
+{
+  "schema": "ekodi.worship.materials.v1",
+  "site": "ekodichurch",
+  "date": "2026-11-01",
+  "time": "11:00",
+  "status": "draft",
+  "stage": "review",
+  "broadcastSafe": false,
+  "requiresFinalApproval": true,
+  "title": "자라게 하시는 하나님 앞에서",
+  "titleStatus": "draft",
+  "scripture": "고린도전서 3:1–9",
+  "scriptureStatus": "approved",
+  "registry": "ekodi-common-scripture-2026-11",
+  "preacher": "정찬균 목사",
+  "occasion": "성령강림절 후 스물셋째 주일 · 학원선교주일",
+  "lectionary": {
+    "source": "대한예수교장로회총회 매일성서정과",
+    "url": "https://www.pck.or.kr/bbs/board.php?bo_table=lectionary&wr_id=3069",
+    "readings": [
+      "미가 3:5–12",
+      "시편 43",
+      "데살로니가전서 2:9–13",
+      "마태복음 23:1–12"
+    ]
+  },
+  "devotions": [
+    {
+      "date": "2026-11-01",
+      "passage": "고린도전서 3:1–9"
+    },
+    {
+      "date": "2026-11-02",
+      "passage": "고린도전서 3:10–23"
+    },
+    {
+      "date": "2026-11-03",
+      "passage": "고린도전서 4:1–13"
+    },
+    {
+      "date": "2026-11-04",
+      "passage": "고린도전서 4:14–21"
+    },
+    {
+      "date": "2026-11-05",
+      "passage": "고린도전서 5:1–13"
+    },
+    {
+      "date": "2026-11-06",
+      "passage": "고린도전서 6:1–11"
+    },
+    {
+      "date": "2026-11-07",
+      "passage": "고린도전서 6:12–20"
+    }
+  ],
+  "staff": {
+    "guide": {
+      "name": "박은희",
+      "status": "scheduled-needs-confirmation"
+    },
+    "leader": {
+      "name": "정찬균",
+      "status": "scheduled-needs-confirmation"
+    },
+    "prayer": {
+      "name": "정진",
+      "status": "scheduled-needs-confirmation"
+    },
+    "meal": {
+      "name": "박은희",
+      "status": "scheduled-needs-confirmation"
+    },
+    "praise": {
+      "status": "unconfirmed"
+    }
+  },
+  "sermon": {
+    "points": [
+      "시기와 다툼은 자라지 못한 신앙의 표시입니다",
+      "사역자는 주인이 아니라 맡은 일꾼입니다",
+      "자라게 하시는 이는 하나님이십니다"
+    ],
+    "questions": [
+      "내 신앙이 자라도록 누군가 심고 물 주었던 기억은 무엇입니까?",
+      "사람을 기준으로 편을 나누거나 비교했던 내 말과 태도는 없습니까?",
+      "이번 주 내가 심거나 물 줄 수 있는 한 사람과 한 가지 섬김은 무엇입니까?"
+    ]
+  },
+  "map": {
+    "type": "schematic",
+    "title": "고린도 지협·레카이온·겐그레아 위치 개념도",
+    "slideNumber": 15,
+    "scale": "none",
+    "distance": "not-asserted",
+    "travelTime": "not-asserted",
+    "sources": [
+      "https://onlinelibrary.wiley.com/doi/10.1002/9781444338386.wbeah14182.pub2/full",
+      "https://academic.oup.com/book/41960/chapter-abstract/355227284"
+    ]
+  },
+  "prayerLanguages": [
+    "ko",
+    "en",
+    "zh",
+    "ja",
+    "vi"
+  ],
+  "slideCount": 36,
+  "sources": {
+    "sermon": {
+      "title": "261101 에코디교회 말씀 원고 | 자라게 하시는 하나님 앞에서 [설교제목 검토본]",
+      "url": "https://docs.google.com/document/d/1a3XvMSqmzs1BewIT9nzewEQUJ-ORCU40rb5vwaFGONI/edit"
+    },
+    "bulletin": {
+      "title": "261101 에코디교회 정식 주보 | 자라게 하시는 하나님 앞에서 [검토본]",
+      "url": "https://docs.google.com/document/d/1Q67y_jkTta_n1v1b3upa0Dif3LTKKBDE00FQrxFT-dU/edit"
+    },
+    "slides": {
+      "title": "261101 에코디교회 예배 PPT | 자라게 하시는 하나님 앞에서 [제목 검토본 · 본문 승인]",
+      "url": "https://docs.google.com/presentation/d/1uoQGpZQL78y3Dr6ghj-Xth9SxYISctABXyYTNRc56EQ/edit"
+    }
+  },
+  "notes": [
+    "설교제목·찬양곡·봉사 담당 최종 확인 필요",
+    "Google Slides 음성 재생 및 PPTX 호환성 검증 필요",
+    "최종 승인 전 홈페이지 공개·방송 시작 금지"
+  ]
+}
