@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko" data-ekodi-church-finance="v1">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>공동체 재정공개 · 에코디교회</title>
+  <link rel="canonical" href="https://ekodi.kr/ekodichurch/my/finance/">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/ekodichurch/">에코디교회</a>
+    <nav aria-label="교회 사용자"><a href="/ekodichurch/my/">마이페이지</a><a href="/ekodichurch/my/giving/">나의 헌금</a><a href="/ekodichurch/my/attendance/">나의 출결</a></nav>
+  </header>
+  <main class="ministry-finance">
+    <p class="eyebrow">MEMBER FINANCIAL TRANSPARENCY</p>
+    <h1>교회 재정공개</h1>
+    <p>승인된 교인에게 공개 허용된 교회 전체 수입·지출 요약만 항목별로 제공합니다. 개인 헌금내역은 '나의 헌금'에서 본인만 조회할 수 있습니다.</p>
+    <p id="financeState" class="status" role="status">로그인 상태를 확인하고 있습니다.</p>
+    <a id="financeLogin" class="button" hidden href="#">Google 계정으로 로그인</a>
+    <section id="financeApp" hidden>
+      <form id="financeFilters" class="filters">
+        <label>조회연도 <select id="financeYear"></select></label>
+        <fieldset><legend>공개 항목 선택</legend>
+          <label><input type="checkbox" name="section" value="income" checked> 수입</label>
+          <label><input type="checkbox" name="section" value="expense" checked> 지출</label>
+          <label><input type="checkbox" name="section" value="balance" checked> 잔액</label>
+          <label><input type="checkbox" name="section" value="budget"> 예산·집행</label>
+        </fieldset>
+        <button type="submit">승인 자료 조회</button>
+      </form>
+      <p id="financePeriod" class="period"></p>
+      <div id="financeRows" class="finance-rows" aria-live="polite"></div>
+    </section>
+    <p class="privacy">Google 로그인과 승인된 교회 회원 자격을 확인한 후에만 공개 요약을 조회합니다. 다른 사람의 헌금·출석 내역은 이 화면에서 제공하지 않습니다.</p>
+  </main>
+  <footer><a href="/ekodichurch/">에코디교회</a> · 개인 기록과 공동체 회계는 분리하여 보호합니다.</footer>
+  <script src="./app.js" defer></script>
+</body>
+</html>
