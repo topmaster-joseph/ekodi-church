@@ -20,6 +20,8 @@ const SUPPORTED_LANGUAGES=[
 const LAYOUTS=new Set(['presenter','pip','side','equal','screen']);
 const SHARE_MODES=new Set(['screen','window','tab']);
 const setupParams=new URLSearchParams(location.search);
+const embeddedViewer=setupParams.get('embed')==='church-online';
+if(embeddedViewer)document.documentElement.dataset.churchLiveEmbed='viewer';
 const $=id=>document.getElementById(id);
 const state={room:null,pc:null,session:null,local:null,screen:null,program:null,remote:new MediaStream(),viewerIdentity:null,participantRequests:new Map(),hosting:false,isLive:false,authClient:null,canvas:null,ctx:null,canvasStream:null,animationFrame:null,layout:'presenter',presenterPosition:{x:.732,y:.718},presenterDrag:null,overlayDrag:null,overlayResize:null,presenterResize:null,presenterSize:{w:.25,h:.25},overlays:new Map(),extraCameras:new Map(),participantPulls:new Map(),participantPublish:null,shareMode:'screen',presentationFile:null,chatMessages:[],chatTimer:null,participantTimer:null,participantWatchMode:'',managementCameraPair:null,managementCameraTimer:null,recording:null,startedAt:0,timerId:null,studioPrepared:false,destinationCatalogLoaded:false};
 
@@ -877,6 +879,12 @@ void bootstrapCentralAuth().then(async authenticated=>{
   if(setupParams.get('mode')==='studio'){
     const prepared=await prepareStudio();
     if(prepared&&authenticated&&sessionStorage.getItem(PENDING_START_KEY)==='1')await startBroadcast();
-  }else if(setupParams.get('room'))joinViewer(setupParams.get('room'));else refreshLive();
+  }else if(embeddedViewer||setupParams.get('mode')==='viewer'||setupParams.get('room')){
+    await joinViewer(setupParams.get('room')||'');
+    if(embeddedViewer)setInterval(()=>{
+      // Recheck an idle viewer without rejoining an already connected session.
+      if(!document.hidden&&!state.room&&!state.pc)void joinViewer();
+    },45000);
+  }else refreshLive();
 });
 })();
