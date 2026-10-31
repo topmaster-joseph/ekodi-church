@@ -46,6 +46,7 @@ async function ensureAuth(){
     }
     accessReady=true;
     await loadRemote();
+    await loadReviews();
     return true;
   }catch(error){
     console.error('[EKODI Church worship auth]',error);
@@ -60,6 +61,29 @@ async function loadRemote(){
   if(error){console.warn('[worship load]',error.message);return}
   if(data){fill(data);localStorage.setItem(`ekodi:church:worship:${service}`,JSON.stringify({...data,service,serviceName:data.service_name,time:data.service_time,date:data.service_date}))}
 }
+async function loadReviews(){
+  const card=$('reviewCard'),list=$('reviewList');
+  if(!card||!accessReady||!sb)return;
+  card.hidden=false;
+  try{
+    const weekly=await fetch('../worship/weekly.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('목록 '+r.status);return r.json()});
+    const items=(weekly.services||[]).filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v.date)).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,4);
+    const {data,error}=await sb.from('church_worship_materials').select('service_date,title,is_published').eq('service_type','sunday').in('service_date',items.map(v=>v.date));
+    if(error)throw error;
+    const rows=Object.fromEntries((data||[]).map(r=>[r.service_date,r]));
+    list.innerHTML=items.map(v=>{const r=rows[v.date]||{};const pub=r.is_published===true;return `<div class="review-row" data-date="${esc(v.date)}"><div><strong>${esc(v.date)} 주일모임</strong> <span class="review-badge ${pub?'public':''}">${pub?'공개됨':'검토 중 · 비공개'}</span><small>${esc(r.title||'제목 확인 중')}</small></div><div class="review-actions"><a href="${esc(v.page)}">검토 화면</a><a href="${esc(v.page)}?view=stage">PPT 16:9</a><a href="${esc(v.page)}sermon/">말씀나눔</a>${pub?'<button type="button" data-review="hide">비공개로 되돌리기</button>':'<button type="button" class="primary" data-review="publish">최종 검토 완료 · 공개</button>'}</div></div>`}).join('')||'<p>등록된 예배자료가 없습니다.</p>';
+  }catch(error){list.innerHTML=`<p>목록을 불러오지 못했습니다: ${esc(error.message)}</p>`}
+}
+document.addEventListener('click',async event=>{
+  const button=event.target.closest('[data-review]');if(!button)return;
+  const date=button.closest('[data-date]')?.dataset.date;if(!date||!sb)return;
+  const publish=button.dataset.review==='publish';
+  if(!confirm(publish?`${date} 예배자료를 최종 검토했고 일반에 공개합니다.`:`${date} 예배자료를 다시 비공개로 돌립니다.`))return;
+  button.disabled=true;
+  const {data,error}=await sb.from('church_worship_materials').update({is_published:publish,updated_at:new Date().toISOString()}).eq('service_type','sunday').eq('service_date',date).select('service_date');
+  if(error||!data?.length){alert(`처리 실패: ${error?.message||'예배 기록이 없습니다. 위 입력란에서 먼저 저장해 주세요.'}`);button.disabled=false;return}
+  await loadReviews();
+});
 async function persist(published=false){
   saveLocal();
   if(!accessReady||!sb)throw new Error('login_required');

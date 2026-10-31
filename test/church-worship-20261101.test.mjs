@@ -41,3 +41,17 @@ test('Homepage, live viewer and weekly index point to November 1',()=>{
   const weekly=JSON.parse(readFileSync(new URL('../worship/weekly.json',import.meta.url),'utf8'));
   assert.equal(weekly.services.at(-1).date,'2026-11-01');assert.equal(weekly.services.at(-1).status,'prepared');
 });
+
+test('Merged worship pages stay behind the final-review gate until published',()=>{
+  const gate=readFileSync(new URL('../worship/review-gate.js',import.meta.url),'utf8');
+  for(const [p,rel] of [['index.html','../review-gate.js'],['sermon/index.html','../../review-gate.js'],['prayer/index.html','../../review-gate.js']])
+    assert.ok(get(p).includes(`<script src="${rel}" data-date="2026-11-01"></script>`),p);
+  assert.match(gate,/is_published=eq\.true/);assert.match(gate,/최종 검토 완료 · 공개하기/);
+  assert.match(gate,/catch \{ reveal\(\); return; \}/,'an outage never hides Sunday materials');
+  assert.doesNotMatch(gate,/service_role|stream_?key/i);
+  const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
+  assert.match(my,/async function loadReviews\(\)/);assert.match(my,/update\(\{is_published:publish/);
+  const home=readFileSync(new URL('../church-weekly-worship.js',import.meta.url),'utf8');
+  assert.match(home,/예배자료 최종 검토 중/);
+  new Function(gate);
+});
