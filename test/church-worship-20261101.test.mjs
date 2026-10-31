@@ -100,3 +100,14 @@ test('My Page photo editor resizes automatically and text keeps Korean words who
   assert.match(page,/data-rot="-90"/);assert.match(page,/accept="image\/\*"/);
   assert.match(css,/word-break:keep-all/);
 });
+
+test('My Page links Google originals (managers only) and the bulletin view shows only the bulletin',()=>{
+  const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
+  assert.match(my,/church_worship_sources\?select=service_date,bulletin_url,sermon_url,slides_url/);
+  for(const t of ['원본 주보','설교원고','예배 PPT'])assert.match(my,new RegExp(t));
+  const page=get('index.html');
+  assert.doesNotMatch(page,/class="bulletin-actions"/);
+  assert.match(page,/bulletin-heading sr-only/);assert.match(page,/id="print-bulletin"/);
+  assert.match(page,/\?view=stage/);assert.match(page,/\?view=operator/);
+  assert.match(page,/고린도전서 3:1/);
+});

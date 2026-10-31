@@ -35,3 +35,5 @@
 
 .bp-photo img{width:auto;max-width:100%;height:auto;max-height:250px;object-fit:contain;margin:0 auto}
 .bp-pages{word-break:keep-all;overflow-wrap:break-word}
+.sr-only{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mode-nav .nav-print{font-size:12px;border:1px solid var(--line);border-radius:99px;padding:9px 12px;background:#fff;color:var(--forest);font-weight:700}
