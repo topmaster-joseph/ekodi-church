@@ -119,10 +119,20 @@ async function loadReviews(){
     // Google Drive originals (managers only; the table is closed to the public).
     let src={};try{const s=items.length?await rest('church_worship_sources?select=service_date,bulletin_url,sermon_url,slides_url&service_type=eq.sunday&service_date=in.('+items.map(v=>v.date).join(',')+')'):[];src=Object.fromEntries((s||[]).map(r=>[r.service_date,r]))}catch{}
     const google=u=>/^https:\/\/(docs|drive)\.google\.com\//.test(u||'')?u:'';
-    const originals=d=>{const o=src[d]||{};const links=[['bulletin_url','원본 주보'],['sermon_url','설교원고'],['slides_url','예배 PPT']].map(([k,t])=>google(o[k])?`<a class="source" href="${esc(o[k])}" target="_blank" rel="noopener">${t} ↗</a>`:'').join('');return links?`<div class="review-sources"><span>구글 원본</span>${links}</div>`:'<div class="review-sources"><span>구글 원본 링크 없음</span></div>'};
+    const originals=d=>{const o=src[d]||{};const links=[['bulletin_url','원본 주보'],['sermon_url','설교원고'],['slides_url','예배 PPT']].map(([k,t])=>google(o[k])?`<a class="source" href="${esc(o[k])}" target="_blank" rel="noopener">${t} ↗</a>`:'').join('');return `<div class="review-sources"><span>구글 원본</span>${links||'<span>아직 연결 안 됨</span>'}<button type="button" class="source-edit" data-sources="${esc(d)}">${links?'링크 바꾸기':'링크 넣기'}</button></div>`};
     list.innerHTML=items.map(v=>{const r=rows[v.date]||{};const pub=r.is_published===true;return `<div class="review-row" data-date="${esc(v.date)}"><div><strong>${esc(v.date)} 주일모임</strong> <span class="review-badge ${pub?'public':''}">${pub?'공개됨':'검토 중 · 비공개'}</span><small>${esc(r.title||'제목 확인 중')}</small>${originals(v.date)}</div><div class="review-actions"><a href="${esc(v.page)}">검토 화면</a><a href="${esc(v.page)}?view=stage">PPT 16:9</a><a href="${esc(v.page)}sermon/">말씀나눔</a>${pub?'<button type="button" data-review="hide">비공개로 되돌리기</button>':'<button type="button" class="primary" data-review="publish">최종 검토 완료 · 공개</button>'}</div></div>`}).join('')||'<p>등록된 예배자료가 없습니다.</p>';
   }catch(error){list.innerHTML=`<p>목록을 불러오지 못했습니다: ${esc(error.message)}</p>`}
 }
+document.addEventListener('click',async event=>{
+  const edit=event.target.closest('[data-sources]');if(!edit||!sb.ready)return;
+  const date=edit.dataset.sources;const ok=v=>!v||/^https:\/\/(docs|drive)\.google\.com\//.test(v);
+  const ask=t=>{const v=prompt(`${date} ${t} 구글 링크를 붙여 넣으세요 (없으면 비워 두기)`,'');return v===null?null:v.trim()};
+  const bulletin=ask('원본 주보');if(bulletin===null)return;const sermon=ask('설교원고');if(sermon===null)return;const slides=ask('예배 PPT');if(slides===null)return;
+  if(![bulletin,sermon,slides].every(ok)){alert('docs.google.com 또는 drive.google.com 링크만 넣을 수 있습니다.');return}
+  const row={service_type:'sunday',service_date:date,updated_at:new Date().toISOString()};
+  if(bulletin)row.bulletin_url=bulletin;if(sermon)row.sermon_url=sermon;if(slides)row.slides_url=slides;
+  try{await rest('church_worship_sources?on_conflict=service_type,service_date',{method:'POST',body:row,prefer:'resolution=merge-duplicates,return=minimal'});await loadReviews()}catch(e){alert('저장 실패: '+e.message)}
+});
 document.addEventListener('click',async event=>{
   const button=event.target.closest('[data-review]');if(!button)return;
   const date=button.closest('[data-date]')?.dataset.date;if(!date||!sb.ready)return;
