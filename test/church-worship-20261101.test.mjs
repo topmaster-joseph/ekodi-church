@@ -90,3 +90,13 @@ test('Bulletin photo slot supports upload, Google Drive link, blank space or tex
   const css=readFileSync(new URL('../worship/2026-11-01/bulletin.css',import.meta.url),'utf8');
   assert.match(css,/\.bp-photo img\{border-radius:14px/);
 });
+
+test('My Page photo editor resizes automatically and text keeps Korean words whole',()=>{
+  const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
+  const page=readFileSync(new URL('../mypage/index.html',import.meta.url),'utf8');
+  const css=readFileSync(new URL('../mypage/styles.css',import.meta.url),'utf8');
+  assert.match(my,/async function editedBlob\(\)/);assert.match(my,/image\/jpeg/);assert.doesNotMatch(my,/5MB 이하만/);
+  for(const id of ['beCanvas','beRatio','beZoom','beX','beY','beBright','beReset'])assert.match(page,new RegExp(`id="${id}"`),id);
+  assert.match(page,/data-rot="-90"/);assert.match(page,/accept="image\/\*"/);
+  assert.match(css,/word-break:keep-all/);
+});
