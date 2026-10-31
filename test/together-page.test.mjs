@@ -36,3 +36,11 @@ test('card giving only opens trusted missionfund host', () => {
 test('homepage links to together page', () => {
   assert.match(home, /href="\/ekodichurch\/together\/">함께하기</);
 });
+
+test('header and content share one centered measure', () => {
+  const css = readFileSync(new URL('../together/together.css', import.meta.url), 'utf8');
+  assert.match(css, /\.site-header\{[^}]*padding:0 max\(var\(--tg-gutter\),calc\(\(100% - var\(--tg-w\)\) \/ 2\)\)/);
+  assert.match(css, /\.together-wrap\{width:min\(var\(--tg-w\),100% - var\(--tg-gutter\) \* 2\)/);
+  assert.match(css, /\.together-main\{[^}]*text-align:center/);
+  assert.equal((html.match(/class="together-wrap"/g) || []).length, 4);
+});
