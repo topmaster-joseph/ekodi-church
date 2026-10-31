@@ -19,12 +19,9 @@ test('Operator view carries the multilingual caption run-sheet and links to EKOD
   assert.equal(packet.interpretation.captions,true);assert.deepEqual(packet.interpretation.targetLangs,['en','zh','ja','vi','mn']);
   assert.match(html,/동시통역 자막 \(오늘부터\)/);assert.match(html,/통역 자막 시작/);assert.match(html,/\/live\/church\/\?mode=studio&amp;activity=sunday&amp;date=2026-10-25/);
 });
-test('Homepage, live viewer and weekly index point to October 25',()=>{
-  const home=readFileSync(new URL('../index.html',import.meta.url),'utf8');
-  assert.match(home,/data-weekly-bulletin href="\/ekodichurch\/worship\/2026-10-25\/"/);assert.match(home,/date=2026-10-25/);
-  const live=readFileSync(new URL('../live/index.html',import.meta.url),'utf8');assert.match(live,/id="viewerBulletinLink" href="\/ekodichurch\/worship\/2026-10-25\/"/);
+test('October 25 is archived in the weekly index after November 1 is prepared',()=>{
   const weekly=JSON.parse(readFileSync(new URL('../worship/weekly.json',import.meta.url),'utf8'));
-  assert.equal(weekly.services.at(-1).date,'2026-10-25');assert.equal(weekly.services.at(-1).status,'prepared');
+  assert.equal(weekly.services.find(s=>s.date==='2026-10-25').status,'archived');
 });
 
 test('Online bulletin and sermon mirror the weekly Google documents',()=>{
