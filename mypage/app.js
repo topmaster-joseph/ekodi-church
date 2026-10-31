@@ -10,7 +10,8 @@ const defaultTimes={sunday:'일요일 오전 11시',saturday:'토요일 오전 1
 function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function todayFor(type){
   const d=new Date();const target=type==='sunday'?0:6;let diff=(target-d.getDay()+7)%7;
-  if(diff===0&&d.getHours()>=12)diff=7;d.setDate(d.getDate()+diff);return d.toISOString().slice(0,10)
+  if(diff===0&&d.getHours()>=12)diff=7;d.setDate(d.getDate()+diff);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')
 }
 function payload(){return{service,serviceName:names[service],time:defaultTimes[service],date:$('serviceDate').value,scripture:$('scripture').value.trim(),title:$('title').value.trim(),preacher:$('preacher').value.trim(),songs:$('songs').value.trim(),prayer:$('prayer').value.trim(),notice:$('notice').value.trim(),meal:$('meal').value.trim(),updatedAt:new Date().toISOString()}}
 function render(){const p=payload();$('serviceLabel').textContent=p.serviceName;$('summary').innerHTML=`<dl><dt>일시</dt><dd>${esc(p.date)} · ${esc(p.time)}</dd><dt>본문</dt><dd>${esc(p.scripture||'미입력')}</dd><dt>제목</dt><dd>${esc(p.title||'미입력')}</dd><dt>설교</dt><dd>${esc(p.preacher||'미입력')}</dd><dt>찬양</dt><dd>${esc(p.songs||'미입력')}</dd><dt>대표기도</dt><dd>${esc(p.prayer||'미입력')}</dd><dt>공지</dt><dd>${esc(p.notice||'없음')}</dd><dt>식사준비</dt><dd>${esc(p.meal||'미정')}</dd></dl>`}
@@ -25,14 +26,12 @@ function loginUrl(){const target='https://ekodi.kr/ekodichurch/mypage/';return `
 const SESSION_KEY='sb-renzehysxirjilvdxacv-auth-token';
 const sb={ready:false};
 function readSession(){
+  // Only the church project's session is valid here; another EKODI project's
+  // token would be rejected by this database, so fall back to the handoff.
   try{
-    for(let i=0;i<localStorage.length;i++){
-      const key=localStorage.key(i)||'';
-      if(!/^sb-.*-auth-token$/.test(key))continue;
-      const parsed=JSON.parse(localStorage.getItem(key)||'null');
-      const s=parsed?.currentSession||parsed?.session||parsed;
-      if(s?.access_token)return s;
-    }
+    const parsed=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');
+    const s=parsed?.currentSession||parsed?.session||parsed;
+    if(s?.access_token)return s;
   }catch{}
   return null;
 }
@@ -77,7 +76,13 @@ async function ensureAuth(){
     activeSession=await currentSession();
     if(!activeSession){location.replace(loginUrl());return false}
     sessionStorage.setItem('ekodi-auth-token',activeSession.access_token);
-    const access=await rest('rpc/current_site_access',{method:'POST',body:{p_site_key:'church'}});
+    let access;
+    try{access=await rest('rpc/current_site_access',{method:'POST',body:{p_site_key:'church'}})}
+    catch(error){
+      if(!sessionStorage.getItem('ekodi-church-mypage-relogin')){sessionStorage.setItem('ekodi-church-mypage-relogin','1');try{localStorage.removeItem(SESSION_KEY)}catch{}location.replace(loginUrl());return false}
+      throw error;
+    }
+    sessionStorage.removeItem('ekodi-church-mypage-relogin');
     const status=String(access?.status||'');const role=String(access?.role||'');
     if(status!=='active'||role!=='tenant_admin'){
       document.body.innerHTML='<main style="max-width:720px;margin:80px auto;padding:24px;font-family:sans-serif"><h1>예배 운영 권한이 필요합니다.</h1><p>에코디교회 운영관리자 권한이 확인된 계정만 이 화면을 사용할 수 있습니다.</p><p><a href="https://ekodi.kr/my/">My EKODI로 돌아가기</a></p></main>';
