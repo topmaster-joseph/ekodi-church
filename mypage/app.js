@@ -2,7 +2,6 @@ const SUPABASE_URL='https://renzehysxirjilvdxacv.supabase.co';
 const PUBLISHABLE_KEY='sb_publishable_0QjB0WzZbjrd-FJ5D5cR7A_xUkXyOY_';
 const $=(id)=>document.getElementById(id);
 let service='sunday';
-let sb=null;
 let activeSession=null;
 let accessReady=false;
 const names={sunday:'주일모임',saturday:'토요모임'};
@@ -21,76 +20,116 @@ function fill(p){$('serviceDate').value=p.date||p.service_date||todayFor(service
 function loadLocal(){const raw=localStorage.getItem(`ekodi:church:worship:${service}`);if(raw){try{fill(JSON.parse(raw));return}catch{}}fill({date:todayFor(service),preacher:'정찬균 목사'})}
 function record(p,published=false){return{service_type:p.service,service_date:p.date,service_name:p.serviceName,service_time:p.time,scripture:p.scripture,title:p.title,preacher:p.preacher,songs:p.songs,prayer:p.prayer,notice:p.notice,meal:p.meal,is_published:published,created_by:activeSession?.user?.id||null,updated_at:new Date().toISOString()}}
 function loginUrl(){const target='https://ekodi.kr/ekodichurch/mypage/';return `https://ekodi.kr/auth/?site=church&return_to=${encodeURIComponent(target)}`}
+// The site's Content-Security-Policy allows only same-origin scripts, so the
+// console talks to Supabase Auth/REST with fetch instead of a CDN client.
+const SESSION_KEY='sb-renzehysxirjilvdxacv-auth-token';
+const sb={ready:false};
+function readSession(){
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i)||'';
+      if(!/^sb-.*-auth-token$/.test(key))continue;
+      const parsed=JSON.parse(localStorage.getItem(key)||'null');
+      const s=parsed?.currentSession||parsed?.session||parsed;
+      if(s?.access_token)return s;
+    }
+  }catch{}
+  return null;
+}
+function storeSession(s){
+  const expires_at=s.expires_at||Math.floor(Date.now()/1000)+Number(s.expires_in||3600);
+  const session={...s,expires_at};
+  try{localStorage.setItem(SESSION_KEY,JSON.stringify(session))}catch{}
+  return session;
+}
+async function authCall(path,body){
+  const r=await fetch(SUPABASE_URL+'/auth/v1/'+path,{method:'POST',headers:{apikey:PUBLISHABLE_KEY,'content-type':'application/json'},body:JSON.stringify(body),cache:'no-store'});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok||!data.access_token)throw new Error(data.msg||data.error_description||('auth_'+r.status));
+  return storeSession(data);
+}
+async function currentSession(){
+  const hash=new URLSearchParams(location.hash.replace(/^#/,''));
+  const handoff=hash.get('ekodi_token');
+  if(handoff){
+    const s=await authCall('verify',{type:hash.get('ekodi_type')||'email',token_hash:handoff});
+    history.replaceState(null,'',location.pathname+location.search);
+    return s;
+  }
+  let s=readSession();
+  if(s&&Number(s.expires_at||0)<Math.floor(Date.now()/1000)+30){
+    s=s.refresh_token?await authCall('token?grant_type=refresh_token',{refresh_token:s.refresh_token}).catch(()=>null):null;
+  }
+  return s;
+}
+async function rest(path,{method='GET',body,prefer}={}){
+  const headers={apikey:PUBLISHABLE_KEY,authorization:'Bearer '+activeSession.access_token,accept:'application/json'};
+  if(body!==undefined)headers['content-type']='application/json';
+  if(prefer)headers.Prefer=prefer;
+  const r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'});
+  const text=await r.text();const data=text?JSON.parse(text):null;
+  if(!r.ok)throw new Error(data?.message||('요청 실패 '+r.status));
+  return data;
+}
+const TABLE='church_worship_materials';
 async function ensureAuth(){
   try{
-    const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-    sb=createClient(SUPABASE_URL,PUBLISHABLE_KEY,{auth:{detectSessionInUrl:true,persistSession:true}});
-    const hash=new URLSearchParams(location.hash.replace(/^#/,''));
-    const handoff=hash.get('ekodi_token');
-    if(handoff){
-      const {error}=await sb.auth.verifyOtp({token_hash:handoff,type:hash.get('ekodi_type')||'email'});
-      if(error)throw error;
-      history.replaceState(null,'',location.pathname+location.search);
-    }
-    const {data,error}=await sb.auth.getSession();
-    if(error)throw error;
-    activeSession=data?.session||null;
+    activeSession=await currentSession();
     if(!activeSession){location.replace(loginUrl());return false}
     sessionStorage.setItem('ekodi-auth-token',activeSession.access_token);
-    const {data:access,error:accessError}=await sb.rpc('current_site_access',{p_site_key:'church'});
-    if(accessError)throw accessError;
+    const access=await rest('rpc/current_site_access',{method:'POST',body:{p_site_key:'church'}});
     const status=String(access?.status||'');const role=String(access?.role||'');
     if(status!=='active'||role!=='tenant_admin'){
       document.body.innerHTML='<main style="max-width:720px;margin:80px auto;padding:24px;font-family:sans-serif"><h1>예배 운영 권한이 필요합니다.</h1><p>에코디교회 운영관리자 권한이 확인된 계정만 이 화면을 사용할 수 있습니다.</p><p><a href="https://ekodi.kr/my/">My EKODI로 돌아가기</a></p></main>';
       return false;
     }
-    accessReady=true;
+    sb.ready=true;accessReady=true;
+    const status2=document.querySelector('.status-card small');if(status2)status2.textContent=(activeSession.user?.email||'운영자')+' 계정으로 연결되었습니다.';
     await loadRemote();
     await loadReviews();
     return true;
   }catch(error){
     console.error('[EKODI Church worship auth]',error);
-    const status=document.querySelector('.status-card small');if(status)status.textContent='중앙 로그인 확인에 실패했습니다. 다시 로그인해 주세요.';
+    const status=document.querySelector('.status-card small');if(status)status.innerHTML='중앙 로그인 확인에 실패했습니다. <a href="'+loginUrl()+'">다시 로그인</a>';
     return false;
   }
 }
 async function loadRemote(){
-  if(!accessReady||!sb)return;
+  if(!accessReady||!sb.ready)return;
   const date=$('serviceDate').value||todayFor(service);
-  const {data,error}=await sb.from('church_worship_materials').select('*').eq('service_type',service).eq('service_date',date).maybeSingle();
-  if(error){console.warn('[worship load]',error.message);return}
+  let data=null;
+  try{const rows=await rest(TABLE+'?select=*&service_type=eq.'+service+'&service_date=eq.'+date+'&limit=1');data=rows?.[0]||null}catch(error){console.warn('[worship load]',error.message);return}
   if(data){fill(data);localStorage.setItem(`ekodi:church:worship:${service}`,JSON.stringify({...data,service,serviceName:data.service_name,time:data.service_time,date:data.service_date}))}
 }
 async function loadReviews(){
   const card=$('reviewCard'),list=$('reviewList');
-  if(!card||!accessReady||!sb)return;
+  if(!card||!accessReady||!sb.ready)return;
   card.hidden=false;
   try{
     const weekly=await fetch('../worship/weekly.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('목록 '+r.status);return r.json()});
     const items=(weekly.services||[]).filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v.date)).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,4);
-    const {data,error}=await sb.from('church_worship_materials').select('service_date,title,is_published').eq('service_type','sunday').in('service_date',items.map(v=>v.date));
-    if(error)throw error;
+    const data=items.length?await rest(TABLE+'?select=service_date,title,is_published&service_type=eq.sunday&service_date=in.('+items.map(v=>v.date).join(',')+')'):[];
     const rows=Object.fromEntries((data||[]).map(r=>[r.service_date,r]));
     list.innerHTML=items.map(v=>{const r=rows[v.date]||{};const pub=r.is_published===true;return `<div class="review-row" data-date="${esc(v.date)}"><div><strong>${esc(v.date)} 주일모임</strong> <span class="review-badge ${pub?'public':''}">${pub?'공개됨':'검토 중 · 비공개'}</span><small>${esc(r.title||'제목 확인 중')}</small></div><div class="review-actions"><a href="${esc(v.page)}">검토 화면</a><a href="${esc(v.page)}?view=stage">PPT 16:9</a><a href="${esc(v.page)}sermon/">말씀나눔</a>${pub?'<button type="button" data-review="hide">비공개로 되돌리기</button>':'<button type="button" class="primary" data-review="publish">최종 검토 완료 · 공개</button>'}</div></div>`}).join('')||'<p>등록된 예배자료가 없습니다.</p>';
   }catch(error){list.innerHTML=`<p>목록을 불러오지 못했습니다: ${esc(error.message)}</p>`}
 }
 document.addEventListener('click',async event=>{
   const button=event.target.closest('[data-review]');if(!button)return;
-  const date=button.closest('[data-date]')?.dataset.date;if(!date||!sb)return;
+  const date=button.closest('[data-date]')?.dataset.date;if(!date||!sb.ready)return;
   const publish=button.dataset.review==='publish';
   if(!confirm(publish?`${date} 예배자료를 최종 검토했고 일반에 공개합니다.`:`${date} 예배자료를 다시 비공개로 돌립니다.`))return;
   button.disabled=true;
-  const {data,error}=await sb.from('church_worship_materials').update({is_published:publish,updated_at:new Date().toISOString()}).eq('service_type','sunday').eq('service_date',date).select('service_date');
+  let data=null,error=null;
+  try{data=await rest(TABLE+'?service_type=eq.sunday&service_date=eq.'+date,{method:'PATCH',body:{is_published:publish,updated_at:new Date().toISOString()},prefer:'return=representation'})}catch(e){error=e}
   if(error||!data?.length){alert(`처리 실패: ${error?.message||'예배 기록이 없습니다. 위 입력란에서 먼저 저장해 주세요.'}`);button.disabled=false;return}
   await loadReviews();
 });
 async function persist(published=false){
   saveLocal();
-  if(!accessReady||!sb)throw new Error('login_required');
+  if(!accessReady||!sb.ready)throw new Error('login_required');
   const p=payload();
   if(!p.date)throw new Error('날짜를 입력해 주세요.');
-  const {error}=await sb.from('church_worship_materials').upsert(record(p,published),{onConflict:'service_type,service_date'});
-  if(error)throw error;
+  await rest(TABLE+'?on_conflict=service_type,service_date',{method:'POST',body:record(p,published),prefer:'resolution=merge-duplicates,return=minimal'});
   return p;
 }
 async function saveDraft(){try{await persist(false);setStatus('webStatus','초안 저장됨')}catch(error){alert(`저장 실패: ${error.message}`)}}

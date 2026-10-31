@@ -55,3 +55,10 @@ test('Merged worship pages stay behind the final-review gate until published',()
   assert.match(home,/예배자료 최종 검토 중/);
   new Function(gate);
 });
+
+test('Worship console signs in without third-party scripts (same-origin CSP)',()=>{
+  const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
+  assert.doesNotMatch(my,/cdn\.jsdelivr|import\(/,'CSP script-src self blocks CDN imports');
+  assert.match(my,/auth\/v1\//);assert.match(my,/rpc\/current_site_access/);assert.match(my,/loadReviews\(\)/);
+  new Function(my.replace(/^void ensureAuth\(\);$/m,''));
+});
