@@ -192,6 +192,7 @@ footer>p{margin:0 auto;max-width:760px;font-family:var(--sans);font-size:11px;li
 #giving-payment-status[data-state="ready"]{color:#496c60}
 #giving-payment-status[data-state="error"]{color:#9b5c55}
 .giving-receipt-help{font-size:10px;color:#83918b;white-space:nowrap}
+.giving-together-link{display:inline-block;margin-top:6px;font-size:12px;font-weight:600;color:var(--green);text-decoration:underline}
 
 .giving-dialog{
   width:min(720px,calc(100vw - 32px));
