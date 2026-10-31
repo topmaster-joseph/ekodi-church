@@ -67,6 +67,13 @@ function showPacket(data){
   status.textContent=localize(data.youtube?.status==='scheduled'?'방송 예약 연결 확인 필요':'방송 예약 확인 전 · 예배자료 준비','Broadcast scheduling not verified');
   panel.hidden=true;form.reset();
 }
+async function isPublished(date){
+  try{
+    const r=await fetch(API+'?select=service_date&service_type=eq.sunday&service_date=eq.'+encodeURIComponent(date)+'&is_published=eq.true&limit=1',{headers:{apikey:PUBLISHABLE_KEY,authorization:'Bearer '+PUBLISHABLE_KEY,accept:'application/json'},cache:'no-store'});
+    if(!r.ok)return true;
+    const rows=await r.json();return Array.isArray(rows)&&rows.length>0;
+  }catch{return true;}
+}
 async function load(entry){
   selected=entry;
   if(liveHost)liveHost.href=studioUrl(entry.date);
@@ -80,6 +87,12 @@ async function load(entry){
     const data=await response.json();
     if(data.date!==entry.date)throw new Error('자료의 예배 날짜가 일치하지 않습니다.');
     showPacket(data);
+    // Merged materials stay unannounced until a worship manager confirms the final review.
+    if(!(await isPublished(entry.date))){
+      title.textContent=localize('예배자료 최종 검토 중','Worship materials under final review');
+      metadata.textContent=entry.date+(weeklyLocale()==='ko-KR'?' (일) · 공개 전':' (Sunday) · not yet published');
+      status.textContent=localize('최종 검토 후 공개됩니다','Published after final review');
+    }
   }catch(error){
     packet=null;title.textContent=entry.date+' '+(weeklyLocale()==='ko-KR'?'예배자료':'worship materials');
     metadata.textContent=localize('자료 확인 필요','Verification required');
