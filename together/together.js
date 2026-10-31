@@ -96,3 +96,31 @@
     }
   });
 })();
+
+// Three ways as tabs: the chosen way's detail appears right below the cards.
+(() => {
+  const cards = [...document.querySelectorAll('.together-way')];
+  if (!cards.length) return;
+  const panels = { pray: ['pray', 'join'], give: ['give'], partner: ['join'] };
+  const preset = { pray: ['기도동역'], partner: ['재능·봉사', '기관협력'] };
+  const sections = ['pray', 'give', 'join'].map(id => document.getElementById(id)).filter(Boolean);
+  function select(way, scroll) {
+    if (!panels[way]) return;
+    cards.forEach(card => card.setAttribute('aria-selected', String(card.dataset.way === way)));
+    sections.forEach(section => { section.hidden = !panels[way].includes(section.id); });
+    const picks = preset[way];
+    if (picks) document.querySelectorAll('#together-form input[name="way"]').forEach(box => { box.checked = picks.includes(box.value); });
+    if (scroll) document.getElementById(panels[way][0])?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  cards.forEach(card => card.addEventListener('click', () => { select(card.dataset.way, true); history.replaceState(null, '', '#' + (card.dataset.way === 'partner' ? 'join' : card.dataset.way)); }));
+  document.querySelectorAll('[data-way-link]').forEach(link => link.addEventListener('click', event => {
+    event.preventDefault();
+    const way = link.dataset.wayLink;
+    select(way, false);
+    const target = link.getAttribute('href').slice(1);
+    if (way === 'pray' && target === 'join') document.getElementById('join').hidden = false;
+    document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
+  const hash = location.hash.slice(1);
+  select(hash === 'give' ? 'give' : hash === 'join' ? 'partner' : hash === 'pray' ? 'pray' : 'pray', !!hash);
+})();

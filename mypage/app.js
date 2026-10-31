@@ -17,7 +17,7 @@ function payload(){return{service,serviceName:names[service],time:defaultTimes[s
 function render(){const p=payload();$('serviceLabel').textContent=p.serviceName;$('summary').innerHTML=`<dl><dt>일시</dt><dd>${esc(p.date)} · ${esc(p.time)}</dd><dt>본문</dt><dd>${esc(p.scripture||'미입력')}</dd><dt>제목</dt><dd>${esc(p.title||'미입력')}</dd><dt>설교</dt><dd>${esc(p.preacher||'미입력')}</dd><dt>찬양</dt><dd>${esc(p.songs||'미입력')}</dd><dt>대표기도</dt><dd>${esc(p.prayer||'미입력')}</dd><dt>공지</dt><dd>${esc(p.notice||'없음')}</dd><dt>식사준비</dt><dd>${esc(p.meal||'미정')}</dd></dl>`}
 function setStatus(id,text='준비됨'){$(id).textContent=text;$(id).classList.add('ready')}
 function saveLocal(){localStorage.setItem(`ekodi:church:worship:${service}`,JSON.stringify(payload()));render()}
-function fill(p){$('serviceDate').value=p.date||p.service_date||todayFor(service);$('scripture').value=p.scripture||'';$('title').value=p.title||'';$('preacher').value=p.preacher||'정찬균 목사';$('songs').value=p.songs||'';$('prayer').value=p.prayer||'';$('notice').value=p.notice||'';$('meal').value=p.meal||'';render()}
+function fill(p){$('serviceDate').value=p.date||p.service_date||todayFor(service);snapDate();$('scripture').value=p.scripture||'';$('title').value=p.title||'';$('preacher').value=p.preacher||'정찬균 목사';$('songs').value=p.songs||'';$('prayer').value=p.prayer||'';$('notice').value=p.notice||'';$('meal').value=p.meal||'';render()}
 function loadLocal(){const raw=localStorage.getItem(`ekodi:church:worship:${service}`);if(raw){try{fill(JSON.parse(raw));return}catch{}}fill({date:todayFor(service),preacher:'정찬균 목사'})}
 function record(p,published=false){return{service_type:p.service,service_date:p.date,service_name:p.serviceName,service_time:p.time,scripture:p.scripture,title:p.title,preacher:p.preacher,songs:p.songs,prayer:p.prayer,notice:p.notice,meal:p.meal,is_published:published,created_by:activeSession?.user?.id||null,updated_at:new Date().toISOString()}}
 function loginUrl(){const target='https://ekodi.kr/ekodichurch/mypage/';return `https://ekodi.kr/auth/?site=church&return_to=${encodeURIComponent(target)}`}
@@ -147,7 +147,13 @@ function openLive(){saveLocal();const p=payload();const q=new URLSearchParams({m
 
 document.querySelectorAll('.service-tab').forEach(btn=>btn.addEventListener('click',async()=>{document.querySelectorAll('.service-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');service=btn.dataset.service;loadLocal();await loadRemote()}));
 ['serviceDate','scripture','title','preacher','songs','prayer','notice','meal'].forEach(id=>$(id).addEventListener('input',render));
-$('serviceDate').addEventListener('change',()=>void loadRemote());
+function snapDate(){
+  const el=$('serviceDate');if(!el.value)return;
+  const target=service==='sunday'?0:6;const d=new Date(el.value+'T00:00:00');
+  const diff=(target-d.getDay()+7)%7;if(!diff)return;
+  d.setDate(d.getDate()+diff);el.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+$('serviceDate').addEventListener('change',()=>{snapDate();render();void loadRemote()});
 $('saveDraft').addEventListener('click',()=>void saveDraft());
 $('openBulletin').addEventListener('click',openBulletin);
 $('downloadPpt').addEventListener('click',downloadPpt);

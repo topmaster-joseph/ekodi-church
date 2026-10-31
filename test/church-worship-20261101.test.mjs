@@ -62,3 +62,12 @@ test('Worship console signs in without third-party scripts (same-origin CSP)',()
   assert.match(my,/auth\/v1\//);assert.match(my,/rpc\/current_site_access/);assert.match(my,/loadReviews\(\)/);
   new Function(my.replace(/^void ensureAuth\(\);$/m,''));
 });
+
+test('Before the coming Sunday is published, the latest published Sunday is shown',()=>{
+  const home=readFileSync(new URL('../church-weekly-worship.js',import.meta.url),'utf8');
+  assert.match(home,/if\(!\(await isPublished\(next\.date\)\)\)\{/);
+  const gate=readFileSync(new URL('../worship/review-gate.js',import.meta.url),'utf8');
+  assert.match(gate,/async function latestPublished\(\)/);assert.match(gate,/location\.replace\(latest\.page/);
+  const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
+  assert.match(my,/function snapDate\(\)/);
+});
