@@ -74,10 +74,19 @@ test('Before the coming Sunday is published, the latest published Sunday is show
 
 test('Bulletin photo and content are editable from My Page and rendered on the page',()=>{
   for(const b of ['week','announce','photo','serve','stats','committee','sponsors','questions'])assert.match(html,new RegExp(`data-b="${b}"`),b);
-  assert.match(html,/bulletin-data\.js\?v=\d+" data-date="2026-11-01"/);
+  assert.match(html,/bulletin-data\.js\?v=\w+" data-date="2026-11-01"/);
   const data=readFileSync(new URL('../worship/bulletin-data.js',import.meta.url),'utf8');
   assert.match(data,/const esc = /);assert.match(data,/storage\\\/v1\\\/object\\\/public\\\/church-bulletin/);
   const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
   assert.match(my,/async function saveBulletin\(\)/);assert.match(my,/storage\/v1\/object\/church-bulletin/);assert.match(my,/순서지/);
   new Function(data);
+});
+
+test('Bulletin photo slot supports upload, Google Drive link, blank space or text',()=>{
+  const data=readFileSync(new URL('../worship/bulletin-data.js',import.meta.url),'utf8');
+  assert.match(data,/drive\\\.google\\\.com\\\/thumbnail/);assert.match(data,/bp-photo-blank/);assert.match(data,/bp-photo-text/);
+  const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
+  assert.match(my,/function driveThumb\(link\)/);assert.match(my,/photoMode/);
+  const css=readFileSync(new URL('../worship/2026-11-01/bulletin.css',import.meta.url),'utf8');
+  assert.match(css,/\.bp-photo img\{border-radius:14px/);
 });
