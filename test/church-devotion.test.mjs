@@ -41,3 +41,8 @@ test('devotion header spans the centre column and tabs are not offset onto the p
   assert.match(css, /padding-inline:max\(16px,calc\(\(100% - var\(--dv-column\)\)\/2 \+ 16px\)\)/);
   assert.doesNotMatch(css, /\.dv-tabs\{top:/);
 });
+
+test('church devotion page advertises the EKODI share card for KakaoTalk previews', () => {
+  assert.match(page, /og:image" content="https:\/\/ekodi\.kr\/bible\/og\/devotion\.jpg"/);
+  assert.match(page, /twitter:card" content="summary_large_image"/);
+});
