@@ -49,11 +49,29 @@
       if (Array.isArray(b.questions) && block('questions')) block('questions').innerHTML = '<ol class="bp-q">' + b.questions.filter(Boolean).map(a => `<li>${esc(a)}</li>`).join('') + '</ol>';
     }
     const photo = block('photo');
-    if (photo && photoUrl && /^https:\/\/renzehysxirjilvdxacv\.supabase\.co\/storage\/v1\/object\/public\/church-bulletin\//.test(photoUrl)) {
-      photo.querySelector('img').src = photoUrl;
-      photo.querySelector('img').alt = (b && b.photoCaption) || '';
-      photo.querySelector('figcaption').textContent = (b && b.photoCaption) || '';
-      photo.hidden = false;
+    if (photo) {
+      // Photo slot: an uploaded photo, a public Google Drive photo, a blank
+      // space, or a short text — chosen in My Page.
+      const mode = (b && b.photoMode) || (photoUrl ? 'photo' : '');
+      const img = photo.querySelector('img');
+      const cap = photo.querySelector('figcaption');
+      const allowed = /^https:\/\/(renzehysxirjilvdxacv\.supabase\.co\/storage\/v1\/object\/public\/church-bulletin\/|drive\.google\.com\/thumbnail\?id=[\w-]+&sz=w\d+$)/;
+      photo.classList.remove('bp-photo-blank', 'bp-photo-text');
+      let note = photo.querySelector('.bp-photo-note');
+      if (mode === 'photo' && photoUrl && allowed.test(photoUrl)) {
+        img.hidden = false; img.src = photoUrl; img.alt = (b && b.photoCaption) || '';
+        cap.textContent = (b && b.photoCaption) || '';
+        if (note) note.remove();
+        photo.hidden = false;
+      } else if (mode === 'blank' || mode === 'text') {
+        img.hidden = true; img.removeAttribute('src'); cap.textContent = '';
+        photo.classList.add(mode === 'blank' ? 'bp-photo-blank' : 'bp-photo-text');
+        if (mode === 'text') {
+          if (!note) { note = document.createElement('p'); note.className = 'bp-photo-note'; photo.prepend(note); }
+          note.textContent = (b && b.photoText) || '';
+        } else if (note) note.remove();
+        photo.hidden = false;
+      }
     }
   }
 

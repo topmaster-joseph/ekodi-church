@@ -162,7 +162,9 @@ async function loadBulletinEditor(){
   b=b||{};
   $('beWeek').value=toText(b.week);$('beAnnounce').value=(b.announce||[]).join('\n');$('beServe').value=toText(b.serve);$('beStats').value=toText(b.stats);
   $('beCommittee').value=toText(b.committee);$('beSponsors').value=(b.sponsors||[]).join('\n');$('beQuestions').value=(b.questions||[]).join('\n');
-  $('bePhotoCaption').value=b.photoCaption||'';
+  $('bePhotoCaption').value=b.photoCaption||'';$('bePhotoText').value=b.photoText||'';$('beDriveLink').value='';
+  const mode=b.photoMode||(box.dataset.photo?'photo':'photo');document.querySelectorAll('input[name=bePhotoMode]').forEach(r=>r.checked=r.value===mode);
+  const pv=$('bePhotoPreview');if(box.dataset.photo){pv.querySelector('img').src=box.dataset.photo;pv.hidden=false}else pv.hidden=true;
   $('beStatus').textContent=b.week?'불러왔습니다. 고친 뒤 [주보 저장]을 누르세요.':'이 날짜의 예배 페이지가 아직 없습니다. 내용을 입력해 저장할 수 있습니다.';
 }
 async function uploadPhoto(date,file){
@@ -173,15 +175,26 @@ async function uploadPhoto(date,file){
   if(!r.ok)throw new Error('사진 올리기 실패 '+r.status);
   return `${SUPABASE_URL}/storage/v1/object/public/church-bulletin/${path}`;
 }
+function driveThumb(link){
+  const v=String(link||'').trim();if(!v)return '';
+  const m=v.match(/\/d\/([\w-]{20,})/)||v.match(/[?&]id=([\w-]{20,})/);
+  return m?`https://drive.google.com/thumbnail?id=${m[1]}&sz=w1600`:'';
+}
 async function saveBulletin(){
   const date=$('serviceDate').value;const btn=$('beSave');btn.disabled=true;$('beStatus').textContent='저장 중…';
   try{
     const bulletin={week:cells($('beWeek').value),announce:lines($('beAnnounce').value),serve:cells($('beServe').value),stats:cells($('beStats').value),committee:cells($('beCommittee').value),sponsors:lines($('beSponsors').value),questions:lines($('beQuestions').value),photoCaption:$('bePhotoCaption').value.trim()};
     const patch={bulletin,updated_at:new Date().toISOString()};
-    const file=$('bePhoto').files?.[0];if(file)patch.photo_url=await uploadPhoto(date,file);
+    bulletin.photoMode=document.querySelector('input[name=bePhotoMode]:checked')?.value||'photo';
+    bulletin.photoText=$('bePhotoText').value.trim();
+    const file=$('bePhoto').files?.[0];
+    const drive=driveThumb($('beDriveLink').value);
+    if($('beDriveLink').value.trim()&&!drive)throw new Error('구글 드라이브 파일 링크를 확인해 주세요.');
+    if(file)patch.photo_url=await uploadPhoto(date,file);else if(drive)patch.photo_url=drive;
+    if(bulletin.photoMode==='photo'&&!patch.photo_url&&!$('bulletinEditor').dataset.photo)bulletin.photoMode='blank';
     let saved=await rest(TABLE+'?service_type=eq.sunday&service_date=eq.'+date,{method:'PATCH',body:patch,prefer:'return=representation'});
     if(!saved?.length){const p=payload();await rest(TABLE+'?on_conflict=service_type,service_date',{method:'POST',body:{...record(p,false),...patch},prefer:'resolution=merge-duplicates,return=minimal'})}
-    $('bePhoto').value='';$('beStatus').textContent='저장했습니다. [주보 화면 열기]로 확인하세요.';
+    $('bePhoto').value='';$('beDriveLink').value='';if(patch.photo_url){$('bulletinEditor').dataset.photo=patch.photo_url;const pv=$('bePhotoPreview');pv.querySelector('img').src=patch.photo_url;pv.hidden=false}$('beStatus').textContent='저장했습니다. [주보 화면 열기]로 확인하세요.';
   }catch(error){$('beStatus').textContent='저장 실패: '+error.message}
   finally{btn.disabled=false}
 }
