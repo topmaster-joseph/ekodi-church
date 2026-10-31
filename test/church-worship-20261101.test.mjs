@@ -50,7 +50,7 @@ test('Merged worship pages stay behind the final-review gate until published',()
   assert.match(gate,/catch \{ reveal\(\); return; \}/,'an outage never hides Sunday materials');
   assert.doesNotMatch(gate,/service_role|stream_?key/i);
   const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
-  assert.match(my,/async function loadReviews\(\)/);assert.match(my,/update\(\{is_published:publish/);
+  assert.match(my,/async function loadReviews\(\)/);assert.match(my,/method:'PATCH',body:\{is_published:publish/);
   const home=readFileSync(new URL('../church-weekly-worship.js',import.meta.url),'utf8');
   assert.match(home,/예배자료 최종 검토 중/);
   new Function(gate);
