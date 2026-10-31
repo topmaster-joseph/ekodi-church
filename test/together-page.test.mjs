@@ -42,5 +42,21 @@ test('header and content share one centered measure', () => {
   assert.match(css, /\.site-header\{[^}]*padding:0 max\(var\(--tg-gutter\),calc\(\(100% - var\(--tg-w\)\) \/ 2\)\)/);
   assert.match(css, /\.together-wrap\{width:min\(var\(--tg-w\),100% - var\(--tg-gutter\) \* 2\)/);
   assert.match(css, /\.together-main\{[^}]*text-align:center/);
-  assert.equal((html.match(/class="together-wrap"/g) || []).length, 4);
+  assert.equal((html.match(/class="together-wrap"/g) || []).length, 5);
+});
+
+test('three ways are buttons that reveal their detail below', () => {
+  assert.equal((html.match(/class="together-way" role="tab"/g) || []).length, 3);
+  for (const id of ['pray', 'give', 'join']) assert.match(html, new RegExp(`id="${id}" role="tabpanel"`));
+  assert.match(js, /sections\.forEach\(section => \{ section\.hidden = !panels\[way\]\.includes\(section\.id\); \}\)/);
+});
+
+test('every church page shares the homepage header/footer and a fixed header', () => {
+  const shell = readFileSync(new URL('../church-shell.js', import.meta.url), 'utf8');
+  assert.match(shell, /header\.site-header #main-nav/);assert.match(shell, /footer\[data-ekodi-service-footer\]/);
+  assert.match(shell, /\['position', 'fixed'\]/);assert.match(shell, /church-shell-spacer/);
+  assert.match(html, /\/ekodichurch\/church-shell\.js/);assert.match(home, /church-shell\.js/);
+  const devotion = readFileSync(new URL('../devotion/index.html', import.meta.url), 'utf8');
+  assert.match(devotion, /\/ekodichurch\/church-shell\.js/);
+  new Function(shell);
 });

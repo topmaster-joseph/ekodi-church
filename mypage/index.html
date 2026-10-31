@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>에코디교회 예배 운영 콘솔</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20261101c">
 </head>
 <body>
   <header class="topbar">
@@ -27,6 +27,24 @@
       <div id="reviewList"><p>예배자료 목록을 불러오는 중입니다.</p></div>
     </section>
 
+    <section class="card bulletin-editor" id="bulletinEditor" hidden>
+      <div class="preview-head"><h2>주보 편집 · 사진과 내용</h2><span id="bulletinEditDate"></span></div>
+      <p class="hint">한 줄에 하나씩 적습니다. 표는 칸을 <b>|</b> 로 나눕니다. 저장하면 예배 페이지 주보에 바로 반영됩니다(공개 전에는 운영자에게만 보임).</p>
+      <div class="editor-grid">
+        <label>사진<input id="bePhoto" type="file" accept="image/jpeg,image/png,image/webp"></label>
+        <label>사진 설명<input id="bePhotoCaption" placeholder="예: 2026년 10월 03일, 고창 핑크뮬리에서"></label>
+        <label>이번 주 매일묵상 (요일 날짜 | 본문)<textarea id="beWeek" rows="7"></textarea></label>
+        <label>교회소식 (한 줄에 하나)<textarea id="beAnnounce" rows="7"></textarea></label>
+        <label>섬기는 이 (구분 | 이름)<textarea id="beServe" rows="4"></textarea></label>
+        <label>최근 통계 (구분 | 장소 | 시간 | 인원)<textarea id="beStats" rows="4"></textarea></label>
+        <label>예배위원 (첫 줄은 제목줄)<textarea id="beCommittee" rows="6"></textarea></label>
+        <label>협력기관 (한 줄에 하나)<textarea id="beSponsors" rows="6"></textarea></label>
+        <label>적용 질문 (한 줄에 하나)<textarea id="beQuestions" rows="4"></textarea></label>
+      </div>
+      <div class="actions"><button id="beSave" class="primary" type="button">주보 저장</button><a id="beOpen" class="button-link" href="#">주보 화면 열기</a></div>
+      <small id="beStatus" role="status"></small>
+    </section>
+
     <section class="grid two">
       <article class="card">
         <h2>모임 선택</h2>
@@ -46,7 +64,7 @@
 
       <article class="card status-card">
         <h2>자동 준비 현황</h2>
-        <div class="status-row"><span>주보</span><strong id="bulletinStatus">대기</strong></div>
+        <div class="status-row"><span id="bulletinStatusLabel">주보</span><strong id="bulletinStatus">대기</strong></div>
         <div class="status-row"><span>PPT</span><strong id="pptStatus">대기</strong></div>
         <div class="status-row"><span>홈페이지</span><strong id="webStatus">대기</strong></div>
         <div class="status-row"><span>라이브방송</span><strong id="liveStatus">대기</strong></div>
@@ -60,7 +78,7 @@
 
     <section class="grid four outputs">
       <article class="card output-card">
-        <span>01</span><h3>주보</h3><p>예배 순서와 담당, 본문과 공지를 인쇄용 문서로 생성합니다.</p><button id="openBulletin" type="button">주보 미리보기</button>
+        <span>01</span><h3 id="bulletinCardTitle">주보</h3><p>예배 순서와 담당, 본문과 공지를 인쇄용 문서로 생성합니다.</p><button id="openBulletin" type="button">주보 미리보기</button>
       </article>
       <article class="card output-card">
         <span>02</span><h3>PPT</h3><p>표지·본문·찬양·말씀·공지 순서의 발표 자료를 만듭니다.</p><button id="downloadPpt" type="button">PPT 다운로드</button>
@@ -79,6 +97,6 @@
     </section>
   </main>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=20261101c"></script>
 </body>
 </html>

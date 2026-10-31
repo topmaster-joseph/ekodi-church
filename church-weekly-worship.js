@@ -107,7 +107,12 @@ async function init(){
     const data=await res.json();
     entries=(data.services||[]).filter(v=>sunday(v.date)&&/^\/ekodichurch\/worship\/\d{4}-\d{2}-\d{2}\/$/.test(v.page)).sort((a,b)=>a.date.localeCompare(b.date));
     if(!entries.length)throw new Error('등록된 예배가 없습니다.');
-    const next=entries.find(v=>v.date>=kstToday())||entries[entries.length-1];
+    let next=entries.find(v=>v.date>=kstToday())||entries[entries.length-1];
+    // Until the coming Sunday is published after final review, show the most recent published Sunday.
+    if(!(await isPublished(next.date))){
+      const earlier=entries.filter(v=>v.date<next.date).reverse();
+      for(const item of earlier){if(await isPublished(item.date)){next=item;break;}}
+    }
     for(const item of [...entries].reverse()){const o=document.createElement('option');o.value=item.date;o.textContent=item.date+' '+localize('주일모임','Sunday worship');select.append(o);}
     select.value=next.date;await load(next);
   }catch(error){status.textContent=localize(error.message,'Unable to load worship dates');}

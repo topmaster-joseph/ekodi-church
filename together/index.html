@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="/ekodichurch/church-refresh.css">
   <link rel="stylesheet" href="/ekodichurch/responsive.css">
   <link rel="stylesheet" href="/ekodichurch/church-footer.css">
-  <link rel="stylesheet" href="/ekodichurch/together/together.css">
+  <link rel="stylesheet" href="/ekodichurch/together/together.css?v=20261101">
 </head>
 <body data-ekodi-footer-mode="service" data-ekodi-church-together>
   <header class="site-header" id="top">
@@ -46,8 +46,8 @@
         <h1>말씀으로 삶을 읽고,<br><em>함께 살아내고 증언합니다.</em></h1>
         <p class="together-hero-copy">에코디교회는 예배와 말씀 안에서 삶을 해석하는 공동체이고, 에코디선교회는 그 복음을 청계면의 이웃과 지역, 필요한 곳으로 흘려보내는 손과 발입니다. 기도 한 줄, 작은 정기후원, 함께 일하는 협력이 이 길을 이어 갑니다.</p>
         <div class="together-hero-actions">
-          <a class="button primary" href="#join">동역 신청하기</a>
-          <a class="button text" href="#give">후원 방법 보기</a>
+          <a class="button primary" href="#join" data-way-link="partner">동역 신청하기</a>
+          <a class="button text" href="#give" data-way-link="give">후원 방법 보기</a>
         </div>
       </div>
     </section>
@@ -56,15 +56,24 @@
       <div class="together-wrap">
         <p class="together-kicker">THREE WAYS</p>
         <h2 id="ways-title">세 가지 길로 함께합니다</h2>
-        <div class="together-grid">
-          <article><span>01 · PRAY</span><h3>기도로 함께</h3><p>매월 사역 편지로 기도제목과 사역 이야기를 받아 보시고, 같은 말씀으로 함께 기도합니다.</p></article>
-          <article><span>02 · GIVE</span><h3>후원으로 함께</h3><p>정기후원은 예배·묵상 사역과 이웃을 섬기는 열린식탁, 지역 선교를 꾸준히 이어 가게 합니다.</p></article>
-          <article><span>03 · PARTNER</span><h3>협력으로 함께</h3><p>교회·선교단체·지역기관·개인의 재능(통역, 촬영, 디자인, 조리, 이동)을 실제 역할로 연결합니다.</p></article>
+        <div class="together-grid" role="tablist" aria-label="함께하는 방식 선택">
+          <button type="button" class="together-way" role="tab" id="way-pray" data-way="pray" aria-controls="pray" aria-selected="false"><span>01 · PRAY</span><h3>기도로 함께</h3><p>매월 사역 편지로 기도제목과 사역 이야기를 받아 보시고, 같은 말씀으로 함께 기도합니다.</p><b class="together-way-go">기도동역 신청 ↓</b></button>
+          <button type="button" class="together-way" role="tab" id="way-give" data-way="give" aria-controls="give" aria-selected="false"><span>02 · GIVE</span><h3>후원으로 함께</h3><p>정기후원은 예배·묵상 사역과 이웃을 섬기는 열린식탁, 지역 선교를 꾸준히 이어 가게 합니다.</p><b class="together-way-go">후원 방법 보기 ↓</b></button>
+          <button type="button" class="together-way" role="tab" id="way-partner" data-way="partner" aria-controls="join" aria-selected="false"><span>03 · PARTNER</span><h3>협력으로 함께</h3><p>교회·선교단체·지역기관·개인의 재능(통역, 촬영, 디자인, 조리, 이동)을 실제 역할로 연결합니다.</p><b class="together-way-go">협력 신청 ↓</b></button>
         </div>
       </div>
     </section>
 
-    <section class="together-give" id="give" aria-labelledby="give-title">
+    <section class="together-pray" id="pray" role="tabpanel" aria-labelledby="way-pray" hidden>
+      <div class="together-wrap">
+        <p class="together-kicker">PRAY</p>
+        <h2>기도로 함께</h2>
+        <p class="together-lead">매월 1회 사역 편지로 기도제목과 사역 이야기를 보내 드립니다. 매일묵상 공통본문으로 같은 말씀을 읽고 함께 기도합니다.</p>
+        <p class="together-hero-actions"><a class="button primary" href="#join" data-way-link="pray">사역 편지 · 기도동역 신청</a><a class="button text" href="/ekodichurch/devotion/">오늘의 매일묵상</a></p>
+      </div>
+    </section>
+
+    <section class="together-give" id="give" role="tabpanel" aria-labelledby="way-give" aria-labelledby="give-title">
       <div class="together-wrap">
         <p class="together-kicker">GIVING</p>
         <h2 id="give-title">후원 안내</h2>
@@ -86,7 +95,7 @@
       </div>
     </section>
 
-    <section class="together-join" id="join" aria-labelledby="join-title">
+    <section class="together-join" id="join" role="tabpanel" aria-labelledby="join-title">
       <div class="together-wrap">
         <p class="together-kicker">JOIN US</p>
         <h2 id="join-title">동역 신청</h2>
@@ -133,6 +142,7 @@
       <div class="church-footer-bottom"><span>© 2026 EKODI CHURCH</span><a href="#top">맨 위로 ↑</a></div>
     </div>
   </footer>
-  <script src="/ekodichurch/together/together.js" defer></script>
+  <script src="/ekodichurch/together/together.js?v=20261101" defer></script>
+  <script src="/ekodichurch/church-shell.js?v=20261101" defer></script>
 </body>
 </html>

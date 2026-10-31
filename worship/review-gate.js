@@ -45,10 +45,8 @@
       if (shared) return shared;
     } catch { /* blocked storage */ }
     try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i) || '';
-        if (!/^sb-.*-auth-token$/.test(key)) continue;
-        const stored = JSON.parse(localStorage.getItem(key) || 'null');
+      {
+        const stored = JSON.parse(localStorage.getItem('sb-renzehysxirjilvdxacv-auth-token') || 'null');
         const session = stored && (stored.currentSession || stored.session || stored);
         if (session && session.access_token && Number(session.expires_at || 0) > now) return session.access_token;
       }
@@ -122,6 +120,18 @@
     document.body.prepend(bar);
   }
 
+  async function latestPublished() {
+    const response = await fetch('/ekodichurch/worship/weekly.json', { cache: 'no-store', signal: timeout(8000) });
+    if (!response.ok) return null;
+    const list = ((await response.json()).services || []).filter(v => v.date < date).sort((a, b) => b.date.localeCompare(a.date));
+    for (const item of list) {
+      const url = API + '?select=service_date&service_type=eq.sunday&service_date=eq.' + item.date + '&is_published=eq.true&limit=1';
+      const rows = await fetch(url, { headers: headers(), cache: 'no-store', signal: timeout(8000) }).then(r => r.ok ? r.json() : []);
+      if (Array.isArray(rows) && rows.length) return item;
+    }
+    return null;
+  }
+
   function hold() {
     const meta = document.createElement('meta');
     meta.name = 'robots';
@@ -141,6 +151,14 @@
     if (isPublic) { reveal(); return; }
     const key = token();
     if (await canReview(key)) { reviewBar(key); reveal(); return; }
+    try {
+      const latest = await latestPublished();
+      if (latest && latest.page) {
+        const rest = location.pathname.split('/worship/' + date + '/')[1] || '';
+        location.replace(latest.page + rest + location.search + location.hash);
+        return;
+      }
+    } catch { /* fall back to the notice */ }
     hold();
     reveal();
   }

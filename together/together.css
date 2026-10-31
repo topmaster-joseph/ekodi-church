@@ -91,3 +91,11 @@ body[data-ekodi-church-together] .site-header nav a[aria-current=page]::after{co
   .together-lead br,.together-note br{display:none}
 }
 @media(prefers-reduced-motion:reduce){.together-main *{transition:none!important}}
+.together-way{all:unset;box-sizing:border-box;display:block;cursor:pointer;background:#fff;border:1px solid #e3ddcf;border-radius:18px;padding:28px;transition:border-color .2s,box-shadow .2s,transform .2s}
+.together-way:hover{transform:translateY(-2px);box-shadow:0 12px 30px #12312b14}
+.together-way[aria-selected=true]{border-color:var(--gold,#c8a66b);box-shadow:0 0 0 2px var(--gold,#c8a66b) inset}
+.together-way:focus-visible{outline:3px solid var(--gold,#c8a66b);outline-offset:3px}
+.together-way span{font-size:12px;letter-spacing:.16em;font-weight:800;color:var(--gold,#a68c56)}
+.together-way p{line-height:1.7;color:#4c5b55}
+.together-way-go{display:inline-block;margin-top:8px;font-size:14px;color:#12312b}
+.together-pray{padding:56px 0}
