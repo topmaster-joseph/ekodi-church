@@ -92,6 +92,7 @@ async function ensureAuth(){
     const status2=document.querySelector('.status-card small');if(status2)status2.textContent=(activeSession.user?.email||'운영자')+' 계정으로 연결되었습니다.';
     await loadRemote();
     await loadReviews();
+    await loadBulletinEditor();
     return true;
   }catch(error){
     console.error('[EKODI Church worship auth]',error);
@@ -129,6 +130,61 @@ document.addEventListener('click',async event=>{
   if(error||!data?.length){alert(`처리 실패: ${error?.message||'예배 기록이 없습니다. 위 입력란에서 먼저 저장해 주세요.'}`);button.disabled=false;return}
   await loadReviews();
 });
+// ---- Bulletin editor (photo + content), Sunday only ----
+const BE=['Week','Announce','Serve','Stats','Committee','Sponsors','Questions'];
+const lines=v=>String(v||'').split('\n').map(x=>x.trim()).filter(Boolean);
+const cells=v=>lines(v).map(l=>l.split('|').map(c=>c.trim()));
+const toText=rows=>(rows||[]).map(r=>Array.isArray(r)?r.join(' | '):String(r)).join('\n');
+function fromPage(doc){
+  const b={};const q=n=>doc.querySelector(`[data-b="${n}"]`);
+  const trs=el=>el?[...el.querySelectorAll('tr')].map(tr=>[...tr.children].map(c=>c.textContent.trim())):[];
+  const wk=trs(q('week'));if(wk.length===2)b.week=wk[0].map((h,i)=>[h,wk[1][i]||'']);
+  b.announce=[...(q('announce')?.querySelectorAll('li')||[])].map(li=>li.textContent.trim());
+  const sv=trs(q('serve')).slice(1);b.serve=sv.flatMap(r=>[[r[0],r[1]],[r[2],r[3]]]).filter(r=>r[0]||r[1]);
+  const st=trs(q('stats')).slice(1);b.stats=st.flatMap(r=>[r.slice(0,4),r.slice(4,8)]).filter(r=>r.some(Boolean));
+  b.committee=trs(q('committee'));
+  b.sponsors=[...(q('sponsors')?.querySelectorAll('li')||[])].map(li=>li.textContent.trim());
+  b.questions=[...(q('questions')?.querySelectorAll('li')||[])].map(li=>li.textContent.trim());
+  return b;
+}
+async function loadBulletinEditor(){
+  const box=$('bulletinEditor');if(!box)return;
+  const isSunday=service==='sunday';
+  $('bulletinCardTitle').textContent=isSunday?'주보':'순서지';$('bulletinStatusLabel').textContent=isSunday?'주보':'순서지';
+  box.hidden=!(accessReady&&sb.ready&&isSunday);if(box.hidden)return;
+  const date=$('serviceDate').value;$('bulletinEditDate').textContent=date+' 주일모임';
+  $('beOpen').href=`/ekodichurch/worship/${date}/`;$('beStatus').textContent='불러오는 중…';
+  let b=null;
+  try{const r=await rest(TABLE+'?select=bulletin,photo_url&service_type=eq.sunday&service_date=eq.'+date+'&limit=1');b=r?.[0]?.bulletin||null;box.dataset.photo=r?.[0]?.photo_url||''}catch{}
+  if(!b){
+    try{const html=await fetch(`/ekodichurch/worship/${date}/`,{cache:'no-store'}).then(r=>r.ok?r.text():'');if(html.includes('data-bulletin-date'))b=fromPage(new DOMParser().parseFromString(html,'text/html'))}catch{}
+  }
+  b=b||{};
+  $('beWeek').value=toText(b.week);$('beAnnounce').value=(b.announce||[]).join('\n');$('beServe').value=toText(b.serve);$('beStats').value=toText(b.stats);
+  $('beCommittee').value=toText(b.committee);$('beSponsors').value=(b.sponsors||[]).join('\n');$('beQuestions').value=(b.questions||[]).join('\n');
+  $('bePhotoCaption').value=b.photoCaption||'';
+  $('beStatus').textContent=b.week?'불러왔습니다. 고친 뒤 [주보 저장]을 누르세요.':'이 날짜의 예배 페이지가 아직 없습니다. 내용을 입력해 저장할 수 있습니다.';
+}
+async function uploadPhoto(date,file){
+  if(file.size>5*1024*1024)throw new Error('사진은 5MB 이하만 올릴 수 있습니다.');
+  const ext=({'image/jpeg':'jpg','image/png':'png','image/webp':'webp'})[file.type];if(!ext)throw new Error('JPG·PNG·WEBP 사진만 올릴 수 있습니다.');
+  const path=`sunday/${date}/photo-${Date.now()}.${ext}`;
+  const r=await fetch(`${SUPABASE_URL}/storage/v1/object/church-bulletin/${path}`,{method:'POST',headers:{apikey:PUBLISHABLE_KEY,authorization:'Bearer '+activeSession.access_token,'content-type':file.type,'x-upsert':'true'},body:file});
+  if(!r.ok)throw new Error('사진 올리기 실패 '+r.status);
+  return `${SUPABASE_URL}/storage/v1/object/public/church-bulletin/${path}`;
+}
+async function saveBulletin(){
+  const date=$('serviceDate').value;const btn=$('beSave');btn.disabled=true;$('beStatus').textContent='저장 중…';
+  try{
+    const bulletin={week:cells($('beWeek').value),announce:lines($('beAnnounce').value),serve:cells($('beServe').value),stats:cells($('beStats').value),committee:cells($('beCommittee').value),sponsors:lines($('beSponsors').value),questions:lines($('beQuestions').value),photoCaption:$('bePhotoCaption').value.trim()};
+    const patch={bulletin,updated_at:new Date().toISOString()};
+    const file=$('bePhoto').files?.[0];if(file)patch.photo_url=await uploadPhoto(date,file);
+    let saved=await rest(TABLE+'?service_type=eq.sunday&service_date=eq.'+date,{method:'PATCH',body:patch,prefer:'return=representation'});
+    if(!saved?.length){const p=payload();await rest(TABLE+'?on_conflict=service_type,service_date',{method:'POST',body:{...record(p,false),...patch},prefer:'resolution=merge-duplicates,return=minimal'})}
+    $('bePhoto').value='';$('beStatus').textContent='저장했습니다. [주보 화면 열기]로 확인하세요.';
+  }catch(error){$('beStatus').textContent='저장 실패: '+error.message}
+  finally{btn.disabled=false}
+}
 async function persist(published=false){
   saveLocal();
   if(!accessReady||!sb.ready)throw new Error('login_required');
@@ -138,14 +194,14 @@ async function persist(published=false){
   return p;
 }
 async function saveDraft(){try{await persist(false);setStatus('webStatus','초안 저장됨')}catch(error){alert(`저장 실패: ${error.message}`)}}
-function bulletinHtml(p){return`<!doctype html><html lang="ko"><meta charset="utf-8"><title>${esc(p.serviceName)} 주보</title><style>body{font-family:serif;max-width:760px;margin:40px auto;padding:24px;color:#222}h1{text-align:center;margin-bottom:6px}.meta{text-align:center;color:#555;margin-bottom:30px}.row{padding:12px 0;border-bottom:1px solid #ddd}.row b{display:inline-block;width:110px}.notice{white-space:pre-wrap}@media print{button{display:none}}</style><h1>에코디교회 ${esc(p.serviceName)} 주보</h1><div class="meta">${esc(p.date)} · ${esc(p.time)}</div><div class="row"><b>본문</b>${esc(p.scripture)}</div><div class="row"><b>말씀</b>${esc(p.title)}</div><div class="row"><b>설교</b>${esc(p.preacher)}</div><div class="row"><b>찬양</b><span style="white-space:pre-wrap">${esc(p.songs)}</span></div><div class="row"><b>대표기도</b>${esc(p.prayer)}</div><div class="row"><b>식사준비</b>${esc(p.meal)}</div><div class="row"><b>공지</b><span class="notice">${esc(p.notice)}</span></div><p style="margin-top:36px;text-align:center">말씀대로 살아내고 살려내는 공동체 · EKODI CHURCH</p><button onclick="print()">인쇄 / PDF 저장</button></html>`}
+function bulletinHtml(p){return`<!doctype html><html lang="ko"><meta charset="utf-8"><title>${esc(p.serviceName)} ${p.service==='saturday'?'순서지':'주보'}</title><style>body{font-family:serif;max-width:760px;margin:40px auto;padding:24px;color:#222}h1{text-align:center;margin-bottom:6px}.meta{text-align:center;color:#555;margin-bottom:30px}.row{padding:12px 0;border-bottom:1px solid #ddd}.row b{display:inline-block;width:110px}.notice{white-space:pre-wrap}@media print{button{display:none}}</style><h1>에코디교회 ${esc(p.serviceName)} ${p.service==='saturday'?'순서지':'주보'}</h1><div class="meta">${esc(p.date)} · ${esc(p.time)}</div><div class="row"><b>본문</b>${esc(p.scripture)}</div><div class="row"><b>말씀</b>${esc(p.title)}</div><div class="row"><b>설교</b>${esc(p.preacher)}</div><div class="row"><b>찬양</b><span style="white-space:pre-wrap">${esc(p.songs)}</span></div><div class="row"><b>대표기도</b>${esc(p.prayer)}</div><div class="row"><b>식사준비</b>${esc(p.meal)}</div><div class="row"><b>공지</b><span class="notice">${esc(p.notice)}</span></div><p style="margin-top:36px;text-align:center">말씀대로 살아내고 살려내는 공동체 · EKODI CHURCH</p><button onclick="print()">인쇄 / PDF 저장</button></html>`}
 function openBulletin(){saveLocal();const w=window.open('','_blank');w.document.write(bulletinHtml(payload()));w.document.close();setStatus('bulletinStatus')}
 function pptHtml(p){const slides=[['에코디교회 '+p.serviceName,`${p.date} · ${p.time}`],[p.scripture||'오늘의 말씀',p.title||'말씀으로 삶을 읽습니다'],['찬양',p.songs||'찬양 순서'],['말씀',`${p.title||''}\n${p.scripture||''}\n${p.preacher||''}`],['공동체 소식',p.notice||'함께 나눌 소식'],['보냄','들은 말씀을 오늘의 삶으로 살아냅니다.']];return`<html><head><meta charset="utf-8"><style>@page{size:13.333in 7.5in;margin:0}body{margin:0;font-family:Arial,sans-serif}.slide{page-break-after:always;width:13.333in;height:7.5in;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:1in;box-sizing:border-box}.slide h1{font-size:34pt}.slide p{font-size:22pt;white-space:pre-wrap;line-height:1.5}</style></head><body>${slides.map(s=>`<section class="slide"><h1>${esc(s[0])}</h1><p>${esc(s[1])}</p></section>`).join('')}</body></html>`}
 function downloadPpt(){saveLocal();const p=payload();const blob=new Blob([pptHtml(p)],{type:'application/vnd.ms-powerpoint'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${p.date||'service'}-${p.serviceName}-EKODI.ppt`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);setStatus('pptStatus')}
 async function publishWebsite(){try{await persist(true);setStatus('webStatus','홈페이지 게시됨');return true}catch(error){alert(`게시 실패: ${error.message}`);return false}}
 function openLive(){saveLocal();const p=payload();const q=new URLSearchParams({mode:'studio',service:p.serviceName,date:p.date,title:p.title,scripture:p.scripture,preacher:p.preacher,notice:p.notice});setStatus('liveStatus','스튜디오 연결');window.open(`../live/?${q.toString()}`,'_blank')}
 
-document.querySelectorAll('.service-tab').forEach(btn=>btn.addEventListener('click',async()=>{document.querySelectorAll('.service-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');service=btn.dataset.service;loadLocal();await loadRemote()}));
+document.querySelectorAll('.service-tab').forEach(btn=>btn.addEventListener('click',async()=>{document.querySelectorAll('.service-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');service=btn.dataset.service;loadLocal();await loadRemote();await loadBulletinEditor()}));
 ['serviceDate','scripture','title','preacher','songs','prayer','notice','meal'].forEach(id=>$(id).addEventListener('input',render));
 function snapDate(){
   const el=$('serviceDate');if(!el.value)return;
@@ -153,7 +209,8 @@ function snapDate(){
   const diff=(target-d.getDay()+7)%7;if(!diff)return;
   d.setDate(d.getDate()+diff);el.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
-$('serviceDate').addEventListener('change',()=>{snapDate();render();void loadRemote()});
+$('serviceDate').addEventListener('change',()=>{snapDate();render();void loadRemote().then(loadBulletinEditor)});
+$('beSave')?.addEventListener('click',()=>void saveBulletin());
 $('saveDraft').addEventListener('click',()=>void saveDraft());
 $('openBulletin').addEventListener('click',openBulletin);
 $('downloadPpt').addEventListener('click',downloadPpt);

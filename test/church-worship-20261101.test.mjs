@@ -22,8 +22,8 @@ test('Thirty 16:9 text slides, score pages withheld, isolated presenter channel'
   new Function(js);
 });
 
-test('Online bulletin keeps the three-sheet Google Docs shape without private items',()=>{
-  assert.equal((html.match(/class="bp-sheet"/g)||[]).length,3);
+test('Online bulletin keeps the two-sheet Google Docs shape without private items',()=>{
+  assert.equal((html.match(/class="bp-sheet"/g)||[]).length,2);
   for(const part of ['This Week’s Scripture for Meditation and Sharing · 11/01–11/07','Community Announce','Community Confession','Those who serve','[Community Sunday Worship Service]','[Worship committee]','[Sponsor or Cooperation(ABC)]','[Application question]','발행 26.11.01(44)'])assert.ok(html.includes(part),part);
   assert.doesNotMatch(html,/임진명/,'personal recovery prayer stays off the public web');
   assert.doesNotMatch(html,/핑크뮬리/,'group photo stays off the public web');
@@ -70,4 +70,14 @@ test('Before the coming Sunday is published, the latest published Sunday is show
   assert.match(gate,/async function latestPublished\(\)/);assert.match(gate,/location\.replace\(latest\.page/);
   const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
   assert.match(my,/function snapDate\(\)/);
+});
+
+test('Bulletin photo and content are editable from My Page and rendered on the page',()=>{
+  for(const b of ['week','announce','photo','serve','stats','committee','sponsors','questions'])assert.match(html,new RegExp(`data-b="${b}"`),b);
+  assert.match(html,/bulletin-data\.js\?v=\d+" data-date="2026-11-01"/);
+  const data=readFileSync(new URL('../worship/bulletin-data.js',import.meta.url),'utf8');
+  assert.match(data,/const esc = /);assert.match(data,/storage\\\/v1\\\/object\\\/public\\\/church-bulletin/);
+  const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
+  assert.match(my,/async function saveBulletin\(\)/);assert.match(my,/storage\/v1\/object\/church-bulletin/);assert.match(my,/순서지/);
+  new Function(data);
 });
