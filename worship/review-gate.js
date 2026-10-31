@@ -45,9 +45,13 @@
       if (shared) return shared;
     } catch { /* blocked storage */ }
     try {
-      const stored = JSON.parse(localStorage.getItem('sb-renzehysxirjilvdxacv-auth-token') || 'null');
-      const session = stored && (stored.currentSession || stored);
-      if (session && session.access_token && Number(session.expires_at || 0) > now) return session.access_token;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i) || '';
+        if (!/^sb-.*-auth-token$/.test(key)) continue;
+        const stored = JSON.parse(localStorage.getItem(key) || 'null');
+        const session = stored && (stored.currentSession || stored.session || stored);
+        if (session && session.access_token && Number(session.expires_at || 0) > now) return session.access_token;
+      }
     } catch { /* blocked storage */ }
     return '';
   }
