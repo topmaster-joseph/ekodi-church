@@ -111,3 +111,8 @@ test('My Page links Google originals (managers only) and the bulletin view shows
   assert.match(page,/\?view=stage/);assert.match(page,/\?view=operator/);
   assert.match(page,/고린도전서 3:1/);
 });
+
+test('Photo editor decodes with createImageBitmap (blob: images are blocked by CSP)',()=>{
+  const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
+  assert.match(my,/createImageBitmap\(file/);assert.doesNotMatch(my,/createObjectURL\(file\)/);
+});
