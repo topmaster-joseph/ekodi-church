@@ -116,3 +116,11 @@ test('Photo editor decodes with createImageBitmap (blob: images are blocked by C
   const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
   assert.match(my,/createImageBitmap\(file/);assert.doesNotMatch(my,/createObjectURL\(file\)/);
 });
+
+test('My Page console fits one screen: last 2 weeks, editors open from buttons',()=>{
+  const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
+  const page=readFileSync(new URL('../mypage/index.html',import.meta.url),'utf8');
+  assert.match(my,/\.slice\(0,2\);/);
+  for(const id of ['panelBulletin','panelService','panelOutputs'])assert.match(page,new RegExp(`data-panel="${id}"`),id);
+  assert.match(page,/<details class="group" open><summary>사진<\/summary>/);
+});

@@ -113,7 +113,7 @@ async function loadReviews(){
   card.hidden=false;
   try{
     const weekly=await fetch('../worship/weekly.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('목록 '+r.status);return r.json()});
-    const items=(weekly.services||[]).filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v.date)).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,4);
+    const items=(weekly.services||[]).filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v.date)).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,2);
     const data=items.length?await rest(TABLE+'?select=service_date,title,is_published&service_type=eq.sunday&service_date=in.('+items.map(v=>v.date).join(',')+')'):[];
     const rows=Object.fromEntries((data||[]).map(r=>[r.service_date,r]));
     // Google Drive originals (managers only; the table is closed to the public).
@@ -165,7 +165,7 @@ async function loadBulletinEditor(){
   const box=$('bulletinEditor');if(!box)return;
   const isSunday=service==='sunday';
   $('bulletinCardTitle').textContent=isSunday?'주보':'순서지';$('bulletinStatusLabel').textContent=isSunday?'주보':'순서지';
-  box.hidden=!(accessReady&&sb.ready&&isSunday);if(box.hidden)return;
+  box.hidden=!(accessReady&&sb.ready&&isSunday);const locked=$('bulletinLocked');if(locked)locked.hidden=!box.hidden;if(box.hidden)return;
   const date=$('serviceDate').value;$('bulletinEditDate').textContent=date+' 주일모임';
   $('beOpen').href=`/ekodichurch/worship/${date}/`;$('beStatus').textContent='불러오는 중…';
   let b=null;
@@ -280,6 +280,12 @@ function snapDate(){
 }
 $('serviceDate').addEventListener('change',()=>{snapDate();render();void loadRemote().then(loadBulletinEditor)});
 $('beSave')?.addEventListener('click',()=>void saveBulletin());
+// Compact console: each editor opens below its button, one at a time.
+document.querySelectorAll('.panel-tabs [data-panel]').forEach(btn=>btn.addEventListener('click',()=>{
+  const open=btn.getAttribute('aria-expanded')!=='true';
+  document.querySelectorAll('.panel-tabs [data-panel]').forEach(b=>{b.setAttribute('aria-expanded','false');$(b.dataset.panel).hidden=true});
+  if(open){btn.setAttribute('aria-expanded','true');$(btn.dataset.panel).hidden=false}
+}));
 $('bePhoto')?.addEventListener('change',e=>void openEditor(e.target.files?.[0]));
 document.querySelectorAll('#bePhotoEdit [data-rot]').forEach(b=>b.addEventListener('click',()=>{edit.rot=(edit.rot+Number(b.dataset.rot)+360)%360;previewEdit()}));
 ['beRatio','beZoom','beX','beY','beBright'].forEach(id=>$(id)?.addEventListener('input',previewEdit));
