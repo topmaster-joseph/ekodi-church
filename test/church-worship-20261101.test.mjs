@@ -90,3 +90,24 @@ test('Bulletin photo slot supports upload, Google Drive link, blank space or tex
   const css=readFileSync(new URL('../worship/2026-11-01/bulletin.css',import.meta.url),'utf8');
   assert.match(css,/\.bp-photo img\{border-radius:14px/);
 });
+
+test('My Page photo editor resizes automatically and text keeps Korean words whole',()=>{
+  const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
+  const page=readFileSync(new URL('../mypage/index.html',import.meta.url),'utf8');
+  const css=readFileSync(new URL('../mypage/styles.css',import.meta.url),'utf8');
+  assert.match(my,/async function editedBlob\(\)/);assert.match(my,/image\/jpeg/);assert.doesNotMatch(my,/5MB 이하만/);
+  for(const id of ['beCanvas','beRatio','beZoom','beX','beY','beBright','beReset'])assert.match(page,new RegExp(`id="${id}"`),id);
+  assert.match(page,/data-rot="-90"/);assert.match(page,/accept="image\/\*"/);
+  assert.match(css,/word-break:keep-all/);
+});
+
+test('My Page links Google originals (managers only) and the bulletin view shows only the bulletin',()=>{
+  const my=readFileSync(new URL('../mypage/app.js',import.meta.url),'utf8');
+  assert.match(my,/church_worship_sources\?select=service_date,bulletin_url,sermon_url,slides_url/);
+  for(const t of ['원본 주보','설교원고','예배 PPT'])assert.match(my,new RegExp(t));
+  const page=get('index.html');
+  assert.doesNotMatch(page,/class="bulletin-actions"/);
+  assert.match(page,/bulletin-heading sr-only/);assert.match(page,/id="print-bulletin"/);
+  assert.match(page,/\?view=stage/);assert.match(page,/\?view=operator/);
+  assert.match(page,/고린도전서 3:1/);
+});

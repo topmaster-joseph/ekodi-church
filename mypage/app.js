@@ -116,9 +116,23 @@ async function loadReviews(){
     const items=(weekly.services||[]).filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v.date)).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,4);
     const data=items.length?await rest(TABLE+'?select=service_date,title,is_published&service_type=eq.sunday&service_date=in.('+items.map(v=>v.date).join(',')+')'):[];
     const rows=Object.fromEntries((data||[]).map(r=>[r.service_date,r]));
-    list.innerHTML=items.map(v=>{const r=rows[v.date]||{};const pub=r.is_published===true;return `<div class="review-row" data-date="${esc(v.date)}"><div><strong>${esc(v.date)} 주일모임</strong> <span class="review-badge ${pub?'public':''}">${pub?'공개됨':'검토 중 · 비공개'}</span><small>${esc(r.title||'제목 확인 중')}</small></div><div class="review-actions"><a href="${esc(v.page)}">검토 화면</a><a href="${esc(v.page)}?view=stage">PPT 16:9</a><a href="${esc(v.page)}sermon/">말씀나눔</a>${pub?'<button type="button" data-review="hide">비공개로 되돌리기</button>':'<button type="button" class="primary" data-review="publish">최종 검토 완료 · 공개</button>'}</div></div>`}).join('')||'<p>등록된 예배자료가 없습니다.</p>';
+    // Google Drive originals (managers only; the table is closed to the public).
+    let src={};try{const s=items.length?await rest('church_worship_sources?select=service_date,bulletin_url,sermon_url,slides_url&service_type=eq.sunday&service_date=in.('+items.map(v=>v.date).join(',')+')'):[];src=Object.fromEntries((s||[]).map(r=>[r.service_date,r]))}catch{}
+    const google=u=>/^https:\/\/(docs|drive)\.google\.com\//.test(u||'')?u:'';
+    const originals=d=>{const o=src[d]||{};const links=[['bulletin_url','원본 주보'],['sermon_url','설교원고'],['slides_url','예배 PPT']].map(([k,t])=>google(o[k])?`<a class="source" href="${esc(o[k])}" target="_blank" rel="noopener">${t} ↗</a>`:'').join('');return `<div class="review-sources"><span>구글 원본</span>${links||'<span>아직 연결 안 됨</span>'}<button type="button" class="source-edit" data-sources="${esc(d)}">${links?'링크 바꾸기':'링크 넣기'}</button></div>`};
+    list.innerHTML=items.map(v=>{const r=rows[v.date]||{};const pub=r.is_published===true;return `<div class="review-row" data-date="${esc(v.date)}"><div><strong>${esc(v.date)} 주일모임</strong> <span class="review-badge ${pub?'public':''}">${pub?'공개됨':'검토 중 · 비공개'}</span><small>${esc(r.title||'제목 확인 중')}</small>${originals(v.date)}</div><div class="review-actions"><a href="${esc(v.page)}">검토 화면</a><a href="${esc(v.page)}?view=stage">PPT 16:9</a><a href="${esc(v.page)}sermon/">말씀나눔</a>${pub?'<button type="button" data-review="hide">비공개로 되돌리기</button>':'<button type="button" class="primary" data-review="publish">최종 검토 완료 · 공개</button>'}</div></div>`}).join('')||'<p>등록된 예배자료가 없습니다.</p>';
   }catch(error){list.innerHTML=`<p>목록을 불러오지 못했습니다: ${esc(error.message)}</p>`}
 }
+document.addEventListener('click',async event=>{
+  const edit=event.target.closest('[data-sources]');if(!edit||!sb.ready)return;
+  const date=edit.dataset.sources;const ok=v=>!v||/^https:\/\/(docs|drive)\.google\.com\//.test(v);
+  const ask=t=>{const v=prompt(`${date} ${t} 구글 링크를 붙여 넣으세요 (없으면 비워 두기)`,'');return v===null?null:v.trim()};
+  const bulletin=ask('원본 주보');if(bulletin===null)return;const sermon=ask('설교원고');if(sermon===null)return;const slides=ask('예배 PPT');if(slides===null)return;
+  if(![bulletin,sermon,slides].every(ok)){alert('docs.google.com 또는 drive.google.com 링크만 넣을 수 있습니다.');return}
+  const row={service_type:'sunday',service_date:date,updated_at:new Date().toISOString()};
+  if(bulletin)row.bulletin_url=bulletin;if(sermon)row.sermon_url=sermon;if(slides)row.slides_url=slides;
+  try{await rest('church_worship_sources?on_conflict=service_type,service_date',{method:'POST',body:row,prefer:'resolution=merge-duplicates,return=minimal'});await loadReviews()}catch(e){alert('저장 실패: '+e.message)}
+});
 document.addEventListener('click',async event=>{
   const button=event.target.closest('[data-review]');if(!button)return;
   const date=button.closest('[data-date]')?.dataset.date;if(!date||!sb.ready)return;
@@ -167,11 +181,51 @@ async function loadBulletinEditor(){
   const pv=$('bePhotoPreview');if(box.dataset.photo){pv.querySelector('img').src=box.dataset.photo;pv.hidden=false}else pv.hidden=true;
   $('beStatus').textContent=b.week?'불러왔습니다. 고친 뒤 [주보 저장]을 누르세요.':'이 날짜의 예배 페이지가 아직 없습니다. 내용을 입력해 저장할 수 있습니다.';
 }
-async function uploadPhoto(date,file){
-  if(file.size>5*1024*1024)throw new Error('사진은 5MB 이하만 올릴 수 있습니다.');
-  const ext=({'image/jpeg':'jpg','image/png':'png','image/webp':'webp'})[file.type];if(!ext)throw new Error('JPG·PNG·WEBP 사진만 올릴 수 있습니다.');
-  const path=`sunday/${date}/photo-${Date.now()}.${ext}`;
-  const r=await fetch(`${SUPABASE_URL}/storage/v1/object/church-bulletin/${path}`,{method:'POST',headers:{apikey:PUBLISHABLE_KEY,authorization:'Bearer '+activeSession.access_token,'content-type':file.type,'x-upsert':'true'},body:file});
+// Simple photo editor: rotate, shape, zoom, position and brightness on a canvas.
+// The saved photo is always re-encoded as a right-sized JPEG, so a large phone
+// photo never hits the storage size limit.
+const edit={img:null,rot:0};
+function editState(){return{ratio:Number($('beRatio').value),zoom:Number($('beZoom').value),x:Number($('beX').value)/100,y:Number($('beY').value)/100,bright:Number($('beBright').value)}}
+function drawEdit(canvas,maxSide){
+  const img=edit.img;if(!img)return false;
+  const st=editState();const turned=edit.rot%180!==0;
+  const sw=turned?img.naturalHeight:img.naturalWidth,sh=turned?img.naturalWidth:img.naturalHeight;
+  const ratio=st.ratio||sw/sh;
+  let cw=sw,ch=sw/ratio;if(ch>sh){ch=sh;cw=sh*ratio}
+  cw/=st.zoom;ch/=st.zoom;
+  const cx=(sw-cw)*st.x,cy=(sh-ch)*st.y;
+  const scale=Math.min(1,maxSide/Math.max(cw,ch));
+  canvas.width=Math.round(cw*scale);canvas.height=Math.round(ch*scale);
+  const g=canvas.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,canvas.width,canvas.height);
+  g.filter=`brightness(${st.bright}%)`;
+  g.save();g.scale(scale,scale);g.translate(-cx,-cy);
+  g.translate(sw/2,sh/2);g.rotate(edit.rot*Math.PI/180);
+  g.drawImage(img,-img.naturalWidth/2,-img.naturalHeight/2);g.restore();
+  return true;
+}
+function previewEdit(){if(drawEdit($('beCanvas'),900))$('beEditInfo').textContent='보이는 모습 그대로 저장됩니다. 크기는 주보에 맞게 자동으로 줄어듭니다.'}
+function resetEdit(){edit.rot=0;$('beRatio').value='1.3333';$('beZoom').value='1';$('beX').value='50';$('beY').value='50';$('beBright').value='100';previewEdit()}
+async function openEditor(file){
+  const box=$('bePhotoEdit');edit.img=null;box.hidden=true;if(!file)return;
+  const url=URL.createObjectURL(file);const img=new Image();
+  try{await new Promise((ok,bad)=>{img.onload=ok;img.onerror=bad;img.src=url})}
+  catch{$('beStatus').textContent='이 사진 형식은 열 수 없습니다. JPG나 PNG로 골라 주세요.';return}
+  edit.img=img;box.hidden=false;resetEdit();
+  const mode=document.querySelector('input[name=bePhotoMode][value=photo]');if(mode)mode.checked=true;
+}
+async function editedBlob(){
+  const c=document.createElement('canvas');
+  for(const [side,q] of [[1800,.86],[1600,.8],[1400,.75],[1200,.7],[1000,.65]]){
+    drawEdit(c,side);
+    const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',q));
+    if(blob&&blob.size<=4.5*1024*1024)return blob;
+  }
+  throw new Error('사진을 줄이지 못했습니다. 다른 사진을 골라 주세요.');
+}
+async function uploadPhoto(date){
+  const blob=await editedBlob();
+  const path=`sunday/${date}/photo-${Date.now()}.jpg`;
+  const r=await fetch(`${SUPABASE_URL}/storage/v1/object/church-bulletin/${path}`,{method:'POST',headers:{apikey:PUBLISHABLE_KEY,authorization:'Bearer '+activeSession.access_token,'content-type':'image/jpeg','x-upsert':'true'},body:blob});
   if(!r.ok)throw new Error('사진 올리기 실패 '+r.status);
   return `${SUPABASE_URL}/storage/v1/object/public/church-bulletin/${path}`;
 }
@@ -187,14 +241,14 @@ async function saveBulletin(){
     const patch={bulletin,updated_at:new Date().toISOString()};
     bulletin.photoMode=document.querySelector('input[name=bePhotoMode]:checked')?.value||'photo';
     bulletin.photoText=$('bePhotoText').value.trim();
-    const file=$('bePhoto').files?.[0];
+    const file=edit.img?$('bePhoto').files?.[0]:null;
     const drive=driveThumb($('beDriveLink').value);
     if($('beDriveLink').value.trim()&&!drive)throw new Error('구글 드라이브 파일 링크를 확인해 주세요.');
-    if(file)patch.photo_url=await uploadPhoto(date,file);else if(drive)patch.photo_url=drive;
+    if(file)patch.photo_url=await uploadPhoto(date);else if(drive)patch.photo_url=drive;
     if(bulletin.photoMode==='photo'&&!patch.photo_url&&!$('bulletinEditor').dataset.photo)bulletin.photoMode='blank';
     let saved=await rest(TABLE+'?service_type=eq.sunday&service_date=eq.'+date,{method:'PATCH',body:patch,prefer:'return=representation'});
     if(!saved?.length){const p=payload();await rest(TABLE+'?on_conflict=service_type,service_date',{method:'POST',body:{...record(p,false),...patch},prefer:'resolution=merge-duplicates,return=minimal'})}
-    $('bePhoto').value='';$('beDriveLink').value='';if(patch.photo_url){$('bulletinEditor').dataset.photo=patch.photo_url;const pv=$('bePhotoPreview');pv.querySelector('img').src=patch.photo_url;pv.hidden=false}$('beStatus').textContent='저장했습니다. [주보 화면 열기]로 확인하세요.';
+    $('bePhoto').value='';edit.img=null;$('bePhotoEdit').hidden=true;$('beDriveLink').value='';if(patch.photo_url){$('bulletinEditor').dataset.photo=patch.photo_url;const pv=$('bePhotoPreview');pv.querySelector('img').src=patch.photo_url;pv.hidden=false}$('beStatus').textContent='저장했습니다. [주보 화면 열기]로 확인하세요.';
   }catch(error){$('beStatus').textContent='저장 실패: '+error.message}
   finally{btn.disabled=false}
 }
@@ -224,6 +278,10 @@ function snapDate(){
 }
 $('serviceDate').addEventListener('change',()=>{snapDate();render();void loadRemote().then(loadBulletinEditor)});
 $('beSave')?.addEventListener('click',()=>void saveBulletin());
+$('bePhoto')?.addEventListener('change',e=>void openEditor(e.target.files?.[0]));
+document.querySelectorAll('#bePhotoEdit [data-rot]').forEach(b=>b.addEventListener('click',()=>{edit.rot=(edit.rot+Number(b.dataset.rot)+360)%360;previewEdit()}));
+['beRatio','beZoom','beX','beY','beBright'].forEach(id=>$(id)?.addEventListener('input',previewEdit));
+$('beReset')?.addEventListener('click',resetEdit);
 $('saveDraft').addEventListener('click',()=>void saveDraft());
 $('openBulletin').addEventListener('click',openBulletin);
 $('downloadPpt').addEventListener('click',downloadPpt);
