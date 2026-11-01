@@ -113,7 +113,7 @@ async function loadReviews(){
   card.hidden=false;
   try{
     const weekly=await fetch('../worship/weekly.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('목록 '+r.status);return r.json()});
-    const items=(weekly.services||[]).filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v.date)).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,4);
+    const items=(weekly.services||[]).filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v.date)).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,2);
     const data=items.length?await rest(TABLE+'?select=service_date,title,is_published&service_type=eq.sunday&service_date=in.('+items.map(v=>v.date).join(',')+')'):[];
     const rows=Object.fromEntries((data||[]).map(r=>[r.service_date,r]));
     // Google Drive originals (managers only; the table is closed to the public).
@@ -165,7 +165,7 @@ async function loadBulletinEditor(){
   const box=$('bulletinEditor');if(!box)return;
   const isSunday=service==='sunday';
   $('bulletinCardTitle').textContent=isSunday?'주보':'순서지';$('bulletinStatusLabel').textContent=isSunday?'주보':'순서지';
-  box.hidden=!(accessReady&&sb.ready&&isSunday);if(box.hidden)return;
+  box.hidden=!(accessReady&&sb.ready&&isSunday);const locked=$('bulletinLocked');if(locked)locked.hidden=!box.hidden;if(box.hidden)return;
   const date=$('serviceDate').value;$('bulletinEditDate').textContent=date+' 주일모임';
   $('beOpen').href=`/ekodichurch/worship/${date}/`;$('beStatus').textContent='불러오는 중…';
   let b=null;
@@ -189,7 +189,8 @@ function editState(){return{ratio:Number($('beRatio').value),zoom:Number($('beZo
 function drawEdit(canvas,maxSide){
   const img=edit.img;if(!img)return false;
   const st=editState();const turned=edit.rot%180!==0;
-  const sw=turned?img.naturalHeight:img.naturalWidth,sh=turned?img.naturalWidth:img.naturalHeight;
+  const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height;
+  const sw=turned?ih:iw,sh=turned?iw:ih;
   const ratio=st.ratio||sw/sh;
   let cw=sw,ch=sw/ratio;if(ch>sh){ch=sh;cw=sh*ratio}
   cw/=st.zoom;ch/=st.zoom;
@@ -200,17 +201,18 @@ function drawEdit(canvas,maxSide){
   g.filter=`brightness(${st.bright}%)`;
   g.save();g.scale(scale,scale);g.translate(-cx,-cy);
   g.translate(sw/2,sh/2);g.rotate(edit.rot*Math.PI/180);
-  g.drawImage(img,-img.naturalWidth/2,-img.naturalHeight/2);g.restore();
+  g.drawImage(img,-iw/2,-ih/2);g.restore();
   return true;
 }
 function previewEdit(){if(drawEdit($('beCanvas'),900))$('beEditInfo').textContent='보이는 모습 그대로 저장됩니다. 크기는 주보에 맞게 자동으로 줄어듭니다.'}
 function resetEdit(){edit.rot=0;$('beRatio').value='1.3333';$('beZoom').value='1';$('beX').value='50';$('beY').value='50';$('beBright').value='100';previewEdit()}
 async function openEditor(file){
   const box=$('bePhotoEdit');edit.img=null;box.hidden=true;if(!file)return;
-  const url=URL.createObjectURL(file);const img=new Image();
-  try{await new Promise((ok,bad)=>{img.onload=ok;img.onerror=bad;img.src=url})}
-  catch{$('beStatus').textContent='이 사진 형식은 열 수 없습니다. JPG나 PNG로 골라 주세요.';return}
-  edit.img=img;box.hidden=false;resetEdit();
+  // createImageBitmap decodes the file directly; a blob: image URL is blocked by the site CSP (img-src).
+  let img;
+  try{img=await createImageBitmap(file,{imageOrientation:'from-image'})}
+  catch{try{img=await createImageBitmap(file)}catch{$('beStatus').textContent='이 사진은 열 수 없습니다. 휴대폰 사진(HEIC)이면 JPG로 바꾸거나 구글 드라이브 링크를 써 주세요.';return}}
+  edit.img=img;box.hidden=false;resetEdit();$('beStatus').textContent='사진을 불러왔습니다. 모양을 맞춘 뒤 [주보 저장]을 누르세요.';
   const mode=document.querySelector('input[name=bePhotoMode][value=photo]');if(mode)mode.checked=true;
 }
 async function editedBlob(){
@@ -278,6 +280,12 @@ function snapDate(){
 }
 $('serviceDate').addEventListener('change',()=>{snapDate();render();void loadRemote().then(loadBulletinEditor)});
 $('beSave')?.addEventListener('click',()=>void saveBulletin());
+// Compact console: each editor opens below its button, one at a time.
+document.querySelectorAll('.panel-tabs [data-panel]').forEach(btn=>btn.addEventListener('click',()=>{
+  const open=btn.getAttribute('aria-expanded')!=='true';
+  document.querySelectorAll('.panel-tabs [data-panel]').forEach(b=>{b.setAttribute('aria-expanded','false');$(b.dataset.panel).hidden=true});
+  if(open){btn.setAttribute('aria-expanded','true');$(btn.dataset.panel).hidden=false}
+}));
 $('bePhoto')?.addEventListener('change',e=>void openEditor(e.target.files?.[0]));
 document.querySelectorAll('#bePhotoEdit [data-rot]').forEach(b=>b.addEventListener('click',()=>{edit.rot=(edit.rot+Number(b.dataset.rot)+360)%360;previewEdit()}));
 ['beRatio','beZoom','beX','beY','beBright'].forEach(id=>$(id)?.addEventListener('input',previewEdit));
