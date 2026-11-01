@@ -34,12 +34,9 @@ test('Online bulletin keeps the two-sheet Google Docs shape without private item
   assert.doesNotMatch(sermon,/예배 전 확인|최종 확인 필요|\(초안\)/,'internal checklist is not published');
 });
 
-test('Homepage, live viewer and weekly index point to November 1',()=>{
-  const home=readFileSync(new URL('../index.html',import.meta.url),'utf8');
-  assert.match(home,/data-weekly-bulletin href="\/ekodichurch\/worship\/2026-11-01\/"/);assert.match(home,/date=2026-11-01/);
-  const live=readFileSync(new URL('../live/index.html',import.meta.url),'utf8');assert.match(live,/id="viewerBulletinLink" href="\/ekodichurch\/worship\/2026-11-01\/"/);
+test('November 1 is archived in the weekly index after November 8 is prepared',()=>{
   const weekly=JSON.parse(readFileSync(new URL('../worship/weekly.json',import.meta.url),'utf8'));
-  assert.equal(weekly.services.at(-1).date,'2026-11-01');assert.equal(weekly.services.at(-1).status,'prepared');
+  assert.equal(weekly.services.find(s=>s.date==='2026-11-01').status,'archived');
 });
 
 test('Merged worship pages stay behind the final-review gate until published',()=>{
