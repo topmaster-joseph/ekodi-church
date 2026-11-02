@@ -147,3 +147,15 @@ body[data-church-active-section] main > section[id]{scroll-margin-top:190px}
   .hero .overview-grid a{min-height:55px!important}
 }
 @media(max-width:360px){.church-section-tabs a{font-size:12px}}
+
+/* Native fragment-tab fallback that works without a scripted router. */
+main:has(:target) > section:not(.hero):not(:target):not(:has(:target)){display:none!important}
+body:has(main :target) .hero{display:block!important;min-height:0!important;position:sticky;top:84px;z-index:80;padding:8px 12px!important;background:#fbfaf6!important}
+body:has(main :target) .hero .hero-glow,
+body:has(main :target) .hero .hero-focus,
+body:has(main :target) .hero .eyebrow,
+body:has(main :target) .hero h1,
+body:has(main :target) .hero .hero-copy,
+body:has(main :target) .hero .scroll-cue{display:none!important}
+body:has(main :target) .hero .hero-content{width:100%!important;max-width:1120px!important;padding:0!important;margin:auto!important;opacity:1!important;transform:none!important}
+body:has(main :target) .hero .overview-grid{display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;width:100%!important;gap:5px!important;margin:0!important}
