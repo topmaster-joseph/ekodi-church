@@ -32,7 +32,7 @@
 .site-header .menu-button span{background:#173730!important}
 
 /* The large hero is the homepage, not a second header above every destination. */
-.hero{min-height:calc(100svh - 84px)!important}
+.hero{min-height:0!important}
 .hero .overview-grid{
   width:min(840px,100%)!important;
   grid-template-columns:repeat(4,minmax(0,1fr))!important;
