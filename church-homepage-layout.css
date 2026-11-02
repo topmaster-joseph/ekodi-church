@@ -113,3 +113,37 @@ body:has(main :target) .hero{display:none!important}
 @media(prefers-reduced-motion:reduce){
   .hero .overview-grid a{transition:none!important}
 }
+
+/* Contextual church tabs; without the JS enhancement the document stays a
+   regular scrollable page, including every public link and existing editor. */
+.church-section-tabs{position:sticky;top:var(--church-tab-top,84px);z-index:90;background:#fbfaf6;border-bottom:1px solid #d8dfd9;padding:8px max(14px,calc((100% - var(--church-content-width))/2))}
+.church-primary-tabs,.church-secondary-tabs{display:grid;gap:6px;grid-template-columns:repeat(6,minmax(0,1fr));}
+.church-section-tabs a{display:flex;min-width:0;min-height:42px;align-items:center;justify-content:center;padding:8px 9px;border:1px solid transparent;border-radius:10px;color:#234137;text-decoration:none;font-size:14px;font-weight:750;text-align:center;line-height:1.4;word-break:keep-all}
+.church-section-tabs a:hover,.church-section-tabs a:focus-visible{background:#ebf0ec;outline-offset:2px}
+.church-section-tabs a[aria-current="location"]{background:#174536;color:white}
+.church-secondary-tabs{grid-template-columns:repeat(2,minmax(0,1fr));margin:6px auto 0;max-width:420px}
+.church-secondary-tabs[hidden]{display:none}
+.church-secondary-tabs a{border:1px solid #d9e0d9;min-height:38px}
+body[data-church-active-section] main > section{display:none!important}
+body[data-church-active-section="home"] main > .hero,
+body[data-church-active-section="weekly-worship"] main > #weekly-worship,
+body[data-church-active-section="worship"] main > #worship,
+body[data-church-active-section="life-hub"] main > #life-hub,
+body[data-church-active-section="message"] main > #message,
+body[data-church-active-section="community"] main > #community,
+body[data-church-active-section="partner-news"] main > #partner-news,
+body[data-church-active-section="online"] main > #online,
+body[data-church-active-section="about"] main > #about,
+body[data-church-active-section="location"] main > #location{display:block!important}
+body[data-church-active-section="home"] main > .hero{min-height:0!important}
+body[data-church-active-section] main > section[id]{scroll-margin-top:190px}
+@media(max-width:800px){
+  .church-section-tabs{padding:7px 12px}
+  .church-primary-tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+  .church-section-tabs a{min-height:40px;font-size:13px;padding:6px 4px}
+  .church-secondary-tabs{margin-top:5px}
+  body[data-church-active-section="home"] main > .hero{padding-top:32px!important;padding-bottom:28px!important}
+  .hero h1{font-size:clamp(29px,7.5vw,46px)!important;line-height:1.3!important}
+  .hero .overview-grid a{min-height:55px!important}
+}
+@media(max-width:360px){.church-section-tabs a{font-size:12px}}
