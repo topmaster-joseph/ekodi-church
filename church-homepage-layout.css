@@ -32,7 +32,7 @@
 .site-header .menu-button span{background:#173730!important}
 
 /* The large hero is the homepage, not a second header above every destination. */
-.hero{min-height:calc(100svh - 84px)!important}
+.hero{min-height:0!important}
 .hero .overview-grid{
   width:min(840px,100%)!important;
   grid-template-columns:repeat(4,minmax(0,1fr))!important;
@@ -112,4 +112,28 @@ body:has(main :target) .hero{display:none!important}
 }
 @media(prefers-reduced-motion:reduce){
   .hero .overview-grid a{transition:none!important}
+}
+
+/* Native fragment-tab fallback that works without a scripted router. */
+main:has(:target) > section:not(.hero):not(:target):not(:has(:target)){display:none!important}
+body:has(main :target) .hero{display:block!important;min-height:0!important;position:sticky;top:84px;z-index:80;padding:8px 12px!important;background:#fbfaf6!important}
+body:has(main :target) .hero .hero-glow,
+body:has(main :target) .hero .hero-focus,
+body:has(main :target) .hero .eyebrow,
+body:has(main :target) .hero h1,
+body:has(main :target) .hero .hero-copy,
+body:has(main :target) .hero .scroll-cue{display:none!important}
+body:has(main :target) .hero .hero-content{width:100%!important;max-width:1120px!important;padding:0!important;margin:auto!important;opacity:1!important;transform:none!important}
+body:has(main :target) .hero .overview-grid{display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;width:100%!important;gap:5px!important;margin:0!important}
+
+body:has(main :target) .hero .overview-grid a{min-height:45px!important;padding:7px 3px!important;border:1px solid #d5e1d8!important;border-radius:9px!important;background:#f6faf7!important;color:#174536!important;box-shadow:none!important;justify-content:center!important;text-align:center!important}
+body:has(main :target) .hero .overview-grid a span,
+body:has(main :target) .hero .overview-grid a small{display:none!important}
+body:has(main :target) .hero .overview-grid a strong{font-size:13px!important;line-height:1.35!important;white-space:normal!important;word-break:keep-all!important}
+@media(max-width:800px){
+body:has(main :target) .hero{top:118px;padding:6px 10px!important}
+body:has(main :target) .hero .overview-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+body:has(main :target) .hero .overview-grid a{min-height:42px!important;padding:4px 2px!important}
+body:has(main :target) .hero .overview-grid a strong{font-size:12px!important}
+.hero h1{font-size:clamp(29px,7.5vw,44px)!important;line-height:1.3!important}
 }
