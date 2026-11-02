@@ -32,3 +32,21 @@ test('member cards retain all personal destinations and readable compact layout'
   assert.match(html,/id="presenceAdminLink"[^>]*hidden/);
   assert.match(html,/id="loginAction"/);
 });
+
+test('member detail pages offer direct accessible tabs without changing authenticated data operations',async()=>{
+  const routes=[['giving','나의 헌금'],['attendance','나의 출결']];
+  const css=await read('my/member-work-tabs.css');
+  assert.match(css,/\.member-work-tabs/);
+  assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  for(const [route,label] of routes){
+    const html=await read('my/'+route+'/index.html');
+    assert.match(html,/aria-label="교회 내 활동 메뉴"/);
+    assert.match(html,/href="\/ekodichurch\/my\//);
+    assert.match(html,/href="\/ekodichurch\/#weekly-worship"/);
+    assert.match(html,/href="\/ekodichurch\/#life-hub"/);
+    assert.match(html,new RegExp('href="/ekodichurch/my/'+route+'/" aria-current="page">'+label));
+    assert.match(html,/member-work-tabs\.css/);
+    assert.match(html,/id="login" class="primary"/);
+    assert.match(html,/id="app" hidden/);
+  }
+});
