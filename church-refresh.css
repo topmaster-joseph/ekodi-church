@@ -120,7 +120,7 @@ footer{padding-top:54px;background:#0b2722}footer>p{max-width:820px;line-height:
    hashes and nested anchors (such as #giving or #youtube) both open the parent. */
 #about,#worship,#message,#community,#partner-news,#online,#location{display:none!important}
 #about:target,#worship:target,#message:target,#community:target,#partner-news:target,#online:target,#location:target,
-#about:has(:target),#worship:has(:target),#message:has(:target):has(:target),#community:has(:target),#partner-news:has(:target),#online:has(:target),#location:has(:target){display:block!important}
+#about:has(:target),#worship:has(:target),#message:has(:target),#community:has(:target),#partner-news:has(:target),#online:has(:target),#location:has(:target){display:block!important}
 #location:target,#location:has(:target){display:grid!important}
 
 /* Once a destination is chosen, the hero becomes a quiet compact masthead so
