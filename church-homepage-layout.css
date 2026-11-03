@@ -46,12 +46,12 @@ body:has(main :target) .hero{display:none!important}
 .church-weekly-focus{display:none!important}
 .church-weekly-focus:target,.church-weekly-focus:has(:target){display:block!important}
 .church-weekly-inner{max-width:var(--church-content-width)}
-#weekly-worship,#online,#about,#worship,#life-hub,#community,#partner-news,#location{
+#weekly-worship,#online,#about,#worship,#community,#partner-news,#location{
   scroll-margin-top:96px;
 }
 
 /* Online has exactly two destinations: existing YouTube worship and EKODI Live.
-   Reflection stays in the Today's Life section, not in a duplicate third card. */
+   Daily devotion has one canonical dedicated page, not a duplicate homepage form. */
 #online .online-triad--broadcast{
   width:min(var(--church-content-width),100%);
   margin:clamp(20px,3vw,42px) auto 0;
