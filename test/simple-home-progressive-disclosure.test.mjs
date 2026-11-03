@@ -26,7 +26,9 @@ test('church homepage starts simple while preserving every primary destination',
   assert.ok(css.includes('/* Progressive disclosure · simple first view'));
   assert.ok(css.includes('.hero .hero-focus,.hero .hero-copy,.hero .scroll-cue{display:none!important}'));
   assert.ok(css.includes('.hero .overview-grid a span,.hero .overview-grid a small{display:none!important}'));
-  assert.ok(css.includes('#about,#worship,#message,#life-hub,#community,#partner-news,#online,#location{display:none!important}'));
+  assert.ok(css.includes('#about,#worship,#message,#community,#partner-news,#online,#location{display:none!important}'));
+  assert.doesNotMatch(html, /data-ekodi-life-hub|life-reflection-form/);
+  assert.doesNotMatch(html, /href="#life-hub"/);
   assert.ok(css.includes('#online:has(:target)'));
   assert.ok(css.includes('.church-live-entry{display:none!important}'));
 });
