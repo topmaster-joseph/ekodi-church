@@ -32,7 +32,7 @@ test('Online view uses exactly YouTube worship and shared EKODI Live, not a redu
  assert.doesNotMatch(online,/devotion-card|meet\.jit\.si|EKODIChurchLive/);
  assert.doesNotMatch(html, /id="daily-devotion"/);
  assert.doesNotMatch(html, /id="life-reflection-form"/);
- assert.match(html, /href="\/ekodichurch\/devotion\/"[\\s\\S]*?<strong>매일묵상<\/strong>/);
+ assert.ok(html.includes('<a href="/ekodichurch/devotion/"><span>02</span><strong>매일묵상</strong>'));
 });
 
 test('responsive layout centers header and footer; selected section hides oversized hero',async()=>{
