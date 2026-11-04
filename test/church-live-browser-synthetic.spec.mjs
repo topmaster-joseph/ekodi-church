@@ -65,3 +65,66 @@ test('production live surface exposes required System Verified controls', async 
   await expect(page.locator('[data-layout="equal"]')).toBeAttached();
   await expect(page.locator('[data-layout="screen"]')).toBeAttached();
 });
+
+
+test('Church Live shared header/footer and intro remain centered across mobile and desktop widths', async ({ browser }) => {
+  const { readFile } = await import('node:fs/promises');
+  const fixture = new URL('../', import.meta.url);
+  const fake = 'https://live.ekodi.test/ekodichurch/live/';
+  const routes = new Map([
+    ['/ekodichurch/live/', 'live/index.html'],
+    ['/ekodichurch/live/live.css', 'live/live.css'],
+    ['/ekodichurch/live/worship-materials.css', 'live/worship-materials.css'],
+    ['/ekodichurch/live/church-live-layout.css', 'live/church-live-layout.css'],
+    ['/ekodichurch/live/church-live-shell.js', 'live/church-live-shell.js'],
+    ['/ekodichurch/church-footer.css', 'church-footer.css'],
+    ['/ekodichurch/church-daily-verse.js', 'church-daily-verse.js'],
+  ]);
+  for (const width of [320, 390, 768, 1366, 1440]) {
+    const context = await browser.newContext({ viewport: { width, height: 900 } });
+    await context.route('**/*', async route => {
+      const url = new URL(route.request().url());
+      if (url.hostname !== 'live.ekodi.test') return route.abort();
+      const path = routes.get(url.pathname);
+      if (!path) return route.abort();
+      const type = path.endsWith('.css') ? 'text/css' : path.endsWith('.js') ? 'application/javascript' : 'text/html';
+      return route.fulfill({ status: 200, contentType: type, body: await readFile(new URL(path, fixture), 'utf8') });
+    });
+    const page = await context.newPage();
+    await page.goto(fake, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('.site-header .brand')).toBeVisible();
+    await expect(page.locator('footer.site-footer.church-footer')).toBeAttached();
+    await expect(page.locator('#hostButton')).toBeVisible();
+    await expect(page.locator('#joinButton')).toBeVisible();
+    const geometry = await page.evaluate(() => {
+      const rect = sel => {
+        const b = document.querySelector(sel).getBoundingClientRect();
+        return { x: b.x, width: b.width, mid: b.x + b.width / 2 };
+      };
+      return {
+        viewport: window.innerWidth,
+        scroll: document.documentElement.scrollWidth,
+        banner: rect('.live-page-banner-inner'),
+        intro: rect('.live-intro'),
+        actions: rect('.entry-actions'),
+        shell: rect('.live-shell'),
+        footer: rect('.church-footer-inner'),
+      };
+    });
+    expect(geometry.scroll, 'horizontal overflow at ' + width).toBeLessThanOrEqual(width + 1);
+    for (const item of ['banner', 'intro', 'actions', 'shell', 'footer']) {
+      expect(Math.abs(geometry[item].mid - geometry.viewport / 2), item + ' not centered at ' + width).toBeLessThan(3);
+    }
+    expect(geometry.shell.width).toBeLessThanOrEqual(1120);
+    if (width <= 768) {
+      const toggle = page.locator('.menu-button');
+      await expect(toggle).toBeVisible();
+      await toggle.click();
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      await expect(page.locator('#main-nav')).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    }
+    await context.close();
+  }
+});
