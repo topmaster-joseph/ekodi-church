@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 const read=(file)=>readFileSync(new URL('../'+file,import.meta.url),'utf8');
 test('Church home includes one canonical devotion tile plus notice and schedule panels',()=>{
   const home=read('index.html'),runtime=read('script.js');
-  for(const [url,label] of [['/ekodichurch/devotion/','오늘의 매일묵상'],['/ekodichurch/notices/','공지사항'],['/ekodichurch/schedule/','주요일정']]){
+  for(const [url,label] of [['/ekodichurch/devotion/','매일묵상'],['/ekodichurch/notices/','공지사항'],['/ekodichurch/schedule/','주요일정']]){
     assert.match(home,new RegExp('href="'+url.replaceAll('/','\\/')+'"'));
     assert.match(home,new RegExp('<strong>'+label+'</strong>'));
   }
