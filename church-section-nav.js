@@ -46,7 +46,14 @@
     schedule:['church-public-panels']
   };
   const name=node=>node.id||(['hero','church-public-panels'].find(v=>node.classList.contains(v))||'');
-  const current=()=>decodeURIComponent(location.hash.slice(1)||'home');
+  const current=()=>{
+    let key='home';
+    try{key=decodeURIComponent(location.hash.slice(1)||'home')}catch{return 'home'}
+    if(Object.hasOwn(targetSections,key))return key;
+    const target=document.getElementById(key);
+    const section=target&&sections.find(item=>item.contains(target));
+    return section?name(section):'home';
+  };
 
   function show(){
     const key=Object.hasOwn(targetSections,current())?current():'home';
@@ -73,11 +80,12 @@
       if(group&&link.hash==='#'+group)link.setAttribute('aria-current','page');
       else link.removeAttribute('aria-current');
     });
+    window.EKODIChurchI18n?.refresh?.();
     // URL back/forward navigation also restores the selected content.
     if(key!=='home'){
       const focus=strip.hidden?sections.find(node=>showing.has(name(node))):strip;
       if(focus && location.hash){
-        requestAnimationFrame(()=>focus.scrollIntoView({block:'start',behavior:'instant'}));
+        requestAnimationFrame(()=>focus.scrollIntoView({block:'start',behavior:'auto'}));
       }
     }
   }
