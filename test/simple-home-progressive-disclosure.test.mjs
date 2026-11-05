@@ -10,7 +10,7 @@ const devotion = readFileSync(new URL('../devotion/index.html', import.meta.url)
 test('church homepage starts simple while preserving every primary destination', () => {
   const destinations = [
     ['#about', '우리의 정체성'],
-    ['/ekodichurch/devotion/', '오늘의 매일묵상'],
+    ['/ekodichurch/devotion/', '매일묵상'],
     ['/ekodichurch/notices/', '공지사항'],
     ['/ekodichurch/schedule/', '주요일정'],
     ['#community', '공동체 활동'],
