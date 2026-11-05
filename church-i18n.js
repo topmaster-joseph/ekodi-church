@@ -32,6 +32,7 @@ const TEXT={
 '주보·PPT':{en:'Bulletin & Slides','zh-CN':'周报与幻灯片',ja:'週報・スライド'},
 '온라인 방송':{en:'Online Broadcast','zh-CN':'线上直播',ja:'オンライン配信'},
 '교회소개':{en:'About','zh-CN':'教会介绍',ja:'教会案内'},
+'참여·후원':{en:'Participate & Support','zh-CN':'参与和支持',ja:'参加・支援'},
 '세부 항목':{en:'Topics','zh-CN':'分类',ja:'項目'},
 '선택한 메뉴의 세부 항목':{en:'Selected menu topics','zh-CN':'所选菜单分类',ja:'選択メニューの項目'},
 '오늘의 매일묵상':{en:'Today’s Daily Devotion','zh-CN':'今日每日灵修',ja:'今日のデイリーデボーション'},
