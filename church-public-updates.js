@@ -102,6 +102,24 @@
       }));
     }catch{return [];}
   }
+  // Reuse the existing read-only Church/Mission public schedule federation.
+  // Only safe first-party Church/Mission links are rendered.
+  async function getFederatedSchedules(){
+    const data=await getJson(BASE+'/shared-schedules',{signal:AbortSignal.timeout(9000)});
+    if(data?.ok!==true||data.mode!=='published-read-only'||!Array.isArray(data.items))
+      throw new Error('federated_schedule_unavailable');
+    const allowedUrl=url=>/^\/(?:ekodichurch|ekodimission)(?:\/|\?|$)/.test(String(url||''));
+    return data.items.filter(item=>item&&['ekodichurch','ekodimission'].includes(item.source)&&
+      /^\d{4}-\d{2}-\d{2}$/.test(item.date)&&/^([01]\d|2[0-3]):[0-5]\d$/.test(item.time)&&
+      item.date>=localDay()&&allowedUrl(item.url)).map(item=>{
+        const postId=item.source==='ekodichurch'?Number(String(item.url).match(/^\/ekodichurch\/board\/post\/(\d+)/)?.[1]||0):0;
+        return {id:'shared-'+item.source+'-'+String(item.id||item.date),
+          postId,date:item.date,time:item.time,title:String(item.title||'주요일정'),
+          venue:String(item.venue||'에코디교회'),
+          description:String(item.sourceLabel||''),href:item.url,
+          source:postId?'board':item.source};
+      });
+  }
   async function getSaturday(){
     try{
       const response=await getJson('/ekodimission/board/api/saturday');
@@ -137,8 +155,8 @@
     }
   }
   async function loadData(){
-    const [postsResult,worshipResult,saturdayResult]=await Promise.allSettled([
-      getJson(BASE+'/posts'),getWorship(),getSaturday()
+    const [postsResult,worshipResult,saturdayResult,federatedResult]=await Promise.allSettled([
+      getJson(BASE+'/posts'),getWorship(),getSaturday(),getFederatedSchedules()
     ]);
     if(postsResult.status==='fulfilled'&&Array.isArray(postsResult.value?.items)){
       allPosts=postsResult.value.items;
@@ -151,9 +169,16 @@
     const published=worshipResult.status==='fulfilled'?worshipResult.value:[];
     const Saturday=saturdayResult.status==='fulfilled'?saturdayResult.value:null;
     const regularSunday={id:'regular-sunday',date:sunday(),time:'11:00',title:'주일모임',venue:'에코디교회',description:'매주 일요일 정기 예배',href:'/ekodichurch/#worship',source:'regular'};
-    const upcoming=[...churchEvents,...published,...(Saturday?[Saturday]:[])];
+    const shared=federatedResult.status==='fulfilled'?federatedResult.value:null;
+    const upcoming=[...(Array.isArray(shared)?shared:churchEvents),...published,
+      ...(Array.isArray(shared)?[]:(Saturday?[Saturday]:[]))];
     if(!upcoming.some(item=>item.date===regularSunday.date&&item.title.includes('주일')))upcoming.push(regularSunday);
-    currentRows=upcoming.sort((a,b)=>(a.date+'T'+a.time).localeCompare(b.date+'T'+b.time)).slice(0,100);
+    const unique=new Map();
+    upcoming.sort((a,b)=>(a.date+'T'+a.time).localeCompare(b.date+'T'+b.time)).forEach(item=>{
+      const key=[item.date,item.time,item.title].join('|');
+      if(!unique.has(key))unique.set(key,item);
+    });
+    currentRows=[...unique.values()].slice(0,100);
     renderSchedules();
   }
   function findToken(){
