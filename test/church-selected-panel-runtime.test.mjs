@@ -23,7 +23,10 @@ function harness(initial=''){
    scrollIntoView:()=>{}
  }));
  // The named home sections are classified by CSS class, not an element id.
- for(let i=0;i<3;i++)sections[i].classList.contains=name=>name===sectionNames[i];
+ for(let i=0;i<3;i++){
+   const original=sections[i].classList.contains;
+   sections[i].classList.contains=name=>name===sectionNames[i]||original(name);
+ }
  const main={children:sections,classList:createClassList(),prepend:node=>{main.subnav=node}};
  const node=tag=>({
    tag,className:'',hidden:false,children:[],attributes:{},
