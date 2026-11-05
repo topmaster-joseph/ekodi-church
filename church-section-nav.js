@@ -22,6 +22,7 @@
       ['공동체','#community'],
       ['협력소식','#partner-news'],
       ['오시는 길','#location'],
+      ['참여·후원','/ekodichurch/together/'],
       ['큐티인 신청','/qtin/church']
     ]
   };
