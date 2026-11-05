@@ -103,3 +103,9 @@ main.church-section-filtered>section.church-section-active:not(.hero){scroll-mar
   .church-section-subnav{justify-content:flex-start;gap:7px}
   .church-section-subnav>a{padding:8px 11px;font-size:13px;min-height:42px}
 }
+
+/* Older progressive-disclosure rules have ID specificity: explicitly restore the selected ID only. */
+main.church-section-filtered>section.church-section-active:is(#about,#worship,#message,#community,#partner-news,#online,#location,#weekly-worship){display:block!important}
+main.church-section-filtered>section.church-section-active#location{display:grid!important}
+/* Older .hero:has(:target) sizing never overrides the selected-only navigation. */
+main.church-section-filtered>section.hero:not(.church-section-active){display:none!important}
