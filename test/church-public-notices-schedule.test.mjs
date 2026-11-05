@@ -23,6 +23,11 @@ test('notice and schedule pages share Church shell and avoid unsanitized HTML',(
     assert.match(html,/church-shell.js/);
     assert.match(html,/data-church-public-manage hidden/);
     assert.match(html,/data-ekodi-service-footer/);
+    const nav=html.match(/<nav id="main-nav"[\s\S]*?<\/nav>/)?.[0]||'';
+    assert.equal((nav.match(/href="\/ekodichurch\/notices\/"/g)||[]).length,1,'notice menu link appears once');
+    assert.equal((nav.match(/href="\/ekodichurch\/schedule\/"/g)||[]).length,1,'schedule menu link appears once');
+    assert.ok(nav.indexOf('href="/ekodichurch/devotion/"')<nav.indexOf('href="/ekodichurch/schedule/"'));
+    assert.ok(nav.indexOf('href="/ekodichurch/schedule/"')<nav.indexOf('href="/ekodichurch/notices/"'));
   }
   assert.match(js,/post\.categoryId==='notice'/);
   assert.match(js,/post\?\.categoryId!=='schedule'/);
