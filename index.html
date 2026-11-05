@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="partner-news.css">
   <link rel="stylesheet" href="church-weekly-worship.css">
   <link rel="stylesheet" href="church-homepage-layout.css">
+  <script src="church-shared-schedules.js" defer></script>
   <link rel="stylesheet" href="church-public-updates.css">
   <link rel="stylesheet" href="church-inline-live.css">
 </head>
@@ -88,10 +89,14 @@
         <div class="church-public-heading"><div><small>NOTICE</small><h2>공지사항</h2></div><a href="/ekodichurch/notices/">전체보기</a></div>
         <div data-church-notices data-limit="3" aria-live="polite"><p class="church-public-empty">공지사항을 불러오는 중입니다.</p></div>
       </article>
-      <article class="church-public-panel" id="schedule">
-        <div class="church-public-heading"><div><small>SCHEDULE</small><h2>주요일정</h2></div><a href="/ekodichurch/schedule/">전체보기</a></div>
-        <div data-church-schedule data-limit="3" aria-live="polite"><p class="church-public-empty">일정을 불러오는 중입니다.</p></div>
-      </article>
+      <section class="church-shared-schedule section" id="church-schedules" data-church-shared-schedules data-limit="3" aria-labelledby="church-schedules-title">
+        <div class="church-shared-schedule-head">
+          <h2 id="church-schedules-title">주요일정</h2>
+          <a href="/ekodichurch/schedule/">전체보기</a>
+        </div>
+        <p>교회·선교회 공개 일정 · <a href="/ekodichurch/board?category=schedule">교회 일정 게시판</a></p>
+        <ol data-church-schedules-list aria-live="polite"><li class="church-shared-empty">공개 일정을 확인하고 있습니다.</li></ol>
+      </section>
     </section>
 
     <section class="church-live-entry" data-ekodi-church-live-entry aria-label="에코디교회 온라인 연결">
