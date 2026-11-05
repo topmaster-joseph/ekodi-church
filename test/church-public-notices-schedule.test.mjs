@@ -11,7 +11,10 @@ test('Church home includes one canonical devotion tile plus notice and schedule 
   }
   assert.doesNotMatch(home,/<strong>오늘의 삶<\/strong>|id="life-hub"/);
   assert.match(home,/data-church-notices data-limit="3"/);
-  assert.match(home,/data-church-schedule data-limit="3"/);
+  assert.match(home,/data-church-shared-schedules data-limit="3"/);
+  assert.match(home,/src="church-shared-schedules\.js" defer/);
+  assert.equal((home.match(/data-church-shared-schedules/g)||[]).length,1,'shared schedule rendered once');
+  assert.doesNotMatch(home,/data-church-schedule data-limit="3"/);
   assert.match(runtime,/\/ekodichurch\/notices\//);
   assert.match(runtime,/\/ekodichurch\/schedule\//);
 });
@@ -31,6 +34,9 @@ test('notice and schedule pages share Church shell and avoid unsanitized HTML',(
   }
   assert.match(js,/post\.categoryId==='notice'/);
   assert.match(js,/post\?\.categoryId!=='schedule'/);
+  assert.match(js,/getFederatedSchedules/);
+  assert.match(js,/allowedUrl/);
+  assert.match(js,/published-read-only/);
   assert.match(js,/managerToken/);
   assert.match(js,/owner','admin','moderator'/);
   assert.match(js,/localDay\(\)/);
