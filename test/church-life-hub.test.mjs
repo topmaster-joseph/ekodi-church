@@ -10,7 +10,7 @@ const devotion = await readFile(new URL('../devotion/index.html', import.meta.ur
 test('the legacy life record hub is no longer a separate public Church experience', () => {
   assert.doesNotMatch(html, /data-ekodi-life-hub|id="life-hub"|id="daily-devotion"|id="life-reflection-form"|id="memory-form"|id="witness-form"/);
   assert.doesNotMatch(html, /href="#life-hub"|church-life-hub\.js|church-life-hub\.css/);
-  assert.match(html, /<strong>매일묵상<\/strong>/);
+  assert.match(html, /<strong>오늘의 매일묵상<\/strong>/);
   assert.match(html, /href="\/ekodichurch\/devotion\/"[^>]*>/);
   assert.match(devotion, /<h1>에코디 오늘의 매일묵상<\/h1>/);
 });
