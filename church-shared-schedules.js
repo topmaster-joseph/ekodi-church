@@ -19,7 +19,7 @@
   function paint(items){
     list.replaceChildren();
     if(!items.length){list.append(add('li','church-shared-empty','예정된 공개 일정이 없습니다.'));return}
-    for(const event of items.slice(0,7)){
+    for(const event of items.slice(0,Math.min(7,Math.max(1,Number(root.dataset.limit)||7)))){
       const url=escUrl(event.url);
       if(!url)continue;
       const row=add('li'),link=add('a','church-shared-link',event.title||'일정 보기');
