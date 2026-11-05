@@ -109,3 +109,7 @@ main.church-section-filtered>section.church-section-active:is(#about,#worship,#m
 main.church-section-filtered>section.church-section-active#location{display:grid!important}
 /* Older .hero:has(:target) sizing never overrides the selected-only navigation. */
 main.church-section-filtered>section.hero:not(.church-section-active){display:none!important}
+
+/* Preserve the original two-column notice + schedule layout on the home screen. */
+main.church-section-filtered>section.church-public-panels.church-section-active{display:grid!important}
+@media(max-width:760px){main.church-section-filtered>section.church-public-panels.church-section-active{grid-template-columns:1fr!important}}
