@@ -814,14 +814,31 @@ function roomNeedsPublisherCheck(room){
   const last=Date.parse(room?.updatedAt||room?.createdAt||'');
   return Number.isFinite(last) && Date.now()-last>30*60*1000;
 }
+// Viewer follows the broadcast end (2026-11-02): clear the frozen frame, show an end notice, auto-join the next broadcast.
+const VIEWER_STATUS_POLL_MS=10000,VIEWER_NEXT_POLL_MS=30000;
+function setViewerEmpty(title,detail){const box=$('viewerEmpty');if(!box)return;const strong=box.querySelector('strong'),span=box.querySelector('span');if(strong)strong.textContent=title;if(span)span.textContent=detail;box.classList.remove('hidden')}
+async function closeViewerMedia(){const room=state.room,session=state.session;if(room&&session)await api(`/rooms/${encodeURIComponent(room.id)}/sessions/${encodeURIComponent(session.id)}/leave`,{method:'POST',session:true,body:'{}'}).catch(()=>{});try{state.pc?.close()}catch{}state.pc=null;state.session=null;state.remote?.getTracks?.().forEach(t=>{try{t.stop()}catch{}});state.remote=new MediaStream();const v=$('viewerVideo');if(v)v.srcObject=null}
+function startViewerEndWatch(id){
+  clearTimeout(state.viewerEndTimer);clearInterval(state.viewerFreezeTimer);let failures=0;
+  const stillLive=async()=>{try{const live=await api(`/live?tenant=${TENANT}`);if(live&&typeof live.live==='boolean'){failures=0;return Boolean(live.live&&live.room&&live.room.id===id)}}catch{}try{const d=await api(`/rooms/${encodeURIComponent(id)}`);failures=0;return d.room?.status==='live'}catch{failures++;return failures<3}};
+  const tick=async()=>{if(state.isLive||!state.room||state.room.id!==id)return;if(!await stillLive())return void viewerBroadcastEnded();state.viewerEndTimer=setTimeout(tick,VIEWER_STATUS_POLL_MS)};
+  state.viewerEndTimer=setTimeout(tick,VIEWER_STATUS_POLL_MS);
+  state.viewerEndCheck=()=>{clearTimeout(state.viewerEndTimer);state.viewerEndTimer=setTimeout(tick,1500)};
+  const pc=state.pc;pc?.addEventListener?.('connectionstatechange',()=>{if(['failed','disconnected','closed'].includes(pc.connectionState))state.viewerEndCheck?.()});
+  const video=$('viewerVideo');let lastTime=-1,stalled=0;
+  state.viewerFreezeTimer=setInterval(()=>{if(!video||state.room?.id!==id||!video.srcObject){clearInterval(state.viewerFreezeTimer);return}const t=video.currentTime;if(t===lastTime){if(++stalled>=3){stalled=0;state.viewerEndCheck?.()}}else{stalled=0;lastTime=t}},4000);
+}
+async function viewerBroadcastEnded(){clearTimeout(state.viewerEndTimer);clearInterval(state.viewerFreezeTimer);state.viewerEndCheck=null;await closeViewerMedia();setViewerEmpty('방송이 종료되었습니다','다음 방송이 시작되면 자동으로 연결됩니다.');note('방송이 종료되었습니다.','viewerStatus');state.room=null;waitNextBroadcast()}
+function waitNextBroadcast(){clearTimeout(state.viewerNextTimer);const tick=async()=>{if(state.isLive)return;try{const live=await api(`/live?tenant=${TENANT}`);if(live.live&&live.room){void joinViewer(live.room.id);return}}catch{}state.viewerNextTimer=setTimeout(tick,VIEWER_NEXT_POLL_MS)};state.viewerNextTimer=setTimeout(tick,VIEWER_NEXT_POLL_MS)}
 async function joinViewer(roomId=''){
-  show('viewerView');note('현재 방송을 찾고 있습니다.','viewerStatus');
-  try{let id=roomId;if(!id){const live=await api(`/live?tenant=${TENANT}`);if(!live.live||!live.room){$('viewerEmpty').querySelector('strong').textContent='현재 생방송이 없습니다';$('viewerEmpty').querySelector('span').textContent='예정된 예배 시간에 다시 참여해 주세요.';note('현재 진행 중인 공개 방송이 없습니다.','viewerStatus');return}id=live.room.id}
+  clearTimeout(state.viewerNextTimer);show('viewerView');note('현재 방송을 찾고 있습니다.','viewerStatus');
+  try{let id=roomId;if(!id){const live=await api(`/live?tenant=${TENANT}`);if(!live.live||!live.room){$('viewerEmpty').querySelector('strong').textContent='현재 생방송이 없습니다';$('viewerEmpty').querySelector('span').textContent='방송이 시작되면 자동으로 연결됩니다.';note('현재 진행 중인 공개 방송이 없습니다.','viewerStatus');waitNextBroadcast();return}id=live.room.id}
     const detail=await api(`/rooms/${encodeURIComponent(id)}`);state.room=detail.room;
+    if(state.room&&state.room.status!=='live'){if(['ending','ended'].includes(state.room.status)){state.room=null;setViewerEmpty('방송이 종료되었습니다','다음 방송이 시작되면 자동으로 연결됩니다.');note('방송이 종료되었습니다.','viewerStatus')}else note('방송 준비 중입니다.','viewerStatus');waitNextBroadcast();return}
     if(roomNeedsPublisherCheck(state.room))note('방송방 기록은 있지만 마지막 갱신이 오래됐습니다. 실제 미디어 수신 여부를 확인합니다.','viewerStatus');window.dispatchEvent(new CustomEvent('ekodi:live:room',{detail:{roomId:state.room.id,tenant:state.room.tenantId,role:'viewer'}}));$('viewerTitle').textContent=state.room.title||'에코디교회 실시간';renderLanguageOptions(detail.tracks||[]);startChatPolling();await refreshCameraDevices().catch(()=>{});await createSession(id,'viewer');state.pc.ontrack=event=>{for(const track of event.streams?.[0]?.getTracks?.()||[event.track])if(!state.remote.getTracks().some(x=>x.id===track.id))state.remote.addTrack(track);$('viewerVideo').srcObject=state.remote;$('viewerEmpty').classList.add('hidden');if(event.track?.kind==='video')note('실제 영상 트랙 수신 · 방송에 연결되었습니다.','viewerStatus')};
     const pulled=await api(`/rooms/${id}/sessions/${state.session.id}/pull`,{method:'POST',session:true,body:JSON.stringify({tracks:(detail.tracks||[]).filter(track=>(track.source_type||track.sourceType)!=='translation').map(track=>({trackName:track.track_name||track.trackName}))})});
     if(pulled.empty){note('방송방은 열려 있지만 아직 영상 트랙이 없습니다.','viewerStatus');return}
-    const offer=providerDescription(pulled);if(!offer?.sdp)throw new Error('미디어 서버의 수신 제안이 없습니다.');await state.pc.setRemoteDescription(offer);const answer=await state.pc.createAnswer();await state.pc.setLocalDescription(answer);await waitIce(state.pc);await api(`/rooms/${id}/sessions/${state.session.id}/renegotiate`,{method:'PUT',session:true,body:JSON.stringify({sessionDescription:state.pc.localDescription})});note('미디어 수신 연결을 설정했습니다. 실제 영상 표시를 확인하고 있습니다.','viewerStatus');
+    const offer=providerDescription(pulled);if(!offer?.sdp)throw new Error('미디어 서버의 수신 제안이 없습니다.');await state.pc.setRemoteDescription(offer);const answer=await state.pc.createAnswer();await state.pc.setLocalDescription(answer);await waitIce(state.pc);await api(`/rooms/${id}/sessions/${state.session.id}/renegotiate`,{method:'PUT',session:true,body:JSON.stringify({sessionDescription:state.pc.localDescription})});note('미디어 수신 연결을 설정했습니다. 실제 영상 표시를 확인하고 있습니다.','viewerStatus');startViewerEndWatch(id);
   }catch(error){note(`참여 연결 실패: ${error.message}`,'viewerStatus')}
 }
 async function refreshLive(){
