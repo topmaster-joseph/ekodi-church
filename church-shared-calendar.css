@@ -46,3 +46,7 @@
 .church-schedule-page button:focus-visible,.church-schedule-page a:focus-visible{outline:3px solid #c39a4f;outline-offset:2px}
 @media(max-width:760px){.church-schedule-shell{grid-template-columns:minmax(0,1fr)}.church-shared-calendar{grid-row:auto}.church-schedule-page .site-header{gap:.7rem;flex-wrap:wrap}.church-schedule-page .site-header nav{width:100%;gap:.75rem}.church-schedule-intro h1{font-size:1.85rem}}
 @media(max-width:390px){.church-schedule-main{width:calc(100% - 22px)}.church-shared-calendar,.church-schedule-day,.church-schedule-upcoming{padding:.7rem}.church-calendar-controls{gap:.23rem}.church-calendar-controls button{padding:.25rem;min-width:32px}.church-calendar-day{min-height:42px;font-size:.81rem}.church-schedule-page .site-header nav{font-size:.77rem}}
+
+/* Role guard: HTML hidden state remains authoritative even with tenant presentation CSS. */
+.church-schedule-page [data-church-schedule][hidden],
+.church-schedule-page [data-church-public-manage][hidden]{display:none!important}
