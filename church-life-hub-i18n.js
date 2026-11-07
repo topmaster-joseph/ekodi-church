@@ -39,7 +39,7 @@
     '주일모임': 'Sunday gathering',
     '매주 일요일 오전 11시': 'Every Sunday · 11:00 AM',
     '토요모임': 'Saturday gathering',
-    '매주 토요일 오후 5시': 'Every Saturday · 5:00 PM',
+    '매주 토요일 오전 11시': 'Every Saturday · 11:00 AM',
     '심야기도': 'Late-night prayer',
     '매일 저녁 11시 30분': 'Daily · 11:30 PM',
     '말씀으로 오늘을 다시 읽습니다': 'Read today again through the Word',
