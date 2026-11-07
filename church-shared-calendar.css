@@ -20,7 +20,7 @@
 .church-calendar-controls button{border:1px solid #d9dfd3;border-radius:.55rem;background:#fff;color:var(--church-ink);min-height:39px;min-width:37px;padding:.35rem .55rem;cursor:pointer}
 .church-calendar-weekdays,.church-calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
 .church-calendar-weekdays{text-align:center;font-size:.76rem;color:#64766a;margin:.5rem 0}
-.church-calendar-day{position:relative;border:1px solid transparent;border-radius:.55rem;background:#fbfbf6;min-height:50px;font:700 .88rem/1.2 inherit;color:var(--church-ink);padding:.25rem .15rem .8rem;cursor:pointer}
+.church-calendar-day{position:relative;border:1px solid transparent;border-radius:.55rem;background:#fbfbf6;min-height:50px;font-size:.88rem;font-weight:700;line-height:1.2;font-family:inherit;color:var(--church-ink);padding:.25rem .15rem .8rem;cursor:pointer}
 .church-calendar-day.is-today{border-color:#276c52}
 .church-calendar-day[aria-pressed="true"]{background:#275c48;color:#fff}
 .church-calendar-day::after{position:absolute;bottom:.35rem;left:50%;transform:translateX(-50%);content:"";width:.4rem;height:.4rem;border-radius:50%;background:transparent}
