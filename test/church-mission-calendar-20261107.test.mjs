@@ -19,6 +19,10 @@ test('Church public schedule has a readable month grid and both source legends',
   assert.ok(home.includes('href="/ekodichurch/schedule/"'));
   assert.ok(css.includes('grid-template-columns:repeat(7,minmax(0,1fr))'));
   assert.ok(css.includes('@media(max-width:390px)'));
+  assert.ok(page.includes('data-church-schedule data-limit="100" aria-label="교회 일정 관리자 편집 목록" hidden'));
+  assert.ok(page.includes('data-church-public-manage hidden'));
+  assert.ok(css.includes('[data-church-schedule][hidden]'));
+  assert.ok(css.includes('[data-church-public-manage][hidden]'));
 });
 
 test('Church only reads independently owned published schedule metadata and never exposes cross-board editing',async()=>{
@@ -35,6 +39,10 @@ test('Church only reads independently owned published schedule metadata and neve
   assert.ok(js.includes('calendarForMonth()'));
   assert.ok(js.includes("aria-pressed"));
   assert.doesNotMatch(js,/innerHTML|\bPOST\b|\bPATCH\b|\bDELETE\b|http:\/\//);
+  const management=await read('church-public-updates.js');
+  assert.ok(management.includes("if(result.authenticated!==true||!['owner','admin','moderator'].includes(result.role))return"));
+  assert.ok(management.includes("document.querySelector('[data-church-schedule]')?.removeAttribute('hidden')"));
+  assert.ok(management.includes("if(managerToken&&detail&&kind==='schedule'&&item.source==='board')"));
 });
 
 test('Shared calendar links are strictly first party and exclude protocol-relative URLs',async()=>{
