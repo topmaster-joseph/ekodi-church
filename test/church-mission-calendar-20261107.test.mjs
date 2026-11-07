@@ -10,9 +10,11 @@ test('Church public schedule has a readable month grid and both source legends',
   ]);
   for(const marker of ['data-church-shared-schedules','data-church-shared-calendar',
     'data-church-calendar-prev','data-church-calendar-next','data-church-calendar-today',
-    'data-church-calendar-days','data-church-schedules-list','data-church-upcoming-list']){
+    'data-church-calendar-days','data-church-schedules-list']){
     assert.ok(page.includes(marker),marker);
   }
+  assert.ok(!page.includes('data-church-upcoming-list'),'upcoming list removed by owner request');
+  assert.ok(!page.includes('다가오는 일정'));
   assert.ok(page.includes('교회 일정')&&page.includes('선교회 일정'));
   assert.ok(page.includes('href="/ekodimission#schedule"'));
   assert.ok(page.includes('/ekodichurch/board?category=schedule'));
