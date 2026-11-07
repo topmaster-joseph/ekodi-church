@@ -16,8 +16,9 @@
   <link rel="stylesheet" href="/ekodichurch/church-homepage-layout.css">
   <link rel="stylesheet" href="/ekodichurch/church-public-updates.css">
   <link rel="stylesheet" href="/ekodichurch/church-compact-navigation.css">
+  <link rel="stylesheet" href="/ekodichurch/church-shared-calendar.css">
 </head>
-<body data-ekodi-footer-mode="service" data-church-public-page="schedule">
+<body class="church-schedule-page" data-ekodi-footer-mode="service" data-church-public-page="schedule">
   <header class="site-header church-devotion-header" id="top">
     <a class="brand" href="/ekodichurch/" aria-label="에코디교회 홈">
       <span class="brand-mark" aria-hidden="true">E</span>
@@ -34,15 +35,41 @@
     </nav>
   </header>
 
-  <main class="church-public-detail">
-    <div class="church-public-detail-head">
+  <main class="church-public-detail church-schedule-main">
+    <div class="church-public-detail-head church-schedule-intro">
       <a href="/ekodichurch/">에코디교회 첫화면</a>
       <h1>주요일정</h1>
-      <p>예배·교제·사역의 날짜와 장소를 확인합니다.</p>
+      <p>교회·선교회 공개 주요일정을 날짜별로 함께 확인합니다. 각 일정은 원래 등록한 기관에서만 수정합니다.</p>
     </div>
-    <section class="church-public-content" data-church-schedule data-limit="100" aria-live="polite">
-      <p class="church-public-empty">내용을 불러오는 중입니다.</p>
+    <section class="church-schedule-shell church-shared-schedule" data-church-shared-schedules data-limit="100" aria-label="교회와 선교회 주요일정">
+      <div class="church-shared-calendar" data-church-shared-calendar aria-label="월별 공개 주요일정">
+        <div class="church-calendar-controls">
+          <button type="button" data-church-calendar-prev aria-label="이전 달">‹</button>
+          <strong data-church-calendar-month aria-live="polite">달력 불러오는 중</strong>
+          <button type="button" data-church-calendar-next aria-label="다음 달">›</button>
+          <button type="button" data-church-calendar-today>오늘</button>
+        </div>
+        <div class="church-calendar-weekdays" aria-hidden="true">
+          <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+        </div>
+        <div class="church-calendar-days" data-church-calendar-days role="group" aria-label="날짜 선택"></div>
+        <div class="church-calendar-legend" aria-label="일정 출처 표시">
+          <span data-origin="ekodichurch">교회 일정</span><span data-origin="ekodimission">선교회 일정</span>
+        </div>
+      </div>
+      <div class="church-schedule-day">
+        <h2 data-church-selected-day>선택한 날짜의 일정</h2>
+        <ol data-church-schedules-list aria-live="polite"><li class="church-shared-empty">일정을 불러오고 있습니다.</li></ol>
+      </div>
+      <div class="church-schedule-upcoming">
+        <h2>다가오는 일정</h2>
+        <ol data-church-upcoming-list aria-live="polite"><li class="church-shared-empty">일정을 불러오고 있습니다.</li></ol>
+      </div>
     </section>
+    <section class="church-public-content" data-church-schedule data-limit="100" aria-label="교회 일정 관리자 편집 목록" hidden>
+      <p class="church-public-empty">교회 일정 관리 목록을 확인하고 있습니다.</p>
+    </section>
+    <p class="church-schedule-footer-info">공개 일정만 공유됩니다. 비공개 일정·참석자·개인정보는 공유하지 않습니다.</p>
     <div class="church-public-management" data-church-public-manage hidden></div>
   </main>
 
@@ -67,5 +94,6 @@
   <script src="/ekodichurch/devotion/devotion-page.js" defer></script>
   <script src="/ekodichurch/church-shell.js?v=20261101" defer></script>
   <script src="/ekodichurch/church-public-updates.js" defer></script>
+  <script src="/ekodichurch/church-shared-schedules.js" defer></script>
 </body>
 </html>
