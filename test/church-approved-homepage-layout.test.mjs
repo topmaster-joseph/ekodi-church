@@ -8,7 +8,7 @@ test('approved homepage gives dated worship its own first-class route without du
  const html=await read('index.html');
  const css=await read('church-homepage-layout.css');
  assert.match(html,/href="#weekly-worship">예배자료<\/a>/);
- assert.match(html,/href="#weekly-worship"><span>05<\/span><strong>주보·PPT<\/strong>/);
+ assert.match(html,/href="#weekly-worship"><span>04<\/span><strong>주보·PPT<\/strong>/);
  assert.match(html,/data-church-weekly/);
  assert.equal((html.match(/data-church-worship-admin/g)||[]).length,1);
  assert.match(html,/data-weekly-editor hidden/);

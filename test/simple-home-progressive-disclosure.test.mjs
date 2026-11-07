@@ -8,7 +8,6 @@ const css = readFileSync(new URL('../church-refresh.css', import.meta.url), 'utf
 test('church homepage starts simple while preserving every primary destination', () => {
   const destinations = [
     ['#about', '우리의 정체성'],
-    ['#life-hub', '오늘의 삶'],
     ['#community', '공동체 활동'],
     ['#worship', '예배'],
     ['#online', '라이브 방송'],
@@ -26,5 +25,8 @@ test('church homepage starts simple while preserving every primary destination',
   assert.ok(css.includes('.hero .overview-grid a span,.hero .overview-grid a small{display:none!important}'));
   assert.ok(css.includes('#about,#worship,#message,#life-hub,#community,#partner-news,#online,#location{display:none!important}'));
   assert.ok(css.includes('#online:has(:target)'));
+  const grid=html.match(/<div class="overview-grid"[\s\S]*?<\/div>/)[0];
+  const nav=html.slice(html.indexOf('<nav id="main-nav"'),html.indexOf('</nav>',html.indexOf('<nav id="main-nav"')));
+  assert.ok(!grid.includes('오늘의 삶')&&!nav.includes('오늘의 삶'), 'home shortcuts and menu no longer link 오늘의 삶 (2026-11-07)');
   assert.ok(css.includes('.church-live-entry{display:none!important}'));
 });
