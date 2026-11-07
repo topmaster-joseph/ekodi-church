@@ -24,6 +24,19 @@ const PAGE_META={
 };
 
 const TEXT={
+// Reviewed nine-language public home notice/navigation additions from Church #165.
+'오늘의 말씀과 묵상기도':{en:'Today’s Word and devotional prayer','zh-CN':'今日经文与灵修祷告',ja:'今日の御言葉と黙想の祈り'},
+'예배안내·주보·온라인 방송':{en:'Worship guide · Bulletin · Online broadcast','zh-CN':'礼拜指南·周报·线上直播',ja:'礼拝案内・週報・オンライン配信'},
+'교회에서 전하는 알림':{en:'Announcements from the church','zh-CN':'教会公告',ja:'教会からのお知らせ'},
+'공동체·협력소식·오시는 길':{en:'Community · Partner news · Directions','zh-CN':'团契·合作消息·交通指南',ja:'共同体・協力ニュース・アクセス'},
+'나의 교회 활동':{en:'My church activities','zh-CN':'我的教会活动',ja:'マイ教会活動'},
+'에코디 오늘의 매일묵상 →':{en:'EKODI Today’s Daily Devotion →','zh-CN':'EKODI今日每日灵修 →',ja:'EKODI 今日のデイリーデボーション →'},
+'에코디 오늘의 매일묵상 보기':{en:'View EKODI Today’s Daily Devotion','zh-CN':'查看EKODI今日每日灵修',ja:'EKODI 今日のデイリーデボーションを見る'},
+'공지사항을 불러오는 중입니다.':{en:'Loading notices…','zh-CN':'正在加载公告…',ja:'お知らせを読み込んでいます…'},
+'현재 공유 일정을 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.':{en:'Could not load the shared schedule right now. Please check again shortly.','zh-CN':'目前无法加载共享日程，请稍后再试。',ja:'現在、共有予定を読み込めません。しばらくしてから再度ご確認ください。'},
+'교회 일정 보기':{en:'View church event','zh-CN':'查看教会日程',ja:'教会の予定を見る'},
+'교회 공지 보기':{en:'View church notice','zh-CN':'查看教会公告',ja:'教会のお知らせを見る'},
+'선교회':{en:'Mission','zh-CN':'宣教会',ja:'宣教会'},
 "에코디교회 주요 서비스":{en:"Church services",'zh-CN':"教会主要服务",ja:"教会の主なサービス"},
 "교회 소식과 일정":{en:"Church news and events",'zh-CN':"教会消息与日程",ja:"教会のお知らせと予定"},
 "등록된 공지사항이 없습니다.":{en:"No notices have been posted.",'zh-CN':"暂无公告。",ja:"お知らせはまだありません。"},
