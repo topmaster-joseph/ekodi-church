@@ -9,3 +9,8 @@ test('나의 예배 viewer clears the frozen frame and shows an end notice when 
   assert.match(live,/startViewerEndWatch\(id\);/);
   assert.match(live,/function waitNextBroadcast\(\)/);
 });
+
+test('나의 예배 viewer reconnects automatically when the picture stalls while the broadcast is still live',()=>{
+  assert.match(live,/if\(state\.viewerStalled\)\{state\.viewerStalled=false;/);
+  assert.match(live,/await closeViewerMedia\(\);void joinViewer\(id\);return\}/);
+});
