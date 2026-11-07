@@ -27,9 +27,9 @@ const make=tag=>({
   setAttribute(k,v){this.attrs[k]=String(v)}
 });
 
-async function render(locale,withThisWeek){
+async function render(locale,withThisWeek,options={}){
   const script=await read('church-shared-schedules.js');
-  const saturday=weekSaturday();
+  const saturday=options.saturday||weekSaturday();
   const meeting=(date,time,id)=>({
     source:'ekodimission',kind:'recurring-meeting',id,date,time,
     title:'토요 성경토론과 함께하는 식사',url:'/ekodimission?meeting='+id,
@@ -37,7 +37,7 @@ async function render(locale,withThisWeek){
   });
   // Future entry intentionally precedes the current week's event.
   const items=[meeting(nextWeek(saturday),'19:00','next')];
-  if(withThisWeek)items.push(meeting(saturday,'11:00','current'));
+  if(withThisWeek)items.push(meeting(saturday,options.currentTime||'11:00','current'));
   const list=make('ol'),target=make('strong');
   target.textContent='매주 토요일 오전 11시';
   const root={dataset:{limit:'3'},querySelector:query=>query==='[data-church-schedules-list]'?list:null};
@@ -52,7 +52,12 @@ async function render(locale,withThisWeek){
   const window={addEventListener(){},EKODIChurchI18n:{getLocale:()=>locale}};
   const location={search:'?lang='+encodeURIComponent(locale)};
   const fetch=async()=>({ok:true,json:async()=>({ok:true,mode:'published-read-only',items})});
-  runInNewContext(script,{window,document,location,fetch,URLSearchParams,Intl,Date,
+  const now=options.asOf?Date.parse(options.asOf):null;
+  const Clock=now===null?Date:class extends Date {
+    constructor(...args){super(...(args.length?args:[now]));}
+    static now(){return now;}
+  };
+  runInNewContext(script,{window,document,location,fetch,URLSearchParams,Intl,Date:Clock,
     AbortSignal:{timeout:()=>({})},setInterval:()=>1,clearInterval:()=>{}});
   for(let i=0;i<10;i++)await Promise.resolve();
   return {value:target.textContent,rows:list.children.length};
@@ -78,6 +83,21 @@ test('official current KST Saturday event overrides unrelated next-week event in
         .format(new Date(Date.UTC(2000,0,1,11,0)));
     assert.ok(res.value.endsWith(expectedTime),'current 11:00 must override the next-week 19:00 in '+locale+': '+res.value);
   }
+});
+
+test('2026-11-07 one-off Mission event at 17:00 overrides ONLY its own Saturday',async()=>{
+  const exception=await render('ko-KR',true,{
+    asOf:'2026-11-07T03:00:00.000Z',
+    saturday:'2026-11-07',
+    currentTime:'17:00'
+  });
+  assert.equal(exception.value,'이번 주 토요일 오후 5:00');
+  const regular=await render('ko-KR',true,{
+    asOf:'2026-11-08T03:00:00.000Z',
+    saturday:'2026-11-14',
+    currentTime:'11:00'
+  });
+  assert.equal(regular.value,'이번 주 토요일 오전 11:00');
 });
 
 test('no current-week published meeting never claims next week is this Saturday',async()=>{
