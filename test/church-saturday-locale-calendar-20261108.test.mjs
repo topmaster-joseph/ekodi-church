@@ -37,9 +37,9 @@ async function render(locale,withThisWeek){
   });
   // Future entry intentionally precedes the current week's event.
   const items=[meeting(nextWeek(saturday),'19:00','next')];
-  if(withThisWeek)items.push(meeting(saturday,'17:00','current'));
+  if(withThisWeek)items.push(meeting(saturday,'11:00','current'));
   const list=make('ol'),target=make('strong');
-  target.textContent='매주 토요일 오후 5시';
+  target.textContent='매주 토요일 오전 11시';
   const root={dataset:{limit:'3'},querySelector:query=>query==='[data-church-schedules-list]'?list:null};
   const document={
     documentElement:{lang:locale},hidden:false,createElement:make,addEventListener(){},
@@ -58,32 +58,32 @@ async function render(locale,withThisWeek){
   return {value:target.textContent,rows:list.children.length};
 }
 
-test('merged multilingual homepage keeps Saturday 17:00, Sunday 11:00 and a translation for the new fallback',async()=>{
+test('merged multilingual homepage keeps regular Saturday 11:00, Sunday 11:00 and a translation for the new fallback',async()=>{
   const [home,life]=await Promise.all([read('index.html'),read('church-life-hub-i18n.js')]);
-  assert.match(home,/<span>토요모임<\/span><strong>매주 토요일 오후 5시<\/strong>/);
-  assert.doesNotMatch(home,/<span>토요모임<\/span><strong>매주 토요일 오전 11시<\/strong>/);
+  assert.match(home,/<span>토요모임<\/span><strong>매주 토요일 오전 11시<\/strong>/);
+  assert.doesNotMatch(home,/<span>토요모임<\/span><strong>매주 토요일 오후 5시<\/strong>/);
   assert.match(home,/<span>주일모임<\/span><strong>매주 일요일 오전 11시<\/strong>/);
-  assert.ok(life.includes("'매주 토요일 오후 5시': 'Every Saturday · 5:00 PM'"));
+  assert.ok(life.includes("'매주 토요일 오전 11시': 'Every Saturday · 11:00 AM'"));
 });
 
 test('official current KST Saturday event overrides unrelated next-week event in every supported locale',async()=>{
   for(const locale of ['ko-KR','en','zh-CN','ja','my','kac','vi','mn','id']){
     const res=await render(locale,true);
     assert.equal(res.rows,2,'both public events still visible '+locale);
-    if(locale==='ko-KR')assert.equal(res.value,'이번 주 토요일 오후 5:00');
-    if(locale==='en')assert.equal(res.value,'This Saturday 5:00 PM');
+    if(locale==='ko-KR')assert.equal(res.value,'이번 주 토요일 오전 11:00');
+    if(locale==='en')assert.equal(res.value,'This Saturday 11:00 AM');
     if(locale!=='ko-KR')assert.doesNotMatch(res.value,/[가-힣]/,'localized label '+locale);
-    const expectedTime=locale==='ko-KR'?'오후 5:00':
+    const expectedTime=locale==='ko-KR'?'오전 11:00':
       new Intl.DateTimeFormat(locale==='kac'?'en-US':locale,{timeZone:'UTC',hour:'numeric',minute:'2-digit'})
-        .format(new Date(Date.UTC(2000,0,1,17,0)));
-    assert.ok(res.value.endsWith(expectedTime),'current 17:00 must override the next-week 19:00 in '+locale+': '+res.value);
+        .format(new Date(Date.UTC(2000,0,1,11,0)));
+    assert.ok(res.value.endsWith(expectedTime),'current 11:00 must override the next-week 19:00 in '+locale+': '+res.value);
   }
 });
 
 test('no current-week published meeting never claims next week is this Saturday',async()=>{
   const result=await render('ko-KR',false);
   assert.equal(result.rows,1);
-  assert.equal(result.value,'매주 토요일 오후 5시');
+  assert.equal(result.value,'매주 토요일 오전 11시');
 });
 
 test('responsive calendar controls stay >=44px; public schedule is read only',async()=>{
