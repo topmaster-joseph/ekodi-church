@@ -31,7 +31,19 @@ test('Church only reads independently owned published schedule metadata and neve
   assert.ok(js.includes('/ekodichurch/board/api/shared-schedules'));
   assert.ok(js.includes("mode!=='published-read-only'"));
   assert.ok(js.includes("['ekodichurch','ekodimission'].includes(x.source)"));
-  assert.ok(js.includes("const origin=item=>item.source==='ekodichurch'?'교회 일정':'선교회 일정'"));
+  assert.ok(js.includes("const origin=item=>item.source==='ekodichurch'?words().church:words().mission"));
+  assert.ok(js.includes("const LANG=Object.freeze({"));
+  assert.ok(js.includes("if(name==='토요 성경토론과 함께하는 식사')return words().saturdayTitle"));
+  assert.ok(js.includes("return event.source==='ekodichurch'?words().churchEvent:words().missionEvent"));
+  for(const loc of ["'ko-KR'","en:","'zh-CN'","ja:","my:","kac:","vi:","mn:","id:"]){
+    assert.ok(js.includes(loc+"{")||js.includes(loc+":{"),"locale "+loc);
+  }
+  assert.ok(js.includes("window.addEventListener('ekodi:locale-change'"));
+  assert.ok(js.includes("const detailVenue=value=>"));
+  const dictionary=await read('church-i18n.js');
+  for(const value of ['에코디교회 주요 서비스','교회 소식과 일정','교회 일정 게시판','등록된 공지사항이 없습니다.']){
+    assert.ok(dictionary.includes(JSON.stringify(value)+":"),"static i18n key "+value);
+  }
   assert.ok(js.includes('document.createElement'));
   assert.ok(js.includes('textContent=text'));
   assert.ok(js.includes("document.addEventListener('visibilitychange'"));
