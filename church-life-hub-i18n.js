@@ -190,7 +190,7 @@
     const walker = document.createTreeWalker(document.body || document.documentElement, NodeFilter.SHOW_TEXT);
     let node;
     while ((node = walker.nextNode())) {
-      if (node.parentElement?.closest('script,style,template,noscript,[data-ekodi-language-control]')) continue;
+      if (node.parentElement?.closest('script,style,template,noscript,[data-ekodi-language-control],[data-ekodi-user-content]')) continue;
       translateText(node);
     }
     document.querySelectorAll('[aria-label],[title],[placeholder]').forEach((element) => {

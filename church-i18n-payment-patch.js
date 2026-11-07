@@ -69,7 +69,7 @@ function translateText(root=document.body){
   let node;
   while((node=walker.nextNode())){
     const parent=node.parentElement;
-    if(!parent||parent.closest('script,style,template,noscript,[data-ekodi-language-control]'))continue;
+    if(!parent||parent.closest('script,style,template,noscript,[data-ekodi-language-control],[data-ekodi-user-content]'))continue;
     const raw=node.nodeValue||'';
     const source=raw.trim();
     const next=M[source]?.[lang];

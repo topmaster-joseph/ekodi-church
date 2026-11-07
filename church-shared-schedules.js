@@ -14,6 +14,12 @@
     if(text)item.textContent=text;
     return item;
   };
+  const markOriginal=node=>{
+    node.setAttribute('data-ekodi-user-content','');
+    node.setAttribute('lang','ko');
+    node.setAttribute('translate','no');
+    return node;
+  };
   const fmt=date=>/^\d{4}-\d{2}-\d{2}$/.test(date||'')?date.replace(/-/g,'.'):'';
   const today=()=>{
     const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
@@ -43,6 +49,8 @@
       const meta=add('span','church-shared-meta',[
         sourceLabel,fmt(event.date),labelTime(event.time),event.venue
       ].filter(Boolean).join(' · '));
+      // Member-authored title/venue stay in their original language (원문 표시).
+      for(const original of [link,meta])markOriginal(original);
       row.append(badge,link,meta);target.append(row);
     }
   }
