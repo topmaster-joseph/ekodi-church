@@ -6,9 +6,8 @@ const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const script = await readFile(new URL('../church-life-hub.js', import.meta.url), 'utf8');
 const css = await readFile(new URL('../church-life-hub.css', import.meta.url), 'utf8');
 
-test('church life hub is publicly reachable from the main shell', () => {
+test('church life hub content stays in the shell without a home link', () => {
   assert.match(html, /id="life-hub"/);
-  assert.match(html, /href="#life-hub"/);
   assert.match(html, /church-life-hub\.css/);
   assert.match(html, /church-life-hub\.js/);
 });
