@@ -222,6 +222,11 @@
   function enableEditor(){
     if(!manageRoot||!['notices','schedule'].includes(kind))return;
     manageRoot.hidden=false;
+    // Public schedule uses the shared calendar, but authorized Church managers
+    // retain a separate, source-local list for editing original Church posts.
+    if(kind==='schedule'){
+      document.querySelector('[data-church-schedule]')?.removeAttribute('hidden');
+    }
     const heading=el('h2','',kind==='notices'?'공지사항 관리':'주요일정 관리');
     const tip=el('p','','에코디교회 게시판 관리자에게만 편집 권한이 있습니다.');
     form=el('form','church-public-form');
