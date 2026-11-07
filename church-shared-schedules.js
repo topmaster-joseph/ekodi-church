@@ -21,6 +21,11 @@
     return [get('year'),get('month'),get('day')].join('-');
   };
   const origin=item=>item.source==='ekodichurch'?'교회 일정':'선교회 일정';
+  // 간단 표시(2026-11-08): 구분은 색 점 + '교회'/'선교회' 한 단어. (사전 번역 대상)
+  const originShort=item=>item.source==='ekodichurch'?'교회':'선교회';
+  // A안(2026-11-08): 한국어가 아닌 화면에서는 한국어 원문 제목·장소 대신 번역되는 안내 문구와 날짜·시각만 표시.
+  const korean=()=>/^ko\b/i.test(document.documentElement.lang||'ko');
+  const time24=value=>/^([01]\d|2[0-3]):[0-5]\d$/.test(value||'')?value:'';
   const labelTime=value=>{
     const [h,m]=String(value||'').split(':').map(Number);
     return Number.isInteger(h)&&Number.isInteger(m)?(h>=12?'오후 ':'오전 ')+(h%12||12)+':'+String(m).padStart(2,'0'):'';
@@ -36,13 +41,13 @@
     const filtered=items.filter(item=>escUrl(item.url)).slice(0,limit);
     if(!filtered.length){target.append(add('li','church-shared-empty',empty));return;}
     for(const event of filtered){
-      const row=add('li'),link=add('a','church-shared-link',event.title||'일정 보기');
+      const ko=korean();
+      const row=add('li'),link=add('a','church-shared-link',ko?(event.title||'일정 보기'):(event.source==='ekodichurch'?'교회 일정 보기':'선교회 일정 보기'));
       link.href=escUrl(event.url);
-      const badge=add('span','church-schedule-origin church-schedule-origin-'+event.source,origin(event));
-      const sourceLabel=event.sourceLabel;
-      const meta=add('span','church-shared-meta',[
-        sourceLabel,fmt(event.date),labelTime(event.time),event.venue
-      ].filter(Boolean).join(' · '));
+      if(!ko&&event.title)link.title=event.title;
+      const badge=add('span','church-schedule-origin church-schedule-origin-'+event.source,originShort(event));
+      const meta=add('span','church-shared-meta',(ko?[event.sourceLabel,fmt(event.date),labelTime(event.time),event.venue]:[fmt(event.date),time24(event.time)])
+        .filter(Boolean).join(' · '));
       row.append(badge,link,meta);target.append(row);
     }
   }
@@ -98,6 +103,9 @@
       paintRows(list,entries,Math.min(7,Math.max(1,Number(root.dataset.limit)||7)),'예정된 공개 일정이 없습니다.');
     }
   }
+  // 언어가 실제로 바뀔 때만 다시 그림(번역 엔진은 같은 lang 값을 반복 설정함 → 무한 갱신 방지).
+  let paintedLang=document.documentElement.lang;
+  new MutationObserver(()=>{const next=document.documentElement.lang;if(next===paintedLang)return;paintedLang=next;if(entries.length)paint(entries);}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
   async function load(){
     try{
       const response=await fetch('/ekodichurch/board/api/shared-schedules',{
@@ -118,7 +126,7 @@
       }
       paint([...unique.values()].sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time)||a.source.localeCompare(b.source)));
       const saturday=items.find(x=>x.source==='ekodimission'&&x.kind==='recurring-meeting');
-      if(saturday){
+      if(saturday&&korean()){
         const target=document.querySelector('#worship .schedule>div:nth-child(2) strong');
         if(target)target.textContent='이번 주 토요일 '+labelTime(saturday.time);
       }
