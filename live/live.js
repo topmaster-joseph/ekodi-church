@@ -821,12 +821,12 @@ async function closeViewerMedia(){const room=state.room,session=state.session;if
 function startViewerEndWatch(id){
   clearTimeout(state.viewerEndTimer);clearInterval(state.viewerFreezeTimer);let failures=0;
   const stillLive=async()=>{try{const live=await api(`/live?tenant=${TENANT}`);if(live&&typeof live.live==='boolean'){failures=0;return Boolean(live.live&&live.room&&live.room.id===id)}}catch{}try{const d=await api(`/rooms/${encodeURIComponent(id)}`);failures=0;return d.room?.status==='live'}catch{failures++;return failures<3}};
-  const tick=async()=>{if(state.isLive||!state.room||state.room.id!==id)return;if(!await stillLive())return void viewerBroadcastEnded();state.viewerEndTimer=setTimeout(tick,VIEWER_STATUS_POLL_MS)};
+  const tick=async()=>{if(state.isLive||!state.room||state.room.id!==id)return;if(!await stillLive())return void viewerBroadcastEnded();if(state.viewerStalled){state.viewerStalled=false;note('영상이 멈춰 자동으로 다시 연결합니다.','viewerStatus');clearInterval(state.viewerFreezeTimer);await closeViewerMedia();void joinViewer(id);return}state.viewerEndTimer=setTimeout(tick,VIEWER_STATUS_POLL_MS)};
   state.viewerEndTimer=setTimeout(tick,VIEWER_STATUS_POLL_MS);
   state.viewerEndCheck=()=>{clearTimeout(state.viewerEndTimer);state.viewerEndTimer=setTimeout(tick,1500)};
-  const pc=state.pc;pc?.addEventListener?.('connectionstatechange',()=>{if(['failed','disconnected','closed'].includes(pc.connectionState))state.viewerEndCheck?.()});
+  const pc=state.pc;pc?.addEventListener?.('connectionstatechange',()=>{if(state.pc!==pc)return;if(pc.connectionState==='failed'){state.viewerStalled=true;state.viewerEndCheck?.()}else if(pc.connectionState==='disconnected'){setTimeout(()=>{if(state.pc===pc&&pc.connectionState!=='connected'){state.viewerStalled=true;state.viewerEndCheck?.()}},6000)}});
   const video=$('viewerVideo');let lastTime=-1,stalled=0;
-  state.viewerFreezeTimer=setInterval(()=>{if(!video||state.room?.id!==id||!video.srcObject){clearInterval(state.viewerFreezeTimer);return}const t=video.currentTime;if(t===lastTime){if(++stalled>=3){stalled=0;state.viewerEndCheck?.()}}else{stalled=0;lastTime=t}},4000);
+  state.viewerFreezeTimer=setInterval(()=>{if(!video||state.room?.id!==id||!video.srcObject){clearInterval(state.viewerFreezeTimer);return}const t=video.currentTime;if(t===lastTime&&!video.paused){if(++stalled>=3){stalled=0;state.viewerStalled=true;state.viewerEndCheck?.()}}else{stalled=0;lastTime=t}},4000);
 }
 async function viewerBroadcastEnded(){clearTimeout(state.viewerEndTimer);clearInterval(state.viewerFreezeTimer);state.viewerEndCheck=null;await closeViewerMedia();setViewerEmpty('방송이 종료되었습니다','다음 방송이 시작되면 자동으로 연결됩니다.');note('방송이 종료되었습니다.','viewerStatus');state.room=null;waitNextBroadcast()}
 function waitNextBroadcast(){clearTimeout(state.viewerNextTimer);const tick=async()=>{if(state.isLive)return;try{const live=await api(`/live?tenant=${TENANT}`);if(live.live&&live.room){void joinViewer(live.room.id);return}}catch{}state.viewerNextTimer=setTimeout(tick,VIEWER_NEXT_POLL_MS)};state.viewerNextTimer=setTimeout(tick,VIEWER_NEXT_POLL_MS)}
