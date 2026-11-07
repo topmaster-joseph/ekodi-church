@@ -74,7 +74,10 @@ test('official current KST Saturday event overrides unrelated next-week event in
     if(locale==='ko-KR')assert.equal(res.value,'이번 주 토요일 오후 5:00');
     if(locale==='en')assert.equal(res.value,'This Saturday 5:00 PM');
     if(locale!=='ko-KR')assert.doesNotMatch(res.value,/[가-힣]/,'localized label '+locale);
-    assert.doesNotMatch(res.value,/7:00|19:00/,'future 19:00 must not override current week '+locale);
+    const expectedTime=locale==='ko-KR'?'오후 5:00':
+      new Intl.DateTimeFormat(locale==='kac'?'en-US':locale,{timeZone:'UTC',hour:'numeric',minute:'2-digit'})
+        .format(new Date(Date.UTC(2000,0,1,17,0)));
+    assert.ok(res.value.endsWith(expectedTime),'current 17:00 must override the next-week 19:00 in '+locale+': '+res.value);
   }
 });
 
