@@ -34,6 +34,13 @@
     if(!response.ok)throw new Error('서버 응답 '+response.status);
     return response.json();
   }
+  // Member-authored posts (title, date, body, venue) are shown as written: 원문 표시.
+  const markOriginal=node=>{
+    node.setAttribute('data-ekodi-user-content','');
+    node.setAttribute('lang','ko');
+    node.setAttribute('translate','no');
+    return node;
+  };
   const failure=(root,message)=>{
     root.replaceChildren(el('p','church-public-empty',message));
   };
@@ -45,7 +52,7 @@
     const time=el('time','',dateText(String(post.createdAt||'').slice(0,10)));
     textWrap.append(anchor,time);
     if(!compact)textWrap.append(el('p','church-public-excerpt',String(post.body||'').slice(0,180)));
-    row.append(textWrap);
+    row.append(markOriginal(textWrap));
     if(managerToken&&detail&&kind==='notices'){
       const edit=el('button','church-public-edit','수정');
       edit.type='button';edit.addEventListener('click',()=>editRecord(post));
@@ -137,7 +144,7 @@
     link.href=item.href;
     copy.append(link,el('p','',item.venue));
     if(!compact&&item.description)copy.append(el('small','',item.description));
-    row.append(date,copy);
+    row.append(markOriginal(date),markOriginal(copy));
     if(managerToken&&detail&&kind==='schedule'&&item.source==='board'){
       const button=el('button','church-public-edit','수정');
       button.type='button';

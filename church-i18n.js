@@ -369,6 +369,29 @@ Object.assign(TEXT,{
 "날짜별 예배자료와 진행 화면":{en:"Dated bulletin, slides and operator display",'zh-CN':"按日期查看周报、幻灯片及主持界面",ja:"日付別の週報・スライド・進行画面"},
 "YOUTUBE · EKODI LIVE":{en:"YOUTUBE · EKODI LIVE",'zh-CN':"YOUTUBE · EKODI LIVE",ja:"YOUTUBE · EKODI LIVE"}
 });
+// Home six-menu subtitles, public notice/schedule chrome and devotion links (2026-11-08).
+Object.assign(TEXT,{
+"오늘의 말씀과 묵상기도":{en:"Today’s Word and prayer",'zh-CN':"今日经文与默想祷告",ja:"今日のみことばと黙想の祈り"},
+"예배안내·주보·온라인 방송":{en:"Worship · Bulletin · Online live",'zh-CN':"礼拜指南·周报·线上直播",ja:"礼拝案内・週報・オンライン配信"},
+"교회에서 전하는 알림":{en:"News from the church",'zh-CN':"教会发布的通知",ja:"教会からのお知らせ"},
+"교회·선교회 공개 일정":{en:"Public Church & Mission dates",'zh-CN':"教会·宣教会公开日程",ja:"教会・宣教会の公開予定"},
+"교회·선교회 공개 일정 ·":{en:"Public Church & Mission dates ·",'zh-CN':"教会·宣教会公开日程 ·",ja:"教会・宣教会の公開予定 ·"},
+"공동체·협력소식·오시는 길":{en:"Community · Partner news · Directions",'zh-CN':"团契·合作消息·来访路线",ja:"共同体・協力ニュース・アクセス"},
+"나의 교회 활동":{en:"My church activity",'zh-CN':"我的教会活动",ja:"わたしの教会活動"},
+"교회 일정 게시판":{en:"Church schedule board",'zh-CN':"教会日程公告板",ja:"教会予定掲示板"},
+"교회 일정":{en:"Church event",'zh-CN':"教会日程",ja:"教会の予定"},
+"선교회 일정":{en:"Mission event",'zh-CN':"宣教会日程",ja:"宣教会の予定"},
+"에코디 오늘의 매일묵상 →":{en:"EKODI Today’s Daily Devotion →",'zh-CN':"EKODI 今日每日灵修 →",ja:"EKODI 今日のデイリーデボーション →"},
+"에코디 오늘의 매일묵상 보기":{en:"Read EKODI Today’s Daily Devotion",'zh-CN':"查看 EKODI 今日每日灵修",ja:"EKODI 今日のデイリーデボーションを見る"},
+"공지사항을 불러오는 중입니다.":{en:"Loading notices…",'zh-CN':"正在加载公告…",ja:"お知らせを読み込んでいます…"},
+"공개 일정을 확인하고 있습니다.":{en:"Checking public dates…",'zh-CN':"正在确认公开日程…",ja:"公開予定を確認しています…"},
+"공지사항을 불러오지 못했습니다. 다시 시도해 주세요.":{en:"Notices could not be loaded. Please try again.",'zh-CN':"无法加载公告，请重试。",ja:"お知らせを読み込めませんでした。もう一度お試しください。"},
+"현재 공유 일정을 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.":{en:"Shared dates could not be loaded. Please check again shortly.",'zh-CN':"暂时无法加载共享日程，请稍后再查看。",ja:"共有予定を読み込めませんでした。しばらくしてから再度ご確認ください。"},
+"등록된 공지사항이 없습니다.":{en:"No notices yet.",'zh-CN':"暂无公告。",ja:"お知らせはまだありません。"},
+"공개된 주요 일정이 없습니다.":{en:"No public dates yet.",'zh-CN':"暂无公开日程。",ja:"公開予定はまだありません。"},
+"예정된 공개 일정이 없습니다.":{en:"No upcoming public dates.",'zh-CN':"暂无即将到来的公开日程。",ja:"予定されている公開予定はありません。"},
+"선택한 날짜의 공개 일정이 없습니다.":{en:"No public dates on the selected day.",'zh-CN':"所选日期没有公开日程。",ja:"選択した日の公開予定はありません。"}
+});
 
 const SCRIPTURES=[
 ['시편 23:1','여호와는 나의 목자시니 내게 부족함이 없으리로다','Psalm 23:1','The Lord is my shepherd; I shall not want.','诗篇 23:1','耶和华是我的牧者，我必不致缺乏。','詩篇 23:1','主は私の羊飼い。私は乏しいことがありません。'],
@@ -461,7 +484,7 @@ function textRecord(node){
 }
 function translateTextNode(node){
   const parent=node.parentElement;
-  if(!parent||parent.closest('script,style,template,noscript,#payment-method,#agreement,[data-ekodi-language-control]'))return;
+  if(!parent||parent.closest('script,style,template,noscript,#payment-method,#agreement,[data-ekodi-language-control],[data-ekodi-user-content]'))return;
   const state=textRecord(node);
   const source=state.source;
   const trimmed=source.trim();
