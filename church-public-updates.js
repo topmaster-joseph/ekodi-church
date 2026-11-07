@@ -25,8 +25,10 @@
     const value=type=>parts.find(x=>x.type===type)?.value||'';
     return [value('year'),value('month'),value('day')].join('-');
   };
+  const korean=()=>/^ko\b/i.test(document.documentElement.lang||'ko');
   const dateText=date=>{
     if(!/^\d{4}-\d{2}-\d{2}$/.test(String(date)))return '';
+    if(!korean())return String(date).replace(/-/g,'.');
     return new Date(date+'T12:00:00+09:00').toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short',timeZone:'Asia/Seoul'});
   };
   async function getJson(url,options={}){
@@ -40,7 +42,9 @@
   function noticeRow(post,compact){
     const row=el('article','church-public-item church-public-notice');
     const textWrap=el('div');
-    const anchor=el('a','church-public-link',post.title);
+    // A안: 한국어가 아닌 화면의 목록에서는 원문 제목 대신 번역되는 '교회 공지 보기'를 표시(상세 화면은 원문 유지).
+    const anchor=el('a','church-public-link',korean()||!compact?post.title:'교회 공지 보기');
+    if(!korean()&&compact)anchor.title=post.title;
     anchor.href='/ekodichurch/notices/?post='+encodeURIComponent(post.id);
     const time=el('time','',dateText(String(post.createdAt||'').slice(0,10)));
     textWrap.append(anchor,time);
@@ -154,6 +158,9 @@
       for(const item of currentRows.slice(0,limit))root.append(scheduleRow(item,!detail));
     }
   }
+  // 언어가 실제로 바뀔 때만 다시 그림(번역 엔진은 같은 lang 값을 반복 설정함 → 무한 갱신 방지).
+  let paintedLang=document.documentElement.lang;
+  new MutationObserver(()=>{const next=document.documentElement.lang;if(next===paintedLang)return;paintedLang=next;if(allPosts.length)renderNotices();}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
   async function loadData(){
     const [postsResult,worshipResult,saturdayResult,federatedResult]=await Promise.allSettled([
       getJson(BASE+'/posts'),getWorship(),getSaturday(),getFederatedSchedules()
