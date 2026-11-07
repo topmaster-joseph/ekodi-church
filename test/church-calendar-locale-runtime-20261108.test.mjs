@@ -45,8 +45,8 @@ test('all nine calendar locales render origins and original links without leakin
     assert.ok(out.allText.trim().length>15,'nonempty rows in '+lang);
     if(lang==='ko-KR'){
       const badges=out.list.children.map(row=>row.children.find(child=>child.className?.includes('church-schedule-origin')));
-      assert.deepEqual(badges.map(node=>node?.textContent),['교회','선교회'],'short visible source labels');
-      assert.deepEqual(badges.map(node=>node?.attrs['aria-label']),['교회 일정','선교회 일정'],'full accessible source labels');
+      assert.deepEqual(badges.map(node=>node?.textContent),['선교회','교회'],'short visible source labels in source event order');
+      assert.deepEqual(badges.map(node=>node?.attrs['aria-label']),['선교회 일정','교회 일정'],'full accessible source labels');
       assert.match(out.allText,/토요 성경토론과 함께하는 식사/);
     }else{
       assert.doesNotMatch(out.allText,/[가-힣]/,'no untranslated Korean in '+lang);
