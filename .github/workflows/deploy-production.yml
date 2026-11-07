@@ -90,7 +90,9 @@ jobs:
           grep -Fq 'https://go.missionfund.org/fmd01' giving-config.json
           grep -Fq '에코디교회 · 십일조·주일헌금' index.html
           grep -Fq '에코디선교회 · 선교헌금' index.html
-          grep -Fq 'data-ekodi-life-hub' index.html
+          grep -Fq '<h1>에코디 오늘의 매일묵상</h1>' devotion/index.html
+          grep -Fq 'href="/ekodichurch/devotion/"' index.html
+          if grep -Fq 'data-ekodi-life-hub' index.html; then echo 'Legacy life record hub must not return'; exit 1; fi
           grep -Fq '에코디선교회' index.html
           grep -Fq 'church-life-hub-i18n-state.js' index.html
           grep -Fq 'church-life-hub-i18n.js' index.html
