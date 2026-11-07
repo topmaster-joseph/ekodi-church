@@ -161,7 +161,13 @@
         if(!unique.has(key))unique.set(key,item);
       }
       paint([...unique.values()].sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time)||a.source.localeCompare(b.source)));
-      const saturday=items.find(x=>x.source==='ekodimission'&&x.kind==='recurring-meeting');
+      const saturdayDate=(()=>{
+        const [year,mm,day]=today().split('-').map(Number);
+        const date=new Date(Date.UTC(year,mm-1,day));
+        date.setUTCDate(date.getUTCDate()+(6-date.getUTCDay()+7)%7);
+        return date.toISOString().slice(0,10);
+      })();
+      const saturday=items.find(x=>x.source==='ekodimission'&&x.kind==='recurring-meeting'&&x.date===saturdayDate);
       if(saturday){
         const target=document.querySelector('#worship .schedule>div:nth-child(2) strong');
         if(target)target.textContent=words().saturday+labelTime(saturday.time);
