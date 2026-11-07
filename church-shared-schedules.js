@@ -43,6 +43,13 @@
   };
   const words=()=>LANG[locale()];
   const origin=item=>item.source==='ekodichurch'?words().church:words().mission;
+  // A short visual label accompanies the full localized accessible origin.
+  const SHORT_ORIGINS=Object.freeze({
+    'ko-KR':['교회','선교회'],en:['Church','Mission'],'zh-CN':['教会','宣教会'],ja:['教会','宣教会'],
+    my:['အသင်းတော်','သာသနာပြု'],kac:['Church','Mission'],
+    vi:['Hội thánh','Truyền giáo'],mn:['Сүм','Номлол'],id:['Gereja','Misi']
+  });
+  const originShort=item=>(SHORT_ORIGINS[locale()]||SHORT_ORIGINS['ko-KR'])[item.source==='ekodichurch'?0:1];
   const dateLabel=(date)=>{
     if(locale()==='ko-KR')return fmt(date);
     const [y,m,d]=date.split('-').map(Number);
@@ -82,7 +89,8 @@
     for(const event of filtered){
       const row=add('li'),link=add('a','church-shared-link',detailTitle(event));
       link.href=escUrl(event.url);
-      const badge=add('span','church-schedule-origin church-schedule-origin-'+event.source,origin(event));
+      const badge=add('span','church-schedule-origin church-schedule-origin-'+event.source,originShort(event));
+      badge.setAttribute('aria-label',origin(event));
       const sourceLabel=event.source==='ekodichurch'?words().churchName:words().missionName;
       const meta=add('span','church-shared-meta',[
         sourceLabel,dateLabel(event.date),labelTime(event.time),detailVenue(event.venue)
