@@ -33,7 +33,11 @@ test('Church only reads independently owned published schedule metadata and neve
   assert.ok(js.includes('/ekodichurch/board/api/shared-schedules'));
   assert.ok(js.includes("mode!=='published-read-only'"));
   assert.ok(js.includes("['ekodichurch','ekodimission'].includes(x.source)"));
-  assert.ok(js.includes("const origin=item=>item.source==='ekodichurch'?'교회 일정':'선교회 일정'"));
+  assert.ok(js.includes("const origin=item=>item.source==='ekodichurch'?words().church:words().mission"));
+  assert.ok(js.includes("const LANG=Object.freeze({"));
+  assert.ok(js.includes('badge.setAttribute(\'aria-label\',origin(event))'));
+  assert.ok(js.includes("x.date===saturdayDate"),'this week must not be overridden by next Saturday');
+  assert.ok(js.includes("const markOriginal=node=>"),'member-authored content remains in its original language');
   assert.ok(js.includes('document.createElement'));
   assert.ok(js.includes('textContent=text'));
   assert.ok(js.includes("document.addEventListener('visibilitychange'"));
