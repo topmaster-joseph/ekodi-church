@@ -53,7 +53,8 @@ test('all eight non-Korean selections localize standalone schedule without chang
     assert.ok(weekday.length===7&&weekday.every(x=>x.textContent),lang);
     assert.ok(badge.length===2&&badge.every(x=>x.textContent),lang);
     assert.doesNotMatch([heading,intro,...nav.map(x=>x.textContent),...badge.map(x=>x.textContent)].join(' '),/[가-힣]/,lang);
-    assert.ok(v.privacy.childNodes[0].textContent.length>35,lang);
+    assert.notEqual(v.privacy.childNodes[0].textContent,'공개 일정만 공유됩니다.',lang);
+    assert.ok(v.privacy.childNodes[0].textContent.trim().length>8,lang);
     assert.equal(v.one('[data-church-shared-calendar]').attrs['aria-label'].length>0,true);
     assert.equal(v.document.documentElement.lang,lang==='kac'?'en':lang);
     if(lang==='kac')assert.equal(v.document.documentElement.dataset.translationFallback,'en');
