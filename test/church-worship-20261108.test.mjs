@@ -42,13 +42,9 @@ test('Online bulletin keeps the two-sheet shape, new issue number and no private
   assert.doesNotMatch(sermon,/예배 전 확인|최종 확인 필요|\(초안\)/,'internal checklist is not published');
 });
 
-test('Homepage, live viewer and weekly index point to November 8 (prepared, behind the review gate)',()=>{
-  const home=readFileSync(new URL('../index.html',import.meta.url),'utf8');
-  assert.match(home,/data-weekly-bulletin href="\/ekodichurch\/worship\/2026-11-08\/"/);assert.match(home,/date=2026-11-08/);
-  const live=readFileSync(new URL('../live/index.html',import.meta.url),'utf8');assert.match(live,/id="viewerBulletinLink" href="\/ekodichurch\/worship\/2026-11-08\/"/);
+test('November 8 is archived in the weekly index after November 15 is prepared',()=>{
   const weekly=JSON.parse(readFileSync(new URL('../worship/weekly.json',import.meta.url),'utf8'));
-  assert.equal(weekly.services.at(-1).date,'2026-11-08');assert.equal(weekly.services.at(-1).status,'prepared');
-  assert.equal(weekly.services.filter(s=>s.status==='prepared').length,1);
+  assert.equal(weekly.services.find(s=>s.date==='2026-11-08').status,'archived');
   for(const [p,rel] of [['index.html','../review-gate.js'],['sermon/index.html','../../review-gate.js'],['prayer/index.html','../../review-gate.js']])
     assert.ok(get(p).includes(`<script src="${rel}" data-date="2026-11-08"></script>`),p);
 });

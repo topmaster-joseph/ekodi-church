@@ -1,0 +1,439 @@
+{
+  "schema": "ekodi.worship.materials.v1",
+  "site": "ekodichurch",
+  "date": "2026-11-15",
+  "time": "11:00",
+  "title": "모든 사람에게 모든 것이 되어",
+  "scripture": "고린도전서 9:19–27",
+  "preacher": "정찬균 목사",
+  "order": [
+    [
+      "예배부름",
+      "인도자"
+    ],
+    [
+      "공동체 고백",
+      "다같이"
+    ],
+    [
+      "경배찬양",
+      "다같이"
+    ],
+    [
+      "대표기도",
+      "맡은이"
+    ],
+    [
+      "헌신찬양",
+      "다같이"
+    ],
+    [
+      "성경봉독 — 고린도전서 9:19–27",
+      "다같이"
+    ],
+    [
+      "말씀나눔 — 모든 사람에게 모든 것이 되어",
+      "정찬균 목사"
+    ],
+    [
+      "나눔기도",
+      "다같이"
+    ],
+    [
+      "결단찬양",
+      "다같이"
+    ],
+    [
+      "교회소식",
+      "인도자"
+    ],
+    [
+      "주기도문",
+      "다같이"
+    ]
+  ],
+  "devotion": [
+    [
+      "11/15",
+      "고린도전서 9:19–27"
+    ],
+    [
+      "11/16",
+      "고린도전서 10:1–13"
+    ],
+    [
+      "11/17",
+      "고린도전서 10:14–22"
+    ],
+    [
+      "11/18",
+      "고린도전서 10:23–11:1"
+    ],
+    [
+      "11/19",
+      "고린도전서 11:2–16"
+    ],
+    [
+      "11/20",
+      "고린도전서 11:17–26"
+    ],
+    [
+      "11/21",
+      "고린도전서 11:27–34"
+    ]
+  ],
+  "slides": [
+    {
+      "title": "에코디교회",
+      "kicker": "WHO IS GOD? WHO AM I? WHAT DO I DO?",
+      "lines": [
+        "잠시 후 예배가 시작됩니다",
+        "기대하는 마음으로 미리 준비해 주세요"
+      ],
+      "cover": true
+    },
+    {
+      "title": "Call to Worship",
+      "kicker": "예배부름",
+      "lines": [
+        "복음 안에서 우리를 자유하게 하신 하나님이 이웃을 섬기는 자리로 우리를 불러 예배에 초대하십니다"
+      ]
+    },
+    {
+      "title": "Community Confession",
+      "kicker": "공동고백",
+      "lines": [
+        "그리스도 안에서 받은 자유를 이웃을 위해 쓰도록 부르신 하나님 앞에 공동체가 고백합니다"
+      ]
+    },
+    {
+      "title": "공동체 고백",
+      "kicker": "Community Confession",
+      "lines": [
+        "하나님은 우리를 세상에서 하나님의 구별된 백성으로 부르셨습니다.\n(갈 4:4-7, 롬 8:14-17, 벧전 2:9, 히 10:24-25)",
+        "하나님은 우리를 복음으로 서로 환대하며 나누는 공동체로 세우셨습니다.\n(창 1:27, 31, 행 2:42-47, 롬 12:13)",
+        "하나님은 우리를 세상에서 자기비움과 자기부정으로 자유롭고 거룩하게 하십니다.\n(행 1:8, 롬 8:28, 벧전 2:11-12, 렘 29:4-7, 빌 2:5-8, 눅 9:23)"
+      ]
+    },
+    {
+      "title": "Praise & Worship",
+      "kicker": "경배와 찬양",
+      "lines": [
+        "다같이"
+      ]
+    },
+    {
+      "title": "Represent Praying",
+      "kicker": "대표기도",
+      "lines": [
+        "맡은이"
+      ]
+    },
+    {
+      "title": "Song of Offering",
+      "kicker": "헌신찬양",
+      "lines": [
+        "다같이"
+      ]
+    },
+    {
+      "title": "Scripture Reading",
+      "kicker": "말씀읽기",
+      "lines": [
+        "고린도전서 9:19–27",
+        "EKODI 2026-11 공통본문"
+      ]
+    },
+    {
+      "title": "자유와 권리 · 복음을 위해 내려놓는 바울",
+      "kicker": "고린도전서 9장 배경",
+      "lines": [
+        "8장: 우상 제물과 약한 형제 → 9장: 바울이 쓰지 않은 권리",
+        "9:1–18: 생활비를 받을 권리를 내려놓고 값없이 전한 복음",
+        "고린도 가까이 열린 이스트미아 경기 · 썩을 관과 썩지 않을 관"
+      ]
+    },
+    {
+      "title": "모든 사람에게\n모든 것이 되어",
+      "kicker": "Sermon",
+      "lines": [
+        "All Things to All People.",
+        "向什么样的人，就作什么样的人。",
+        "すべての人に、すべてのものとなって。",
+        "Trở nên mọi sự cho mọi người."
+      ],
+      "cover": true
+    },
+    {
+      "title": "すべての人に、すべてのものとなって。",
+      "kicker": "SERMON · 日本語",
+      "lines": [
+        "모든 사람에게 모든 것이 되어",
+        "설교 제목 · 화면을 보고 함께 읽기"
+      ]
+    },
+    {
+      "title": "Trở nên mọi sự cho mọi người.",
+      "kicker": "SERMON · Tiếng Việt",
+      "lines": [
+        "모든 사람에게 모든 것이 되어",
+        "설교 제목 · 화면을 보고 함께 읽기"
+      ]
+    },
+    {
+      "title": "내 자유는 누구를 위한 것입니까?",
+      "kicker": "말씀나눔",
+      "lines": [
+        "내 시간, 내 방식, 내 권리.\n우리는 자유를 좋아합니다.",
+        "바울은 자유를 버리라 하지 않고\n자유를 쓰는 길을 보여 줍니다.",
+        "한 사람이라도 더 얻기 위해\n모든 사람의 자리로 다가갑니다."
+      ]
+    },
+    {
+      "title": "1 | 자유한 사람이 스스로 종이 됩니다",
+      "kicker": "말씀나눔",
+      "lines": [
+        "바울은 누구에게도 매이지 않은\n자유인이었습니다.",
+        "그러나 더 많은 사람을 얻으려고\n스스로 모든 사람의 종이 되었습니다.",
+        "복음 안의 자유는\n섬길 수 있는 자유입니다."
+      ]
+    },
+    {
+      "title": "2 | 복음을 위해 다른 이의 자리로 들어갑니다",
+      "kicker": "말씀나눔",
+      "lines": [
+        "유대인에게는 유대인처럼,\n약한 이에게는 약한 사람처럼.",
+        "다가가는 방식은 바꾸어도\n그리스도의 법 아래 머뭅니다.",
+        "복음은 그대로, 다가가는 길은\n그 사람의 자리에서 시작합니다."
+      ]
+    },
+    {
+      "title": "3 | 썩지 않을 상을 향해 절제하며 달립니다",
+      "kicker": "말씀나눔",
+      "lines": [
+        "경기하는 이들도 썩을 관을 위해\n모든 일에 절제합니다.",
+        "목표 없이 달리지 않고\n허공을 치듯 싸우지 않습니다.",
+        "남을 세운 뒤 나도 무너지지 않도록\n내 몸과 삶을 다스립니다."
+      ]
+    },
+    {
+      "title": "그리스도의 복음 | 종이 되어 오신 주님",
+      "kicker": "말씀나눔",
+      "lines": [
+        "하나님의 본체이신 그리스도께서\n종의 모습으로 우리 자리에 오셨습니다.",
+        "섬김을 받으러 오지 않고\n섬기러 오셨습니다.",
+        "그 사랑이 우리를 자유하게 하고\n섬기게 합니다."
+      ]
+    },
+    {
+      "title": "함께 나눌 세 가지 질문",
+      "kicker": "말씀나눔",
+      "lines": [
+        "이웃을 위해 내려놓을 수 있는\n나의 자유나 권리는 무엇입니까?",
+        "나와 다른 이웃의 자리로\n무엇부터 다가갈 수 있습니까?",
+        "이번 주 절제하며 바꾸고 싶은\n한 가지 습관은 무엇입니까?"
+      ]
+    },
+    {
+      "title": "공동체의 응답",
+      "kicker": "인도자 · 회중",
+      "lines": [
+        "그리스도 안에서 받은 자유를 / 이웃을 섬기는 데 쓰겠습니다",
+        "나와 다른 이웃 앞에서 / 먼저 그의 자리로 다가가겠습니다",
+        "약한 지체 곁에서 / 같은 눈높이로 함께 걷겠습니다",
+        "썩지 않을 상을 바라보며 / 절제하며 끝까지 달리겠습니다",
+        "다함께 / 말씀대로 살아내고 살려내겠습니다"
+      ]
+    },
+    {
+      "title": "이번 주 실천 한 걸음",
+      "kicker": "말씀나눔",
+      "lines": [
+        "언어·세대·문화가 다른 이웃 한 사람에게\n그의 말로 먼저 인사를 건넵니다.",
+        "습관 하나를 일주일 절제하고\n그 시간을 기도와 이웃에게 드립니다.",
+        "상대의 형편과 동의를 존중합니다."
+      ]
+    },
+    {
+      "title": "Response Sharing & Praying",
+      "kicker": "나눔기도",
+      "lines": [
+        "다같이"
+      ]
+    },
+    {
+      "title": "Song of Commitment",
+      "kicker": "결단찬양",
+      "lines": [
+        "다같이"
+      ]
+    },
+    {
+      "title": "이번 주 매일묵상 · 11/15–11/21",
+      "kicker": "EKODI 2026-11 공통본문",
+      "lines": [
+        "일 11/15 고린도전서 9:19–27 · 월 11/16 고린도전서 10:1–13",
+        "화 11/17 고린도전서 10:14–22 · 수 11/18 고린도전서 10:23–11:1",
+        "목 11/19 고린도전서 11:2–16 · 금 11/20 고린도전서 11:17–26",
+        "토 11/21 고린도전서 11:27–34"
+      ]
+    },
+    {
+      "title": "Community Announce",
+      "kicker": "교회소식",
+      "lines": [
+        "오늘 주일모임 후 공동의회 · 세례교인 모두 참석",
+        "안건: 2025 결산·2026 예산 승인 · 교회 정관 제정",
+        "에코디비즈 교회 공간 일부 무상사용 승인",
+        "2027 목포노회 동반성장 자립화교회 지원 신청"
+      ]
+    },
+    {
+      "title": "주기도문",
+      "kicker": "THE LORD'S PRAYER",
+      "lines": [
+        "한국어 · English · 中文 · 日本語 · Tiếng Việt",
+        "주기도문 5개 언어 전문 수록"
+      ]
+    },
+    {
+      "title": "주기도문 | 한국어",
+      "kicker": "THE LORD'S PRAYER",
+      "lines": [
+        "하늘에 계신 우리 아버지,",
+        "아버지의 이름을 거룩하게 하시며 아버지의 나라가 오게 하시며",
+        "아버지의 뜻이 하늘에서와 같이 땅에서도 이루어지게 하소서.",
+        "오늘 우리에게 일용할 양식을 주시고",
+        "우리가 우리에게 잘못한 사람을 용서하여 준 것 같이",
+        "우리 죄를 용서하여 주시고 우리를 시험에 빠지지 않게 하시고",
+        "악에서 구하소서.",
+        "나라와 권능과 영광이 영원히 아버지의 것입니다. 아멘."
+      ]
+    },
+    {
+      "title": "주기도문 | English",
+      "kicker": "THE LORD'S PRAYER",
+      "lines": [
+        "Our Father which art in heaven,",
+        "Hallowed be thy name. Thy kingdom come.",
+        "Thy will be done in earth, as it is in heaven.",
+        "Give us this day our daily bread.",
+        "And forgive us our debts, as we forgive our debtors.",
+        "And lead us not into temptation, but deliver us from evil:",
+        "For thine is the kingdom, and the power, and the glory, for ever. Amen."
+      ]
+    },
+    {
+      "title": "주기도문 | 中文",
+      "kicker": "THE LORD'S PRAYER",
+      "lines": [
+        "我们在天上的父：",
+        "愿人都尊你的名为圣。愿你的国降临。",
+        "愿你的旨意行在地上，如同行在天上。",
+        "我们日用的饮食，今日赐给我们。",
+        "免我们的债，如同我们免了人的债。",
+        "不叫我们遇见试探，救我们脱离凶恶。",
+        "因为国度、权柄、荣耀，全是你的，直到永远。阿们。"
+      ]
+    },
+    {
+      "title": "주기도문 | 日本語",
+      "kicker": "THE LORD'S PRAYER",
+      "lines": [
+        "天にまします我らの父よ、",
+        "願わくは御名をあがめさせたまえ。御国を来たらせたまえ。",
+        "御心の天になるごとく、地にもなさせたまえ。",
+        "我らの日用の糧を、今日も与えたまえ。",
+        "我らに罪を犯す者を我らが赦すごとく、我らの罪をも赦したまえ。",
+        "我らを試みにあわせず、悪より救い出したまえ。",
+        "国と力と栄えとは、限りなく汝のものなればなり。アーメン。"
+      ]
+    },
+    {
+      "title": "주기도문 | Tiếng Việt",
+      "kicker": "THE LORD'S PRAYER",
+      "lines": [
+        "Lạy Cha chúng con ở trên trời,",
+        "danh Cha được thánh. Nước Cha được đến.",
+        "Ý Cha được nên, ở đất như trời.",
+        "Xin cho chúng con hôm nay đồ ăn đủ ngày.",
+        "Xin tha tội lỗi cho chúng con, như chúng con cũng tha kẻ phạm tội nghịch cùng chúng con.",
+        "Xin chớ để chúng con bị cám dỗ, mà cứu chúng con khỏi điều ác.",
+        "Vì nước, quyền, vinh hiển đều thuộc về Cha đời đời. A-men."
+      ]
+    }
+  ],
+  "publicBulletin": "/ekodichurch/worship/2026-11-15/",
+  "broadcastSafe": true,
+  "youtube": {
+    "channel": "https://www.youtube.com/@ekodichurch",
+    "title": "모든 사람에게 모든 것이 되어 | 고린도전서 9:19–27 | 2026.11.15 에코디교회 주일모임",
+    "description": "2026년 11월 15일(일) 오전 11시 에코디교회 주일모임 · 성령강림절 후 스물다섯째 주일\n말씀제목 | 모든 사람에게 모든 것이 되어\n공통본문 | 고린도전서 9:19–27\n말씀나눔 | 정찬균 목사\n복음 안에서 자유한 사람은 그 자유로 이웃의 자리로 다가갑니다. 한 사람이라도 더 얻기 위해 모든 사람에게 모든 것이 되고, 썩지 않을 상을 바라보며 절제하며 달립니다.\n다국어 자막: 영어·중국어·일본어·베트남어·몽골어 (ekodi.kr/live/church/)\n에클레시아 · 코이노니아 · 디아스포라 · 희년\n#에코디교회 #고린도전서 #주일모임",
+    "visibility": "public",
+    "chat": true,
+    "dvr": true,
+    "latency": "normal",
+    "status": "metadata-prepared-not-scheduled"
+  },
+  "interpretation": {
+    "captions": true,
+    "sourceLang": "ko",
+    "targetLangs": [
+      "en",
+      "zh",
+      "ja",
+      "vi",
+      "mn"
+    ],
+    "console": "/live/church/?mode=studio",
+    "viewer": "/live/church/",
+    "engine": "EKODI Live interpretation captions (Workers AI m2m100)"
+  },
+  "occasion": "성령강림절 후 스물다섯째 주일",
+  "sources": {
+    "bulletin": {
+      "title": "261115 에코디교회 주보 | 모든 사람에게 모든 것이 되어 (초안)",
+      "fileId": "17MulbaPg33AKFFi-iK88GUgX20YFy_9hs-dIiICzzRw",
+      "url": "https://docs.google.com/document/d/17MulbaPg33AKFFi-iK88GUgX20YFy_9hs-dIiICzzRw/edit"
+    },
+    "slides": {
+      "title": "261115 에코디교회 예배 PPT | 모든 사람에게 모든 것이 되어 (초안)",
+      "fileId": "1EMoG2Q0zJW-9QUWqUsWnbjDldts67Ynt1Os7Yk6jZ1U",
+      "url": "https://docs.google.com/presentation/d/1EMoG2Q0zJW-9QUWqUsWnbjDldts67Ynt1Os7Yk6jZ1U/edit"
+    },
+    "sermon": {
+      "title": "261115 에코디교회 말씀 원고 | 모든 사람에게 모든 것이 되어 (초안)",
+      "fileId": "1OMawt9zy1tM7S9JLlK_J_dHRxjLtgE-4rqWgmWxFpXk",
+      "url": "https://docs.google.com/document/d/1OMawt9zy1tM7S9JLlK_J_dHRxjLtgE-4rqWgmWxFpXk/edit"
+    }
+  },
+  "slideSource": {
+    "type": "google-slides-text",
+    "fileId": "1EMoG2Q0zJW-9QUWqUsWnbjDldts67Ynt1Os7Yk6jZ1U",
+    "sourcePages": 34,
+    "publishedPages": 30,
+    "omittedPages": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      13
+    ],
+    "omittedReason": "찬양 악보 화면은 저작권 보호를 위해 공개 웹에서 제외(현장 PPT에서 사용)",
+    "rendering": "원본 PPT 문구를 16:9 비율 고정 HTML 슬라이드로 표시"
+  },
+  "stage": "draft",
+  "lectionary": {
+    "source": "대한예수교장로회총회 매일성서정과",
+    "url": "https://www.pck.or.kr/bbs/board.php?bo_table=lectionary",
+    "status": "needs-verification",
+    "note": "예장통합 지정 주일 명칭·본문 확인필요(추수감사주일 지정 여부 포함). 아래는 RCL A년 Proper 28 참고 본문(PC(USA) RCL, 2026 기준)",
+    "readings": [
+      "사사기 4:1–7 (또는 스바냐 1:7, 12–18)",
+      "시편 123 (또는 시편 90:1–8[9–11], 12)",
+      "데살로니가전서 5:1–11",
+      "마태복음 25:14–30"
+    ]
+  }
+}
