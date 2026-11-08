@@ -28,7 +28,7 @@
       // The header can grow after load (shared member/language controls, fonts,
       // translated labels). Keep the spacer equal to the live header height so
       // the fixed header never covers the greeting.
-      if ('ResizeObserver' in window) new ResizeObserver(size).observe(header);
+      if (typeof window.ResizeObserver === 'function') new window.ResizeObserver(size).observe(header);
       window.addEventListener('ekodi:user-header-ready', size);
       window.addEventListener('load', size, { once: true });
     }
