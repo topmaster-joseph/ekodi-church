@@ -45,6 +45,10 @@ test('responsive layout centers header and footer; selected section hides oversi
  assert.match(css,/background:#fbfaf6!important/);
  assert.match(css,/min-height:44px/);
  assert.match(css,/@media\(max-width:420px\)/);
+ // The protected Cloudflare Pages native-320 audit forbids sticky header overlap.
+ // Do not loosen that live guard: keep a content-first hero with 50px+ top room.
+ assert.match(css,/padding:clamp\(50px,6vw,60px\) 18px 32px!important/);
+ assert.match(css,/\.hero-content\{width:min\(680px,100%\);padding:0!important\}/);
  assert.match(css,/#online \.online-triad--broadcast\{[\s\S]*?grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
  assert.match(css,/#online \.online-triad--broadcast\{grid-template-columns:1fr\}/);
  assert.match(footer,/\.church-footer-inner\{/);
