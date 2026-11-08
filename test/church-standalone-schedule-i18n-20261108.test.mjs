@@ -6,7 +6,7 @@ import {runInNewContext} from 'node:vm';
 const read=path=>readFile(new URL('../'+path,import.meta.url),'utf8');
 const languages=['en','zh-CN','ja','my','kac','vi','mn','id'];
 
-function run(locale,script){
+function run(locale,script,queryLocale=locale,storedLocale=locale){
   const singles=new Map(),groups=new Map();
   const build=(name)=>({name,textContent:'원본 텍스트',attrs:{},setAttribute(k,v){this.attrs[k]=v}});
   const one=selector=>{if(!singles.has(selector))singles.set(selector,build(selector));return singles.get(selector)};
@@ -18,8 +18,9 @@ function run(locale,script){
   privacy.childNodes=[{nodeType:3,textContent:'공개 일정만 공유됩니다.'}];
   const document={body:{matches:()=>true},documentElement:{lang:'ko',dataset:{}},
     querySelector:one,querySelectorAll:group,title:'',};
-  const location={search:'?lang='+encodeURIComponent(locale)};
-  runInNewContext(script,{document,location,URLSearchParams,Set,Object}, {timeout:1500});
+  const location={search:queryLocale?'?lang='+encodeURIComponent(queryLocale):''};
+  const window={EKODIUserLanguage:{getLocale:()=>storedLocale}};
+  runInNewContext(script,{document,location,window,URLSearchParams,Set,Object}, {timeout:1500});
   return{one,group,document,privacy};
 }
 
@@ -68,4 +69,17 @@ test('Korean default is untouched, no user-authored title or original deep link 
   assert.equal(v.group('.site-header nav a')[0].textContent,'원본 텍스트');
   assert.doesNotMatch(source,/querySelectorAll\([^)]*church-shared-link/);
   assert.doesNotMatch(source,/setAttribute\(['"]href['"]/);
+});
+
+
+test('standalone calendar respects persisted shared EKODI language when URL omits lang; explicit URL wins',async()=>{
+  const script=await read('church-schedule-page-i18n.js');
+  const persisted=run('ko-KR',script,'','vi');
+  assert.match(persisted.one('.church-schedule-intro > h1').textContent,/Hội thánh/);
+  assert.equal(persisted.document.documentElement.lang,'vi');
+  const explicit=run('ko-KR',script,'ja','vi');
+  assert.match(explicit.one('.church-schedule-intro > h1').textContent,/教会/);
+  assert.equal(explicit.document.documentElement.lang,'ja');
+  const calendar=await read('church-shared-schedules.js');
+  assert.ok(calendar.includes('window.EKODIUserLanguage?.getLocale?.()'));
 });
