@@ -117,9 +117,12 @@ main.church-section-filtered>section.church-public-panels.church-section-active{
 /* 320px live Chromium regression (central release run #42424840618):
    the home greeting was 12px behind the sticky header. Restore the
    mobile header-to-hero gap without touching shared auth, menu or other views.
+   Dynamic church-shell.js inserts .church-shell-spacer between header and
+   main, so the adjacent (+ main) selector is not reliable at runtime.
+   The general sibling (~ main) selector remains effective with that spacer.
    Keep this override after the older mobile layout styles. */
 @media(max-width:360px){
-  .site-header + main > .hero{
+  .site-header ~ main > .hero{
     padding-top:48px!important;
   }
 }
