@@ -67,7 +67,8 @@ test('calendar date click switches strictly from Church source to Mission source
     const button=app.days.children.find(x=>x.dataset.date===app.tomorrow);
     assert.ok(button,'tomorrow remains selectable in '+lang);
     button.listeners.click();
-    assert.equal(button.attrs['aria-pressed'],'true');
+    // Calendar refresh replaces day buttons; inspect the newly rendered selected button.
+    assert.equal(app.days.children.find(x=>x.dataset.date===app.tomorrow)?.attrs['aria-pressed'],'true');
     assert.equal(app.list.children.length,1);
     assert.match(badge(app.list.children[0]).attrs['aria-label'],lang==='en'?/Mission/:/선교회/);
     assert.equal(link(app.list.children[0]).href,'/ekodimission?meeting='+app.tomorrow+'#saturday');
