@@ -23,6 +23,18 @@ add('에코디교회 홈','ပင်မစာမျက်နှာ','EKODI Nawku
 add('메뉴 열기','မီနူးဖွင့်ရန်','Menu hpaw','Mở menu','Цэс нээх','Buka menu');
 add('주요 메뉴','အဓိက မီနူး','Main menu','Menu chính','Үндсэн цэс','Menu utama');
 add('예배안내','ဝတ်ပြုခြင်း','Nawku','Thờ phượng','Мөргөл','Ibadah');
+add('예배·방송','ဝတ်ပြုခြင်းနှင့် ထုတ်လွှင့်ခြင်း','Nawku hte live','Thờ phượng và phát sóng','Мөргөл ба шууд дамжуулалт','Ibadah dan siaran');
+add('주보·PPT','အသင်းတော်စာစောင်နှင့် ဆလိုက်များ','Shiga laika hte slide','Bản tin và trình chiếu','Мэдээлэл ба слайд','Buletin dan slide');
+add('온라인 방송','အွန်လိုင်း ထုတ်လွှင့်မှု','Online live','Phát trực tuyến','Шууд дамжуулалт','Siaran daring');
+add('교회소개','အသင်းတော် အကြောင်း','Htingnu lam','Giới thiệu Hội thánh','Сүмийн тухай','Tentang gereja');
+add('참여·후원','ပါဝင်ရန်နှင့် ထောက်ပံ့ရန်','Woi hte baw','Tham gia và hỗ trợ','Оролцох ба дэмжих','Partisipasi dan dukungan');
+add('선택한 메뉴의 세부 항목','ရွေးချယ်ထားသော မီနူး','Menu lamang','Mục của menu đã chọn','Сонгосон цэс','Rincian menu terpilih');
+add('오늘의 매일묵상','ယနေ့ နေ့စဉ်ဆင်ခြင်ခြင်း','Dai Ni Daily Devotion','Suy niệm hôm nay','Өнөөдрийн бясалгал','Renungan hari ini');
+add('공지사항','အသိပေးချက်များ','Shiga ni','Thông báo','Зар мэдээ','Pengumuman');
+add('주요일정','အဓိက အစီအစဉ်များ','Hkring ni','Lịch chính','Гол хуваарь','Jadwal utama');
+add('전체보기','အားလုံးကြည့်ရန်','Yawng hpe yu','Xem tất cả','Бүгдийг үзэх','Lihat semua');
+add('예배와 모임 일정','ဝတ်ပြုနှင့် တွေ့ဆုံချိန်','Nawku hte hkrum ni','Lịch thờ phượng và gặp mặt','Мөргөл ба уулзалт','Jadwal ibadah dan pertemuan');
+add('교회 공식 알림','အသင်းတော် အကြောင်းကြားချက်','Htingnu shiga','Thông báo chính thức','Сүмийн албан мэдээ','Pengumuman resmi gereja');
 add('온라인','အွန်လိုင်း','Online','Trực tuyến','Онлайн','Online');
 add('큐티인 신청','QTIN မှာယူရန်','QTIN Order','Đặt QTIN','QTIN захиалах','Pesan QTIN');
 add('실시간 방송 시청','တိုက်ရိုက်ထုတ်လွှင့်မှု ကြည့်ရန်','Live yu u','Xem trực tiếp','Шууд үзэх','Tonton siaran langsung');
@@ -139,6 +151,27 @@ add('예배자료 관리','ဝတ်ပြုကိုးကွယ်မှု �
 
 add('세상에서 구별된 에클레시아, 하나님과 하나된 코이노니아, 세상 속에 증인된 디아스포라.','လောကထဲမှ ခေါ်ထုတ်ထားသော Ekklesia၊ ဘုရားသခင်၌ တစ်လုံးတစ်ဝတည်းဖြစ်သော Koinonia၊ လောကထဲတွင် သက်သေဖြစ်သော Diaspora။','Mungkan kaw na shaga la ai Ekklesia, Karai Kasang hte rau ai Koinonia, mungkan hta sakse tai ai Diaspora.','Ekklesia được gọi ra khỏi thế gian, Koinonia hiệp một trong Đức Chúa Trời, Diaspora làm chứng giữa đời.','Дэлхийгээс дуудагдсан Ekklesia, Бурхантай нэгдсэн Koinonia, дэлхийд гэрчлэгч Diaspora.','Ekklesia yang dipanggil keluar dari dunia, Koinonia yang bersatu dalam Allah, Diaspora yang menjadi saksi di dunia.');
 add('전체 소셜채널 ↗','လူမှုကွန်ရက်ချန်နယ်များအားလုံး ↗','Social channel yawng ↗','Tất cả kênh mạng xã hội ↗','Бүх сошиал сувгууд ↗','Semua kanal sosial ↗');
+// Home six-menu subtitles, public notice/schedule chrome and devotion links (2026-11-08).
+add("오늘의 말씀과 묵상기도","ယနေ့ နှုတ်ကပါဌ်တော်နှင့် ဆင်ခြင်ဆုတောင်းခြင်း","Dai ni Karai ga hte akyu hpyi","Lời Chúa hôm nay và cầu nguyện suy niệm","Өнөөдрийн Үг ба бясалгалын залбирал","Firman hari ini dan doa renungan");
+add("예배안내·주보·온라인 방송","ဝတ်ပြုလမ်းညွှန် · စာစောင် · အွန်လိုင်း ထုတ်လွှင့်မှု","Nawku lam · Shiga laika · Online live","Thờ phượng · Bản tin · Phát trực tuyến","Мөргөл · Мэдээллийн хуудас · Шууд дамжуулалт","Ibadah · Buletin · Siaran daring");
+add("교회에서 전하는 알림","အသင်းတော်မှ အသိပေးချက်များ","Htingnu kaw na shiga","Thông báo từ Hội thánh","Сүмээс хүргэх мэдээ","Kabar dari gereja");
+add("교회·선교회 공개 일정","အသင်းတော်နှင့် သာသနာအဖွဲ့ အစီအစဉ်များ","Htingnu hte Mission hkring ni","Lịch công khai của Hội thánh và Hội truyền giáo","Сүм ба номлолын нийтийн хуваарь","Jadwal publik gereja dan misi");
+add("교회·선교회 공개 일정 ·","အသင်းတော်နှင့် သာသနာအဖွဲ့ အစီအစဉ်များ ·","Htingnu hte Mission hkring ni ·","Lịch công khai của Hội thánh và Hội truyền giáo ·","Сүм ба номлолын нийтийн хуваарь ·","Jadwal publik gereja dan misi ·");
+add("공동체·협력소식·오시는 길","အသိုင်းအဝိုင်း · မိတ်ဖက်သတင်း · လာရောက်ရန်လမ်း","Hpung · Rau galaw shiga · Sa wa lam","Cộng đồng · Tin đối tác · Đường đến","Хамт олон · Түншийн мэдээ · Хүрэх зам","Komunitas · Kabar mitra · Petunjuk arah");
+add("나의 교회 활동","ကျွန်ုပ်၏ အသင်းတော် လှုပ်ရှားမှု","Ngai a htingnu bungli","Hoạt động của tôi tại Hội thánh","Миний сүмийн оролцоо","Aktivitas gereja saya");
+add("교회 일정 게시판","အသင်းတော် အစီအစဉ် ဘုတ်","Htingnu hkring shiga","Bảng lịch Hội thánh","Сүмийн хуваарийн самбар","Papan jadwal gereja");
+add("교회 일정","အသင်းတော် အစီအစဉ်","Htingnu hkring","Lịch Hội thánh","Сүмийн хуваарь","Jadwal gereja");
+add("선교회 일정","သာသနာအဖွဲ့ အစီအစဉ်","Mission hkring","Lịch Hội truyền giáo","Номлолын хуваарь","Jadwal misi");
+add("에코디 오늘의 매일묵상 →","EKODI ယနေ့ နေ့စဉ်ဆင်ခြင်ခြင်း →","EKODI Dai Ni Daily Devotion →","Suy niệm hôm nay của EKODI →","EKODI өнөөдрийн бясалгал →","Renungan harian EKODI hari ini →");
+add("에코디 오늘의 매일묵상 보기","EKODI ယနေ့ နေ့စဉ်ဆင်ခြင်ခြင်း ကြည့်ရန်","EKODI Dai Ni Daily Devotion yu u","Xem suy niệm hôm nay của EKODI","EKODI өнөөдрийн бясалгалыг үзэх","Lihat renungan harian EKODI hari ini");
+add("공지사항을 불러오는 중입니다.","အသိပေးချက်များ ဖွင့်နေသည်…","Shiga ni hpaw nga ai…","Đang tải thông báo…","Зар мэдээг ачаалж байна…","Memuat pengumuman…");
+add("공개 일정을 확인하고 있습니다.","အစီအစဉ်များ စစ်ဆေးနေသည်…","Hkring ni yu nga ai…","Đang kiểm tra lịch công khai…","Нийтийн хуваарийг шалгаж байна…","Memeriksa jadwal publik…");
+add("공지사항을 불러오지 못했습니다. 다시 시도해 주세요.","အသိပေးချက်များ ဖွင့်၍ မရပါ။ ထပ်မံကြိုးစားပါ။","Shiga ni hpaw n lu ai. Bai galaw yu rit.","Không tải được thông báo. Vui lòng thử lại.","Зар мэдээг ачаалж чадсангүй. Дахин оролдоно уу.","Pengumuman tidak dapat dimuat. Silakan coba lagi.");
+add("현재 공유 일정을 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.","မျှဝေထားသော အစီအစဉ်များ ဖွင့်၍ မရပါ။ ခဏနေမှ ပြန်ကြည့်ပါ။","Hkring ni hpaw n lu ai. Kaga ten bai yu rit.","Không tải được lịch chung. Vui lòng kiểm tra lại sau.","Хуваалцсан хуваарийг ачаалж чадсангүй. Түр хүлээгээд дахин шалгана уу.","Jadwal bersama tidak dapat dimuat. Silakan periksa lagi nanti.");
+add("등록된 공지사항이 없습니다.","အသိပေးချက် မရှိသေးပါ။","Shiga n nga ai.","Chưa có thông báo.","Зар мэдээ алга.","Belum ada pengumuman.");
+add("공개된 주요 일정이 없습니다.","ထုတ်ပြန်ထားသော အစီအစဉ် မရှိသေးပါ။","Hkring n nga ai.","Chưa có lịch công khai.","Нийтэлсэн хуваарь алга.","Belum ada jadwal publik.");
+add("예정된 공개 일정이 없습니다.","လာမည့် အစီအစဉ် မရှိပါ။","Hpang de na hkring n nga ai.","Không có lịch công khai sắp tới.","Удахгүй болох нийтийн хуваарь алга.","Tidak ada jadwal publik mendatang.");
+add("선택한 날짜의 공개 일정이 없습니다.","ရွေးချယ်ထားသောနေ့တွင် အစီအစဉ် မရှိပါ။","Lata ai shani hta hkring n nga ai.","Không có lịch công khai vào ngày đã chọn.","Сонгосон өдөр нийтийн хуваарь алга.","Tidak ada jadwal publik pada tanggal yang dipilih.");
 
 const DAILY={
   my:{ref:'ဂလာတိ 5:13',text:'အချင်းချင်း မေတ္တာဖြင့် အစေခံကြလော့။'},
@@ -198,7 +231,7 @@ function captureFallback(){
   while((node=walker.nextNode())){
     const parent=node.parentElement;
     const source=(node.nodeValue||'').trim();
-    if(!parent||!source||parent.closest('script,style,template,noscript,[data-ekodi-language-control]'))continue;
+    if(!parent||!source||parent.closest('script,style,template,noscript,[data-ekodi-language-control],[data-ekodi-user-content]'))continue;
     textPairs.push([node,source]);
   }
   const attrPairs=[];
@@ -229,7 +262,7 @@ function applyText(locale){
   let node;
   while((node=walker.nextNode())){
     const parent=node.parentElement;
-    if(!parent||parent.closest('script,style,template,noscript,[data-ekodi-language-control]'))continue;
+    if(!parent||parent.closest('script,style,template,noscript,[data-ekodi-language-control],[data-ekodi-user-content]'))continue;
     const raw=node.nodeValue||'';
     const source=raw.trim();
     if(!source||!/[가-힣]/.test(source))continue;

@@ -3,6 +3,13 @@ const nav = document.querySelector('#main-nav');
 const siteHeader = document.querySelector('.site-header');
 const churchT = (source) => window.EKODIChurchI18n?.t?.(source) || source;
 
+// Legacy bookmarks must open the single canonical devotional experience.
+// Never erase the former private-first localStorage records while removing their UI.
+if (location.hash === '#life-hub' || location.hash === '#daily-devotion') {
+  location.replace('/ekodichurch/devotion/' + location.search);
+}
+
+
 // Korean-first church identity in the public header. The locale layer translates it after boot.
 const headerBrandName = document.querySelector('.site-header .brand strong');
 if (headerBrandName) headerBrandName.textContent = '에코디교회';
@@ -12,11 +19,11 @@ if (headerBrandLink) headerBrandLink.setAttribute('aria-label', '에코디교회
 // Public church header: keep only the most useful next actions and the church-local member home.
 if (nav) {
   const items = [
-    { href: '#worship', label: '예배안내' },
     { href: '/ekodichurch/devotion/', label: '매일묵상', className: 'nav-devotion' },
-    { href: '#online', label: '온라인' },
-    { href: '#location', label: '오시는 길' },
-    { href: '/qtin/church', label: '큐티인 신청', className: 'nav-qtin' },
+    { href: '/ekodichurch/#worship', label: '예배·방송' },
+    { href: '/ekodichurch/notices/', label: '공지사항' },
+    { href: '/ekodichurch/schedule/', label: '주요일정' },
+    { href: '/ekodichurch/#together', label: '함께하기', className: 'nav-together' },
     { href: '/ekodichurch/my/', label: '마이페이지', className: 'shell-my' },
   ];
   const links = items.map((item) => {
