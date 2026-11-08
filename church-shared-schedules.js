@@ -46,7 +46,7 @@
   });
   const locale=()=>{
     const q=new URLSearchParams(location.search).get('lang');
-    const raw=q||window.EKODIChurchExtendedI18n?.getLocale?.()||window.EKODIChurchI18n?.getLocale?.()||document.documentElement.lang||'ko-KR';
+    const raw=q||window.EKODIUserLanguage?.getLocale?.()||window.EKODIChurchExtendedI18n?.getLocale?.()||window.EKODIChurchI18n?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||'ko-KR';
     const value=raw==='ko'?'ko-KR':raw==='en-US'?'en':raw==='zh'?'zh-CN':raw==='ja-JP'?'ja':raw;
     return Object.hasOwn(LANG,value)?value:'ko-KR';
   };
