@@ -103,6 +103,7 @@
   const group=(selector,keys)=>{
     document.querySelectorAll(selector).forEach((el,i)=>{if(keys[i])el.textContent=keys[i]});
   };
+  const applyTranslations=()=>{
   one('.site-header .brand','brandHome','aria-label');
   one('.site-header .brand strong','brand');
   one('.site-header nav','menu','aria-label');
@@ -137,4 +138,9 @@
   group('.church-footer-legal a',[w.privacyLink,w.terms,w.contact]);
   one('.church-footer-bottom a','top');
   document.title=w.title+' | '+w.brand;
+  };
+  applyTranslations();
+  // The shared Church shell fetches and replaces the homepage header/footer
+  // after defer scripts have run. Reapply localized chrome after that replacement.
+  window.addEventListener('ekodi:church-shell-synced',applyTranslations);
 })();
