@@ -52,7 +52,8 @@ test('mobile 320px fallback and current calendar 44px controls coexist without w
     read('church-shared-calendar.css'),
     read('index.html')
   ]);
-  assert.match(css,/@media\(max-width:360px\)\s*\{\s*\.site-header \+ main > \.hero\s*\{\s*padding-top:48px!important;/);
+  assert.match(css,/@media\(max-width:360px\)\s*\{\s*\.site-header ~ main > \.hero\s*\{\s*padding-top:48px!important;/);
+  assert.doesNotMatch(css,/\.site-header \+ main > \.hero\{/,'adjacent selector must not silently miss injected shell spacer');
   assert.match(calendar,/min-height:44px;min-width:44px/);
   assert.match(calendar,/@media\(max-width:390px\)[^\n]*min-width:44px/);
   assert.ok(home.includes('<span>토요모임</span><strong>매주 토요일 오전 11시</strong>'));
