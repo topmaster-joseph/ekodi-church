@@ -102,7 +102,9 @@ body:has(main :target) .hero{display:none!important}
     display:block!important;
     height:auto!important;
     min-height:0!important;
-    padding:clamp(18px,3vw,28px) 18px 32px!important;
+    /* Native 320px audit: sticky header previously overlapped greeting by 12px.
+       Reserve actual breathing room; retain the content-first, non-vh layout. */
+    padding:clamp(50px,6vw,60px) 18px 32px!important;
   }
   .hero-content{width:min(680px,100%);padding:0!important}
   .hero .eyebrow{margin-top:0}
