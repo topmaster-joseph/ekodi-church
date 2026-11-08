@@ -4,7 +4,7 @@
   if(!document.body?.matches?.('[data-church-public-page="schedule"]'))return;
   const localeAliases={'ko':'ko-KR','en-US':'en','zh':'zh-CN','ja-JP':'ja'};
   const supported=new Set(['ko-KR','en','zh-CN','ja','my','kac','vi','mn','id']);
-  const requested=new URLSearchParams(location.search).get('lang')||document.documentElement.lang||'ko-KR';
+  const requested=new URLSearchParams(location.search).get('lang')||window.EKODIUserLanguage?.getLocale?.()||document.documentElement.dataset.ekodiLocale||document.documentElement.lang||'ko-KR';
   const locale=localeAliases[requested]||requested;
   if(!supported.has(locale)||locale==='ko-KR')return;
   // Kachin/Jinghpaw uses a clearly identified English fallback where a reviewed
