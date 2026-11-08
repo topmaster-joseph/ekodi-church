@@ -19,9 +19,10 @@ function run(locale,script,queryLocale=locale,storedLocale=locale){
   const document={body:{matches:()=>true},documentElement:{lang:'ko',dataset:{}},
     querySelector:one,querySelectorAll:group,title:'',};
   const location={search:queryLocale?'?lang='+encodeURIComponent(queryLocale):''};
-  const window={EKODIUserLanguage:{getLocale:()=>storedLocale}};
+  const listeners=new Map();
+  const window={EKODIUserLanguage:{getLocale:()=>storedLocale},addEventListener(name,handler){listeners.set(name,handler)}};
   runInNewContext(script,{document,location,window,URLSearchParams,Set,Object}, {timeout:1500});
-  return{one,group,document,privacy};
+  return{one,group,document,privacy,listeners};
 }
 
 test('standalone schedule initializes its localizer before dynamic calendar and preserves auth/UI paths',async()=>{
@@ -82,4 +83,24 @@ test('standalone calendar respects persisted shared EKODI language when URL omit
   assert.equal(explicit.document.documentElement.lang,'ja');
   const calendar=await read('church-shared-schedules.js');
   assert.ok(calendar.includes('window.EKODIUserLanguage?.getLocale?.()'));
+});
+
+
+test('asynchronous shared shell replacement re-applies the chosen calendar language',async()=>{
+  const [localizer,shell]=await Promise.all([
+    read('church-schedule-page-i18n.js'),read('church-shell.js')
+  ]);
+  assert.ok(shell.includes("window.dispatchEvent(new CustomEvent('ekodi:church-shell-synced'))"));
+  const v=run('en',localizer);
+  assert.equal(v.group('.site-header nav a')[0].textContent,'Daily devotion');
+  const onSync=v.listeners.get('ekodi:church-shell-synced');
+  assert.equal(typeof onSync,'function');
+  // Simulate the shell replacing translated header/footer nodes with original
+  // server-rendered Korean content after its asynchronous homepage fetch.
+  for(const link of v.group('.site-header nav a'))link.textContent='한국어 메뉴';
+  for(const link of v.group('.church-footer-legal a'))link.textContent='한국어 안내';
+  onSync();
+  assert.equal(v.group('.site-header nav a')[0].textContent,'Daily devotion');
+  assert.equal(v.group('.church-footer-legal a')[0].textContent,'Privacy policy');
+  assert.equal(v.document.documentElement.lang,'en');
 });
