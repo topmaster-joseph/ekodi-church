@@ -18,10 +18,19 @@
       const spacer = document.createElement('div');
       spacer.className = 'church-shell-spacer';
       spacer.setAttribute('aria-hidden', 'true');
-      const size = () => { spacer.style.height = header.offsetHeight + 'px'; };
+      const size = () => {
+        const next = header.offsetHeight + 'px';
+        if (spacer.style.height !== next) spacer.style.height = next;
+      };
       header.after(spacer);
       size();
       window.addEventListener('resize', size, { passive: true });
+      // The header can grow after load (shared member/language controls, fonts,
+      // translated labels). Keep the spacer equal to the live header height so
+      // the fixed header never covers the greeting.
+      if (typeof window.ResizeObserver === 'function') new window.ResizeObserver(size).observe(header);
+      window.addEventListener('ekodi:user-header-ready', size);
+      window.addEventListener('load', size, { once: true });
     }
     // Page stylesheets use !important on the header, so pin with priority too.
     for (const [key, value] of [['position', 'fixed'], ['top', '0'], ['left', '0'], ['right', '0'], ['z-index', '60']]) header.style.setProperty(key, value, 'important');
