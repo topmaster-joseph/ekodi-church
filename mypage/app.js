@@ -148,6 +148,8 @@ document.addEventListener('click',async event=>{
 const BE=['Week','Announce','Serve','Stats','Committee','Sponsors','Questions'];
 const lines=v=>String(v||'').split('\n').map(x=>x.trim()).filter(Boolean);
 const cells=v=>lines(v).map(l=>l.split('|').map(c=>c.trim()));
+// Images added in the in-page bulletin editor live in bulletin.images; keep them on save.
+let beImages=[];
 const toText=rows=>(rows||[]).map(r=>Array.isArray(r)?r.join(' | '):String(r)).join('\n');
 function fromPage(doc){
   const b={};const q=n=>doc.querySelector(`[data-b="${n}"]`);
@@ -173,7 +175,7 @@ async function loadBulletinEditor(){
   if(!b){
     try{const html=await fetch(`/ekodichurch/worship/${date}/`,{cache:'no-store'}).then(r=>r.ok?r.text():'');if(html.includes('data-bulletin-date'))b=fromPage(new DOMParser().parseFromString(html,'text/html'))}catch{}
   }
-  b=b||{};
+  b=b||{};beImages=Array.isArray(b.images)?b.images:[];
   $('beWeek').value=toText(b.week);$('beAnnounce').value=(b.announce||[]).join('\n');$('beServe').value=toText(b.serve);$('beStats').value=toText(b.stats);
   $('beCommittee').value=toText(b.committee);$('beSponsors').value=(b.sponsors||[]).join('\n');$('beQuestions').value=(b.questions||[]).join('\n');
   $('bePhotoCaption').value=b.photoCaption||'';$('bePhotoText').value=b.photoText||'';$('beDriveLink').value='';
@@ -243,6 +245,7 @@ async function saveBulletin(){
     const patch={bulletin,updated_at:new Date().toISOString()};
     bulletin.photoMode=document.querySelector('input[name=bePhotoMode]:checked')?.value||'photo';
     bulletin.photoText=$('bePhotoText').value.trim();
+    bulletin.images=beImages;
     const file=edit.img?$('bePhoto').files?.[0]:null;
     const drive=driveThumb($('beDriveLink').value);
     if($('beDriveLink').value.trim()&&!drive)throw new Error('구글 드라이브 파일 링크를 확인해 주세요.');
