@@ -118,6 +118,18 @@
     });
     bar.append(label, button, back);
     document.body.prepend(bar);
+    openEditor(key);
+  }
+
+  // Reviewers can fix the bulletin right on this page before publishing:
+  // song titles, text blocks and extra images (bulletin-editor.js).
+  function openEditor(key) {
+    if (view !== 'bulletin' || !document.querySelector('[data-bulletin-date]')) return;
+    window.EkodiReview = { date, key };
+    const editor = document.createElement('script');
+    editor.src = '/ekodichurch/worship/bulletin-editor.js?v=20261109a';
+    editor.defer = true;
+    document.body.appendChild(editor);
   }
 
   async function latestPublished() {
