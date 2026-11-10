@@ -1,0 +1,22 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
+test('site-owned church CI changes only the decorative mark and keeps its identity and mission',async()=>{
+ const [html,css]=await Promise.all([read('index.html'),read('church-brand-ci.css')]);
+ assert.match(html,/<a class="brand" href="#top" aria-label="에코디교회 홈">/);
+ assert.match(html,/data-church-ci="open-cross-table"/);
+ assert.match(html,/<svg viewBox="0 0 64 64" fill="none" focusable="false">/);
+ assert.match(html,/에코디교회<\/strong><small>EKODI CHURCH<\/small>/);
+ assert.match(html,/href="\/ekodichurch\/devotion\//);
+ assert.match(html,/href="\/ekodichurch\/schedule\//);
+ assert.match(html,/href="\/ekodichurch\/my\//);
+ assert.match(html,/href="church-brand-ci.css"/);
+ assert.ok(html.includes('에클레시아'));
+ assert.ok(html.includes('코이노니아'));
+ assert.ok(html.includes('디아스포라'));
+ assert.ok(html.includes('희년'));
+ assert.ok(css.includes('390px'));
+ assert.ok(!html.includes('EKODI®'));
+ assert.doesNotMatch(css,/(?:url\(|@import|!important)/i);
+});
