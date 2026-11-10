@@ -1,0 +1,25 @@
+/* Church-owned identity. Never inherit a generic platform/customer logo. */
+.site-header .brand-mark[data-church-ci="open-cross-table"]{
+  display:grid;
+  place-items:center;
+  flex:0 0 38px;
+  overflow:hidden;
+}
+.site-header .brand-mark[data-church-ci="open-cross-table"] svg{
+  display:block;
+  width:28px;
+  height:28px;
+  max-width:100%;
+  color:inherit;
+}
+@media(max-width:390px){
+  .site-header .brand-mark[data-church-ci="open-cross-table"]{
+    width:34px;
+    height:34px;
+    flex-basis:34px;
+  }
+  .site-header .brand-mark[data-church-ci="open-cross-table"] svg{
+    width:24px;
+    height:24px;
+  }
+}
