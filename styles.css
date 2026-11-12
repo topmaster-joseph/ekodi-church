@@ -14,3 +14,6 @@
 .church-worship-admin-inline{display:inline-flex;align-items:center;justify-content:center;width:max-content;max-width:100%;margin-top:8px;padding:7px 12px;border:1px solid currentColor;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;line-height:1.35}
 .church-worship-admin-inline[hidden]{display:none!important}
 .church-worship-admin-inline:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+
+/* Church-owned declaration in the existing About introduction. */
+.church-mission-declaration{margin:1.1rem 0;padding:.9rem 1.1rem;border-left:3px solid currentColor;background:rgba(112,129,136,.065);border-radius:0 12px 12px 0;max-width:64ch;text-align:left}.church-mission-declaration span{display:block;font-size:.75rem;font-weight:800;letter-spacing:.1em;opacity:.72;margin-bottom:.36rem}.church-mission-declaration p{margin:0;line-height:1.72;word-break:keep-all;font-size:clamp(.88rem,1.4vw,1rem)}@media(max-width:480px){.church-mission-declaration{padding:.75rem .9rem}}
