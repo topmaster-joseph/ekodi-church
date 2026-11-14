@@ -3,20 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>에코디교회 예배 운영 콘솔</title>
-  <link rel="stylesheet" href="styles.css?v=20261101h">
+  <title>에코디교회 예배준비실 · 원본 문서 편집</title>
+  <meta name="description" content="에코디교회 예배준비실 · 예배 운영 콘솔에서 설교·주보·PPT Google 원본을 편집하고 예배자료를 관리합니다.">
+  <link rel="stylesheet" href="styles.css?v=20261114-originals">
 </head>
 <body>
   <header class="topbar">
     <div>
       <strong>에코디교회</strong>
-      <span>예배 운영 콘솔</span>
+      <span>예배준비실</span>
     </div>
     <a href="../">교회 홈페이지</a>
   </header>
 
   <main class="wrap">
-    <div class="console-head"><h1>예배 운영 콘솔</h1><span>최근 2주 예배자료를 검토·공개하고, 필요한 편집은 아래 버튼을 눌러 엽니다.</span></div>
+    <div class="console-head"><h1>에코디교회 예배준비실</h1><span>주일별 설교·주보·PPT의 Google 원본을 바로 수정하고, 웹 게시 전 최종 검토합니다.</span></div>
+
+    <section class="card original-workbench" id="originalWorkbench" hidden aria-label="구글 원본 문서 편집">
+      <div class="original-head">
+        <div><p class="original-kicker">GOOGLE ORIGINALS · EDIT</p><h2>주일모임 원본 바로 편집</h2><p>수정 버튼을 누르면 원본 Google 문서 또는 Google 프레젠테이션이 새 창에서 열립니다.</p></div>
+        <label for="originalDate">예배 날짜<select id="originalDate" aria-label="원본 자료의 예배 날짜"></select></label>
+      </div>
+      <div class="original-grid">
+        <article class="original-item" data-original-kind="sermon">
+          <span class="original-type">SERMON · Google Docs</span><strong data-original-filename>에코디설교</strong>
+          <a data-original-edit hidden target="_blank" rel="noopener noreferrer">설교 원고 바로 수정 ↗</a>
+          <small data-original-empty>원본 연결을 확인하고 있습니다.</small>
+        </article>
+        <article class="original-item" data-original-kind="bulletin">
+          <span class="original-type">BULLETIN · Google Docs</span><strong data-original-filename>에코디주보</strong>
+          <a data-original-edit hidden target="_blank" rel="noopener noreferrer">주보 바로 수정 ↗</a>
+          <small data-original-empty>원본 연결을 확인하고 있습니다.</small>
+        </article>
+        <article class="original-item" data-original-kind="slides">
+          <span class="original-type">PRESENTATION · Google Slides</span><strong data-original-filename>에코디PPT</strong>
+          <a data-original-edit hidden target="_blank" rel="noopener noreferrer">PPT 바로 수정 ↗</a>
+          <small data-original-empty>원본 연결을 확인하고 있습니다.</small>
+        </article>
+      </div>
+      <div class="original-bottom">
+        <p id="originalStatus" role="status" aria-live="polite">권한 및 원본 정보를 확인하고 있습니다.</p>
+        <button type="button" id="originalLinkManage">원본 링크 등록·변경</button>
+      </div>
+      <p class="original-note">원본 수정은 Google Drive에 바로 저장되지만, 교회 홈페이지의 인쇄용 주보·PPT·설교 화면에는 자동 게시되지 않습니다. 검토·반영·공개 승인은 아래 예배자료 관리 절차에서 따로 진행합니다.</p>
+    </section>
 
     <section class="card review-card" id="reviewCard" hidden>
       <div class="preview-head"><h2>최종 검토 · 공개 <small>최근 2주</small></h2><span>공개 전까지 운영자에게만 보입니다</span></div>
@@ -135,6 +165,6 @@
     </div>
   </main>
 
-  <script src="app.js?v=20261101i"></script>
+  <script src="app.js?v=20261114-originals"></script>
 </body>
 </html>

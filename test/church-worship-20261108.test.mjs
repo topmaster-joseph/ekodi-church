@@ -23,7 +23,10 @@ test('Thirty 16:9 text slides, score pages withheld, isolated presenter channel'
   assert.match(js,/ekodi-church-worship-20261108/);assert.match(js,/ekodi:church:worship:2026-11-08:slide/);assert.doesNotMatch(js,/20261101|2026-11-01/);
   assert.equal(packet.youtube.status,'metadata-prepared-not-scheduled');assert.match(packet.youtube.title,/2026\.11\.08/);
   assert.doesNotMatch(JSON.stringify(packet),/streamKey|stream_key|rtmp|검토본|최종 확인 필요/i);
-  for(const k of ['bulletin','slides','sermon'])assert.match(packet.sources[k].title,/^261108 .*\(초안\)$/,k);
+  assert.equal(packet.sources.bulletin.title,'261108에코디주보');
+  assert.equal(packet.sources.slides.title,'261108에코디PPT');
+  // Historical 11/08 sermon source ID is not currently accessible in Drive; never fake a rename.
+  assert.match(packet.sources.sermon.title,/^261108 .*\(초안\)$/);
   new Function(js);
 });
 

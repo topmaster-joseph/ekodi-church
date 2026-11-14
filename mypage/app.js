@@ -93,6 +93,7 @@ async function ensureAuth(){
     await loadRemote();
     await loadReviews();
     await loadBulletinEditor();
+    await initOriginalWorkbench();
     return true;
   }catch(error){
     console.error('[EKODI Church worship auth]',error);
@@ -107,6 +108,116 @@ async function loadRemote(){
   try{const rows=await rest(TABLE+'?select=*&service_type=eq.'+service+'&service_date=eq.'+date+'&limit=1');data=rows?.[0]||null}catch(error){console.warn('[worship load]',error.message);return}
   if(data){fill(data);localStorage.setItem(`ekodi:church:worship:${service}`,JSON.stringify({...data,service,serviceName:data.service_name,time:data.service_time,date:data.service_date}))}
 }
+
+// The Google source inventory is read only after the existing tenant_admin
+// session/RLS gate. Never publish Drive file IDs in a public static JSON file.
+const ORIGINAL_TYPES=Object.freeze({
+  sermon:{column:'sermon_url',suffix:'설교',path:'document'},
+  bulletin:{column:'bulletin_url',suffix:'주보',path:'document'},
+  slides:{column:'slides_url',suffix:'PPT',path:'presentation'}
+});
+let originalWeeks=[];
+function originalName(date,kind){
+  const normalized=String(date||'');
+  if(!/^20\d{2}-\d{2}-\d{2}$/.test(normalized)||!ORIGINAL_TYPES[kind])return '';
+  return normalized.slice(2,4)+normalized.slice(5,7)+normalized.slice(8,10)+'에코디'+ORIGINAL_TYPES[kind].suffix;
+}
+function originalGoogleUrl(value,kind){
+  const raw=String(value||'').trim();
+  if(!ORIGINAL_TYPES[kind]||!raw)return '';
+  try{
+    const u=new URL(raw);
+    // Native Google Docs/Slides editing only. No public sharing, embeds or
+    // arbitrary external redirects; Google itself checks edit permission.
+    if(u.protocol!=='https:'||u.hostname!=='docs.google.com'||u.username||u.password||u.port)return '';
+    const match=/^\/(document|presentation)\/d\/([A-Za-z0-9_-]{20,})(?:\/(?:edit|view))?\/?$/.exec(u.pathname);
+    if(!match||match[1]!==ORIGINAL_TYPES[kind].path)return '';
+    return 'https://docs.google.com/'+match[1]+'/d/'+match[2]+'/edit';
+  }catch{return ''}
+}
+async function loadOriginals(){
+  const box=$('originalWorkbench'),pick=$('originalDate');
+  if(!box||box.hidden||!accessReady||!sb.ready)return;
+  const date=pick?.value;
+  if(!originalWeeks.includes(date))return;
+  $('originalStatus').textContent=date+' 원본 연결을 확인하고 있습니다.';
+  for(const kind of Object.keys(ORIGINAL_TYPES)){
+    const card=box.querySelector('[data-original-kind="'+kind+'"]');
+    card.querySelector('[data-original-filename]').textContent=originalName(date,kind);
+    const link=card.querySelector('[data-original-edit]');
+    link.hidden=true;link.removeAttribute('href');
+    const empty=card.querySelector('[data-original-empty]');
+    empty.hidden=false;empty.textContent='Google 원본 확인 중';
+  }
+  try{
+    const r=await rest('church_worship_sources?select=service_date,bulletin_url,sermon_url,slides_url&service_type=eq.sunday&service_date=eq.'+encodeURIComponent(date)+'&limit=1');
+    if(!accessReady||!sb.ready||pick.value!==date)return;
+    const source=r?.[0]||{};
+    let ready=0;
+    for(const [kind,meta] of Object.entries(ORIGINAL_TYPES)){
+      const card=box.querySelector('[data-original-kind="'+kind+'"]');
+      const link=card.querySelector('[data-original-edit]');
+      const empty=card.querySelector('[data-original-empty]');
+      const url=originalGoogleUrl(source[meta.column],kind);
+      if(url){link.href=url;link.hidden=false;empty.hidden=true;ready++}
+      else{link.hidden=true;link.removeAttribute('href');empty.hidden=false;empty.textContent='연결된 Google 원본이 없습니다. 링크를 등록해 주세요.'}
+    }
+    $('originalStatus').textContent=ready+'/3개 원본 연결 · 원본 편집은 웹 자료 공개와 별도입니다.';
+  }catch(error){
+    $('originalStatus').textContent='원본 조회 실패 · 교회 운영 권한 또는 네트워크를 확인해 주세요.';
+    console.warn('[church worship original links]',String(error?.message||'unavailable'));
+  }
+}
+async function initOriginalWorkbench(){
+  const box=$('originalWorkbench'),pick=$('originalDate');
+  if(!box||!accessReady||!sb.ready)return;
+  try{
+    const response=await fetch('../worship/weekly.json',{cache:'no-store'});
+    if(!response.ok)throw new Error('weekly_index_unavailable');
+    const index=await response.json();
+    if(index?.schema!=='ekodi.church.worship.index.v1'||!Array.isArray(index.services))throw new Error('invalid_index');
+    const dates=index.services.filter(row=>row&&/^20\d{2}-\d{2}-\d{2}$/.test(row.date)&&
+      row.page==='/ekodichurch/worship/'+row.date+'/').map(row=>row.date);
+    originalWeeks=[...new Set(dates)].sort().reverse();
+    if(!originalWeeks.length)throw new Error('no_worship_dates');
+    pick.replaceChildren(...originalWeeks.map(date=>{
+      const option=document.createElement('option');
+      option.value=date;option.textContent=date+' 주일예배';return option;
+    }));
+    box.hidden=false;pick.value=originalWeeks[0];
+    await loadOriginals();
+  }catch{
+    box.hidden=true;
+    // A failed roster or authorization never exposes private URLs in the HTML.
+  }
+}
+$('originalDate')?.addEventListener('change',()=>void loadOriginals());
+$('originalLinkManage')?.addEventListener('click',async()=>{
+  if(!accessReady||!sb.ready||$('originalWorkbench').hidden)return;
+  const date=$('originalDate').value;if(!originalWeeks.includes(date))return;
+  try{
+    const rows=await rest('church_worship_sources?select=service_date,bulletin_url,sermon_url,slides_url&service_type=eq.sunday&service_date=eq.'+encodeURIComponent(date)+'&limit=1');
+    const existing=rows?.[0]||{};
+    const data={service_type:'sunday',service_date:date,updated_at:new Date().toISOString()};
+    for(const [kind,meta] of Object.entries(ORIGINAL_TYPES)){
+      const old=originalGoogleUrl(existing[meta.column],kind);
+      const proposed=window.prompt(originalName(date,kind)+' Google 원본 편집 주소\n(빈 칸은 연결 해제)',old);
+      if(proposed===null)return;
+      const trimmed=proposed.trim();
+      if(trimmed&&!originalGoogleUrl(trimmed,kind)){
+        alert('해당 형식의 Google Docs 또는 Google Slides /edit 주소만 등록할 수 있습니다.');return;
+      }
+      data[meta.column]=trimmed?originalGoogleUrl(trimmed,kind):null;
+    }
+    const disappearing=Object.entries(ORIGINAL_TYPES).some(([kind,meta])=>existing[meta.column]&&!data[meta.column]);
+    if(disappearing&&!window.confirm('일부 원본 연결을 해제합니다. Google 파일 자체는 삭제되지 않습니다. 계속할까요?'))return;
+    await rest('church_worship_sources?on_conflict=service_type,service_date',{
+      method:'POST',body:data,prefer:'resolution=merge-duplicates,return=minimal'});
+    await loadOriginals();
+    await loadReviews();
+  }catch(error){$('originalStatus').textContent='원본 연결 저장 실패: '+String(error?.message||'확인 필요')}
+});
+
 async function loadReviews(){
   const card=$('reviewCard'),list=$('reviewList');
   if(!card||!accessReady||!sb.ready)return;
