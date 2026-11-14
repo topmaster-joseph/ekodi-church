@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" data-ekodi-church-member-home="v1">
+<html lang="ko" data-ekodi-church-member-home="v1" data-church-shared-layout="v1">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -8,18 +8,24 @@
   <title>에코디교회 마이페이지</title>
   <link rel="canonical" href="https://ekodi.kr/ekodichurch/my/">
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="/ekodichurch/church-site-shell.css">
 </head>
 <body>
-  <header class="topbar" data-ekodi-user-header-root="church-local">
-    <div class="topbar-inner">
-      <a class="brand" data-ekodi-header-home href="/ekodichurch/" aria-label="에코디교회 홈">
-        <span class="brand-mark" aria-hidden="true">E</span>
-        <span class="brand-name"><strong>에코디교회</strong><small>EKODI CHURCH</small></span>
-      </a>
-      <nav class="church-main-nav" aria-label="교회 주요 메뉴"><a href="/ekodichurch/devotion/">매일묵상</a><a href="/ekodichurch/#worship">예배·방송</a><a href="/ekodichurch/notices/">공지사항</a><a href="/ekodichurch/schedule/">주요일정</a><a href="/ekodichurch/#together">함께하기</a><a href="/ekodichurch/my/" aria-current="page">마이페이지</a></nav>
-      <nav class="church-account-nav" data-ekodi-header-actions aria-label="계정 및 언어"></nav>
-      <details class="church-mobile-nav"><summary>메뉴</summary><nav aria-label="모바일 주요 메뉴"><a href="/ekodichurch/devotion/">매일묵상</a><a href="/ekodichurch/#worship">예배·방송</a><a href="/ekodichurch/notices/">공지사항</a><a href="/ekodichurch/schedule/">주요일정</a><a href="/ekodichurch/#together">함께하기</a><a href="/ekodichurch/my/" aria-current="page">마이페이지</a></nav></details>
-    </div>
+    <header class="site-header church-member-shared-header" data-ekodi-user-header-root="church-local" id="top">
+    <a class="brand" href="/ekodichurch/" aria-label="에코디교회 홈">
+      <span class="brand-mark" aria-hidden="true">E</span>
+      <span><strong>에코디교회</strong><small>EKODI CHURCH</small></span>
+    </a>
+    <button class="menu-button" aria-expanded="false" aria-controls="main-nav" aria-label="메뉴 열기"><span></span><span></span></button>
+    <nav id="main-nav" aria-label="주요 메뉴">
+      <a href="/ekodichurch/devotion/">매일묵상</a>
+      <a href="/ekodichurch/#worship">예배·방송</a>
+      <a href="/ekodichurch/notices/">공지사항</a>
+      <a href="/ekodichurch/schedule/">주요일정</a>
+      <a href="/ekodichurch/#together">함께하기</a>
+      <a class="shell-my" href="/ekodichurch/my/">마이페이지</a>
+    </nav>
+      <nav class="church-member-tools" data-ekodi-header-actions aria-label="계정 및 언어"></nav>
   </header>
 
   <main class="wrap">
@@ -97,20 +103,22 @@
     </div>
   </main>
 
-  <footer class="member-footer" aria-label="에코디교회 운영 및 법적 안내">
-    <div class="member-footer-inner">
-      <div class="member-footer-brand"><strong>EKODI CHURCH</strong><span>말씀으로 삶을 읽고, 함께 살아내는 공동체</span></div>
-      <div class="member-footer-info">
-        <span>운영주체 에코디교회</span><span>대표 정찬균</span><span>고유번호 307-82-82097</span>
-        <span>전남 무안군 청계면 백련동1길 17-4, 1층</span>
+    <footer class="site-footer church-footer church-member-shared-footer" data-ekodi-service-footer>
+    <div class="church-footer-inner">
+      <strong class="church-footer-brand">EKODI CHURCH</strong>
+      <div class="church-footer-info" aria-label="에코디교회 운영 정보">
+        <span>사업자 소재지 전남 무안군 청계면 백련동1길 17-4, 1층</span>
+        <span>운영주체 에코디교회</span>
+        <span>대표 정찬균</span>
+        <span>고유번호 307-82-82097</span>
         <a href="mailto:ekodichurch@gmail.com">ekodichurch@gmail.com</a>
       </div>
-      <nav class="member-footer-links" aria-label="법적 고지">
-        <a href="https://ekodi.kr/privacy">개인정보처리방침</a>
-        <a href="https://ekodi.kr/terms">이용약관</a>
-        <a href="/ekodichurch/">교회 홈</a>
+      <nav class="church-footer-legal" aria-label="법적 고지">
+        <a data-ekodi-i18n="privacy" href="https://ekodi.kr/privacy">개인정보처리방침</a>
+        <a data-ekodi-i18n="terms" href="https://ekodi.kr/terms">이용약관</a>
+        <a data-ekodi-i18n="contact" href="mailto:ekodibiz@gmail.com">문의</a>
       </nav>
-      <div class="member-footer-bottom"><span>© 2026 EKODI CHURCH</span><span>내 정보와 참여 서비스는 필요한 범위에서만 연결합니다.</span></div>
+      <div class="church-footer-bottom"><span>© 2026 EKODI CHURCH</span><a href="#top">맨 위로 ↑</a></div>
     </div>
   </footer>
 
@@ -118,5 +126,7 @@
   <script src="./app.js" defer></script>
   <script src="./tabbed-home.js" defer></script>
   <script src="./presence-admin-link.js" defer></script>
+  <script src="/ekodichurch/church-shell.js?v=20261114b" defer></script>
+  <script src="/ekodichurch/church-member-navigation.js" defer></script>
 </body>
 </html>
