@@ -1,0 +1,35 @@
+/* Church homepage: compact account identity and explicit local session sign-out. */
+.site-header .church-account{
+  display:flex;align-items:center;flex:0 0 auto;min-width:0;
+  max-width:200px;margin-left:clamp(4px,.8vw,12px);
+  color:#173730;font:600 12px/1.3 Pretendard,'Noto Sans KR',sans-serif;
+}
+.site-header .church-account [hidden]{display:none!important}
+.site-header .church-account-login,
+.site-header .church-account-name,
+.site-header .church-account-logout{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:34px;padding:7px 11px;border:1px solid #cbd7cf;border-radius:999px;
+  background:#fff;color:#214936;text-decoration:none;white-space:nowrap;
+  font:inherit;cursor:pointer;
+}
+.site-header .church-account-signed{display:flex;align-items:center;gap:6px;min-width:0}
+.site-header .church-account-name{
+  display:block;line-height:20px;max-width:114px;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.site-header .church-account-logout{background:transparent;color:#536a5d}
+.site-header .church-account a:focus-visible,
+.site-header .church-account button:focus-visible{outline:2px solid #22714e;outline-offset:2px}
+.site-header .church-account button:disabled{opacity:.65;cursor:wait}
+@media(max-width:1023px){
+  .site-header .church-account{order:2;margin-left:auto;max-width:min(48vw,190px)}
+  .site-header .menu-button{order:3}
+  .site-header #main-nav{order:4}
+}
+@media(max-width:420px){
+  .site-header .church-account{font-size:11px;max-width:160px}
+  .site-header .church-account-name{max-width:78px;padding:7px}
+  .site-header .church-account-logout{padding:7px 8px}
+  .site-header{gap:8px!important}
+}
