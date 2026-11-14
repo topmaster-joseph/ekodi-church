@@ -23,7 +23,7 @@ test('Thirty 16:9 text slides, score pages withheld, isolated presenter channel'
   assert.match(js,/ekodi-church-worship-20261115/);assert.equal(packet.slides[23].lines[0],'오늘 주일모임 후 공동의회 · 세례교인 모두 참석');assert.match(js,/ekodi:church:worship:2026-11-15:slide/);assert.doesNotMatch(js,/20261108|2026-11-08/);
   assert.equal(packet.youtube.status,'metadata-prepared-not-scheduled');assert.match(packet.youtube.title,/2026\.11\.15/);
   assert.doesNotMatch(JSON.stringify(packet),/streamKey|stream_key|rtmp|검토본|최종 확인 필요/i);
-  for(const k of ['bulletin','slides','sermon'])assert.match(packet.sources[k].title,/^261115 .*\(초안\)$/,k);
+  assert.deepEqual(Object.fromEntries(Object.entries(packet.sources).map(([k,v])=>[k,v.title])),{bulletin:'261115에코디주보',slides:'261115에코디PPT',sermon:'261115에코디설교'});
   new Function(js);
 });
 
