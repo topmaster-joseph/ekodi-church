@@ -28,6 +28,8 @@ test('church-local My Page is user-facing and separated from admin operations',a
 
 test('legacy worship console remains separate from the member home',async()=>{
   const [member,worship]=await Promise.all([read('my/index.html'),read('mypage/index.html')]);
-  assert.match(worship,/예배 운영 콘솔/);
+  assert.match(worship,/에코디교회 예배준비실/);
+  assert.match(worship,/id="originalWorkbench" hidden/);
+  assert.match(worship,/id="originalLinkManage"/);
   assert.doesNotMatch(member,/PPT 다운로드|모두 준비하기|church_worship_materials/);
 });
