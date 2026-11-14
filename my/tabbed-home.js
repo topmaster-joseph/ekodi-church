@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   const root = document.getElementById('memberTabs');
-  const header = document.querySelector('header.topbar');
+  const header = document.querySelector('header.site-header');
   if (!root) return;
   const tabs = [...root.querySelectorAll('[data-member-tab]')];
   const kinds = new Set(tabs.map(node => node.dataset.memberTab));
