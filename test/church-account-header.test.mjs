@@ -63,10 +63,10 @@ function setup({ session = null, user = null, profile = null } = {}) {
 const tick = () => new Promise(resolve => setTimeout(resolve, 15));
 
 test('homepage loads the church account module and mobile-safe styles', () => {
-  assert.match(html, /church-account-header\\.js/);
-  assert.match(html, /church-account-header\\.css/);
-  assert.match(css, /max-width:1023px/);
-  assert.match(css, /\\[hidden\\]/);
+  assert.ok(html.includes('church-account-header.js'));
+  assert.ok(html.includes('church-account-header.css'));
+  assert.ok(css.includes('max-width:1023px'));
+  assert.ok(css.includes('[hidden]'));
 });
 
 test('guest keeps a church-local login return without exposing a fabricated identity', async () => {
@@ -74,8 +74,8 @@ test('guest keeps a church-local login return without exposing a fabricated iden
   await tick();
   assert.equal(ui.login.hidden, false);
   assert.equal(ui.signed.hidden, true);
-  assert.match(ui.login.href, /site=church/);
-  assert.match(ui.login.href, /return_to=https%3A%2F%2Fekodi\\.kr%2Fekodichurch%2F/);
+  assert.ok(ui.login.href.includes('site=church'));
+  assert.ok(ui.login.href.includes('return_to=https%3A%2F%2Fekodi.kr%2Fekodichurch%2F'));
 });
 
 test('verified user shows server-owned display name and a separate logout control', async () => {
