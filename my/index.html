@@ -11,48 +11,112 @@
 </head>
 <body>
   <header class="topbar" data-ekodi-user-header-root="church-local">
-    <a class="brand" data-ekodi-header-home href="/ekodichurch/">에코디교회</a>
-    <nav data-ekodi-header-actions aria-label="사이트 도구"></nav>
+    <div class="topbar-inner">
+      <a class="brand" data-ekodi-header-home href="/ekodichurch/" aria-label="에코디교회 홈">
+        <span class="brand-mark" aria-hidden="true">E</span>
+        <span class="brand-name"><strong>에코디교회</strong><small>EKODI CHURCH</small></span>
+      </a>
+      <nav class="church-main-nav" aria-label="교회 주요 메뉴"><a href="/ekodichurch/devotion/">매일묵상</a><a href="/ekodichurch/#worship">예배·방송</a><a href="/ekodichurch/notices/">공지사항</a><a href="/ekodichurch/schedule/">주요일정</a><a href="/ekodichurch/#together">함께하기</a><a href="/ekodichurch/my/" aria-current="page">마이페이지</a></nav>
+      <nav class="church-account-nav" data-ekodi-header-actions aria-label="계정 및 언어"></nav>
+      <details class="church-mobile-nav"><summary>메뉴</summary><nav aria-label="모바일 주요 메뉴"><a href="/ekodichurch/devotion/">매일묵상</a><a href="/ekodichurch/#worship">예배·방송</a><a href="/ekodichurch/notices/">공지사항</a><a href="/ekodichurch/schedule/">주요일정</a><a href="/ekodichurch/#together">함께하기</a><a href="/ekodichurch/my/" aria-current="page">마이페이지</a></nav></details>
+    </div>
   </header>
 
   <main class="wrap">
-    <section class="hero">
+    <section class="member-intro">
       <p class="eyebrow">EKODI CHURCH · MY PAGE</p>
-      <h1>교회에서 필요한 것을 한곳에서 확인합니다.</h1>
-      <p>예배와 말씀, 공동체 활동, 실시간 연결을 교회 안에서 바로 찾습니다.</p>
+      <h1>나의 교회 활동</h1>
+      <p>말씀·예배·교제·참여를 하나의 자리에서 살펴봅니다. 위 메뉴를 선택하면 아래 내용이 바로 바뀝니다.</p>
       <div id="memberState" class="member-state" role="status">로그인 상태를 확인하고 있습니다.</div>
       <a id="loginAction" class="primary" href="https://ekodi.kr/auth/?site=church&return_to=https%3A%2F%2Fekodi.kr%2Fekodichurch%2Fmy%2F&direct=1" hidden>Google 계정으로 로그인</a>
     </section>
-
-    <section class="quick-grid" aria-label="교회 바로가기">
-      <a class="card" href="/ekodichurch/#worship">
-        <small>WORSHIP</small><strong>예배</strong><span>다음 예배와 말씀 흐름을 확인합니다.</span>
-      </a>
-      <a class="card" href="/ekodichurch/devotion/">
-        <small>DAILY DEVOTION</small><strong>매일묵상</strong><span>에코디 오늘의 매일묵상으로 말씀을 읽습니다.</span>
-      </a>
-      <a class="card" href="/ekodichurch/#community">
-        <small>COMMUNITY</small><strong>공동체 활동</strong><span>함께하는 모임과 활동을 확인합니다.</span>
-      </a>
-      <a class="card" href="/ekodichurch/live/">
-        <small>LIVE</small><strong>실시간 연결</strong><span>예배와 모임 방송에 참여합니다.</span>
-      </a>
-      <a class="card" href="/ekodichurch/my/giving/">
-        <small>MY GIVING</small><strong>나의 헌금</strong><span>본인 헌금내역과 기부금영수증 요청을 확인합니다.</span>
-      </a>
-      <a class="card" href="/ekodichurch/my/attendance/">
-        <small>MY ATTENDANCE</small><strong>나의 출결</strong><span>본인의 예배·모임 출결현황과 기록 기준 출석률을 확인합니다.</span>
-      </a>
-      <a class="card" id="presenceAdminLink" href="/ekodichurch/presence/" hidden style="display:none">
-        <small>ONSITE ATTENDANCE</small><strong>현장 출결 관리</strong><span>관리 권한이 있을 때만 표시됩니다.</span>
-      </a>
+    <nav class="member-tabs" id="memberTabs" aria-label="마이페이지 서비스 메뉴">
+      <div class="member-tabs-inner" role="tablist" aria-label="나의 교회 활동">
+        <button type="button" id="tab-worship" role="tab" data-member-tab="worship" aria-controls="panel-worship" aria-selected="true" tabindex="0"><small>WORSHIP</small><strong>예배·방송</strong></button>
+        <button type="button" id="tab-devotion" role="tab" data-member-tab="devotion" aria-controls="panel-devotion" aria-selected="false" tabindex="-1"><small>DEVOTION</small><strong>매일묵상</strong></button>
+        <button type="button" id="tab-community" role="tab" data-member-tab="community" aria-controls="panel-community" aria-selected="false" tabindex="-1"><small>COMMUNITY</small><strong>공동체 활동</strong></button>
+        <button type="button" id="tab-live" role="tab" data-member-tab="live" aria-controls="panel-live" aria-selected="false" tabindex="-1"><small>LIVE</small><strong>실시간 연결</strong></button>
+        <button type="button" id="tab-giving" role="tab" data-member-tab="giving" aria-controls="panel-giving" aria-selected="false" tabindex="-1"><small>MY GIVING</small><strong>나의 헌금</strong></button>
+        <button type="button" id="tab-attendance" role="tab" data-member-tab="attendance" aria-controls="panel-attendance" aria-selected="false" tabindex="-1"><small>MY ATTENDANCE</small><strong>나의 출결</strong></button>
+      </div>
+    </nav>
+    <div class="member-panel-stack" id="memberPanelStack">
+    <section class="member-panel" id="panel-worship" role="tabpanel" aria-labelledby="tab-worship" tabindex="0">
+      <div class="member-panel-heading"><h2>예배·방송</h2><p>모이는 예배에서 흩어지는 삶까지, 주일과 토요일의 말씀을 이어갑니다.</p></div>
+      <div class="member-action-grid"><a class="member-action" href="/ekodichurch/#weekly-worship"><strong>주일모임 예배자료</strong><span>주보·말씀·PPT 및 예배 진행</span><b aria-hidden="true">→</b></a>
+<a class="member-action" href="/ekodichurch/#worship"><strong>예배 안내</strong><span>주일·토요모임과 기도 시간</span><b aria-hidden="true">→</b></a>
+<a class="member-action" href="/live/church/"><strong>예배 방송 시청</strong><span>현재 공개된 EKODI Live 보기</span><b aria-hidden="true">→</b></a></div>
     </section>
-
+    <section class="member-panel" id="panel-devotion" role="tabpanel" aria-labelledby="tab-devotion" tabindex="0" hidden>
+      <div class="member-panel-heading"><h2>매일묵상</h2><p>오늘의 말씀을 읽고 질문하며 작은 실천을 이어갑니다.</p></div>
+      <div class="member-action-grid"><a class="member-action" href="/ekodichurch/devotion/"><strong>오늘의 묵상</strong><span>본문·묵상시·기도·질문·실천</span><b aria-hidden="true">→</b></a>
+<a class="member-action" href="/ekodichurch/devotion/#records"><strong>나의 묵상기록</strong><span>묵상 페이지의 개인 기록 메뉴에서 확인</span><b aria-hidden="true">→</b></a></div>
+    </section>
+    <section class="member-panel" id="panel-community" role="tabpanel" aria-labelledby="tab-community" tabindex="0" hidden>
+      <div class="member-panel-heading"><h2>공동체 활동</h2><p>예배를 넘어 교제와 섬김으로 함께합니다.</p></div>
+      <div class="member-action-grid"><a class="member-action" href="/ekodichurch/#together"><strong>함께하기</strong><span>공동체의 모임과 활동 소개</span><b aria-hidden="true">→</b></a>
+<a class="member-action" href="/ekodichurch/schedule/"><strong>주요일정</strong><span>모임·행사·선교 일정</span><b aria-hidden="true">→</b></a>
+<a class="member-action" href="/ekodichurch/notices/"><strong>공지사항</strong><span>교회가 전하는 소식</span><b aria-hidden="true">→</b></a></div>
+    </section>
+    <section class="member-panel" id="panel-live" role="tabpanel" aria-labelledby="tab-live" tabindex="0" hidden>
+      <div class="member-panel-heading"><h2>실시간 연결</h2><p>교회 예배와 활동을 라이브로 함께합니다.</p></div>
+      <div class="member-action-grid"><a class="member-action" href="/live/church/"><strong>EKODI Live 시청</strong><span>공개된 예배·모임 영상에 참여</span><b aria-hidden="true">→</b></a>
+<a class="member-action" href="/live/church/?mode=studio&activity=sunday"><strong>방송 준비실</strong><span>진행 권한 확인 후 스튜디오 이용</span><b aria-hidden="true">→</b></a>
+<a class="member-action" href="https://www.youtube.com/@ekodichurch"><strong>유튜브 채널</strong><span>에코디교회 지난 예배와 메시지</span><b aria-hidden="true">→</b></a></div>
+    </section>
+    <section class="member-panel" id="panel-giving" role="tabpanel" aria-labelledby="tab-giving" tabindex="0" hidden>
+      <div class="member-panel-heading"><h2>나의 헌금</h2><p>헌금 기록은 로그인한 본인에게만 표시됩니다. 다른 교인의 자료는 보이지 않습니다.</p></div>
+      <div class="member-action-grid"><a class="member-action" href="/ekodichurch/my/giving/"><strong>나의 헌금내역</strong><span>연도별 내역 확인·기부금영수증 요청</span><b aria-hidden="true">→</b></a></div><p class="member-privacy-note">개인 헌금정보는 이 안내 화면에서 미리 불러오지 않으며, 별도 보호된 개인 화면에서 확인합니다.</p>
+    </section>
+    <section class="member-panel" id="panel-attendance" role="tabpanel" aria-labelledby="tab-attendance" tabindex="0" hidden>
+      <div class="member-panel-heading"><h2>나의 출결</h2><p>예배·모임과 현장활동을 구분해 찾습니다. 확인 가능한 출결만 기록 기준으로 표시합니다.</p></div>
+      <div class="member-subtabs" role="tablist" aria-label="출결 세부 메뉴">
+      <button type="button" role="tab" data-attendance-tab="service" id="attendance-tab-service" aria-controls="attendance-panel-service" aria-selected="true" tabindex="0">예배·모임</button>
+      <button type="button" role="tab" data-attendance-tab="onsite" id="attendance-tab-onsite" aria-controls="attendance-panel-onsite" aria-selected="false" tabindex="-1">현장활동</button>
+      <button type="button" role="tab" data-attendance-tab="summary" id="attendance-tab-summary" aria-controls="attendance-panel-summary" aria-selected="false" tabindex="-1">출결 통계</button>
+    </div>
+    <section class="attendance-detail" id="attendance-panel-service" role="tabpanel" aria-labelledby="attendance-tab-service">
+      <h3>예배·모임 출결</h3>
+      <p>주일예배·토요모임 등 서버에 기록된 개인 출결을 확인합니다. 기록이 없다고 결석으로 계산하지 않습니다.</p>
+      <div class="member-action-grid"><a class="member-action" href="/ekodichurch/my/attendance/"><strong>나의 예배·모임 출결 열기</strong><span>연도별 실제 기록과 출석 상태</span><b aria-hidden="true">→</b></a></div>
+    </section>
+    <section class="attendance-detail" id="attendance-panel-onsite" role="tabpanel" aria-labelledby="attendance-tab-onsite" hidden>
+      <h3>현장활동</h3>
+      <p>봉사·교제·행사 등의 현장 참여 정보는 승인된 기록이 연결되는 범위에서만 제공됩니다. 현재 개인 출결 API에서 현장활동의 별도 집계는 지원하지 않습니다.</p>
+      <div class="member-action-grid">
+        <a class="member-action" href="/ekodichurch/schedule/"><strong>공동체 현장 일정</strong><span>현장 모임·행사 일정 확인</span><b aria-hidden="true">→</b></a>
+        <a class="member-action" id="presenceAdminLink" href="/ekodichurch/presence/" hidden style="display:none"><strong>현장 출결 관리</strong><span>교회 관리 권한이 확인된 계정에서만 표시</span><b aria-hidden="true">→</b></a>
+      </div>
+      <p class="member-privacy-note">현장 출결 등록은 본인의 출결 열람과 별개인 관리자 기능입니다.</p>
+    </section>
+    <section class="attendance-detail" id="attendance-panel-summary" role="tabpanel" aria-labelledby="attendance-tab-summary" hidden>
+      <h3>출결 통계</h3><p>연도별 기록 건수·출석률·월별 흐름을 본인에게만 보여줍니다.</p>
+      <div class="member-action-grid"><a class="member-action" href="/ekodichurch/my/attendance/"><strong>나의 출결 통계 보기</strong><span>기록 기준 출석률과 연속 출석</span><b aria-hidden="true">→</b></a></div>
+    </section>
+    </section>
+    </div>
   </main>
 
-  <footer><a href="/ekodichurch/">에코디교회</a><span>내 정보와 참여 서비스는 필요한 범위에서만 연결합니다.</span></footer>
+  <footer class="member-footer" aria-label="에코디교회 운영 및 법적 안내">
+    <div class="member-footer-inner">
+      <div class="member-footer-brand"><strong>EKODI CHURCH</strong><span>말씀으로 삶을 읽고, 함께 살아내는 공동체</span></div>
+      <div class="member-footer-info">
+        <span>운영주체 에코디교회</span><span>대표 정찬균</span><span>고유번호 307-82-82097</span>
+        <span>전남 무안군 청계면 백련동1길 17-4, 1층</span>
+        <a href="mailto:ekodichurch@gmail.com">ekodichurch@gmail.com</a>
+      </div>
+      <nav class="member-footer-links" aria-label="법적 고지">
+        <a href="https://ekodi.kr/privacy">개인정보처리방침</a>
+        <a href="https://ekodi.kr/terms">이용약관</a>
+        <a href="/ekodichurch/">교회 홈</a>
+      </nav>
+      <div class="member-footer-bottom"><span>© 2026 EKODI CHURCH</span><span>내 정보와 참여 서비스는 필요한 범위에서만 연결합니다.</span></div>
+    </div>
+  </footer>
+
   <script src="./language.js" defer></script>
   <script src="./app.js" defer></script>
+  <script src="./tabbed-home.js" defer></script>
   <script src="./presence-admin-link.js" defer></script>
 </body>
 </html>
