@@ -18,7 +18,7 @@
 .church-schedule-day{align-self:start}
 .church-calendar-controls{display:flex;align-items:center;gap:.45rem;margin-bottom:.75rem}
 .church-calendar-controls strong{margin-right:auto;white-space:nowrap;font-size:clamp(.96rem,2.2vw,1.25rem)}
-.church-calendar-controls button{border:1px solid #d9dfd3;border-radius:.55rem;background:#fff;color:var(--church-ink);min-height:39px;min-width:37px;padding:.35rem .55rem;cursor:pointer}
+.church-calendar-controls button{border:1px solid #d9dfd3;border-radius:.55rem;background:#fff;color:var(--church-ink);min-height:44px;min-width:44px;padding:.35rem .55rem;cursor:pointer}
 .church-calendar-weekdays,.church-calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
 .church-calendar-weekdays{text-align:center;font-size:.76rem;color:#64766a;margin:.5rem 0}
 .church-calendar-day{position:relative;border:1px solid transparent;border-radius:.55rem;background:#fbfbf6;min-height:50px;font-size:.88rem;font-weight:700;line-height:1.2;font-family:inherit;color:var(--church-ink);padding:.25rem .15rem .8rem;cursor:pointer}
@@ -36,8 +36,10 @@
 .church-schedule-day h2,.church-schedule-upcoming h2{font-size:1.13rem;margin:0 0 .7rem;line-height:1.3}
 .church-schedule-day ol,.church-schedule-upcoming ol{list-style:none;padding:0;margin:0;display:grid;gap:.55rem}
 .church-schedule-day li,.church-schedule-upcoming li{min-width:0;padding:.7rem .8rem;border-radius:9px;background:#f6f8f1;border:1px solid #e5e9dd}
-.church-schedule-origin{display:inline-block;font-weight:800;font-size:.73rem;border-radius:999px;padding:.15rem .5rem;margin-right:.4rem;background:#f8edd5;color:#765411}
-.church-schedule-origin-ekodimission{background:#e2f1e9;color:#245c49}
+.church-schedule-origin{display:inline-flex;align-items:center;gap:.3rem;font-weight:700;font-size:.72rem;margin-right:.45rem;color:#765411}
+.church-schedule-origin::before{content:"";width:.45rem;height:.45rem;flex:0 0 .45rem;border-radius:50%;background:#b8862b}
+.church-schedule-origin-ekodimission{color:#245c49}
+.church-schedule-origin-ekodimission::before{background:#2f7a5e}
 .church-shared-link{display:inline-block;font-size:.92rem;font-weight:800;line-height:1.45;text-decoration:underline;text-underline-offset:.15rem;color:#1d4737;overflow-wrap:anywhere}
 .church-shared-meta{display:block;margin-top:.38rem;color:#55665c;font-size:.79rem;line-height:1.5}
 .church-schedule-footer-info{font-size:.84rem;color:#63746a;margin-top:1rem;line-height:1.6}
@@ -46,7 +48,7 @@
 .church-schedule-footer{display:flex;gap:1rem;justify-content:space-between;padding:1rem clamp(15px,5vw,54px);font-size:.77rem;background:#173a2e;color:#fff}
 .church-schedule-page button:focus-visible,.church-schedule-page a:focus-visible{outline:3px solid #c39a4f;outline-offset:2px}
 @media(max-width:760px){.church-schedule-shell{grid-template-columns:minmax(0,1fr)}.church-shared-calendar{grid-row:auto}.church-schedule-page .site-header{gap:.7rem;flex-wrap:wrap}.church-schedule-page .site-header nav{width:100%;gap:.75rem}.church-schedule-intro h1{font-size:1.85rem}}
-@media(max-width:390px){.church-schedule-main{width:calc(100% - 22px)}.church-shared-calendar,.church-schedule-day,.church-schedule-upcoming{padding:.7rem}.church-calendar-controls{gap:.23rem}.church-calendar-controls button{padding:.25rem;min-width:32px}.church-calendar-day{min-height:42px;font-size:.81rem}.church-schedule-page .site-header nav{font-size:.77rem}}
+@media(max-width:390px){.church-schedule-main{width:calc(100% - 22px)}.church-shared-calendar,.church-schedule-day,.church-schedule-upcoming{padding:.7rem}.church-calendar-controls{gap:.23rem}.church-calendar-controls button{padding:.35rem;min-width:44px}.church-calendar-day{min-height:44px;font-size:.81rem}.church-schedule-page .site-header nav{font-size:.77rem}}
 
 /* Role guard: HTML hidden state remains authoritative even with tenant presentation CSS. */
 .church-schedule-page [data-church-schedule][hidden],

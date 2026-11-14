@@ -76,6 +76,9 @@
       footer.innerHTML = homeFooter.innerHTML;
       absolutize(footer);
     }
+    // Notify page-scoped i18n after async nav/footer replacement. The event
+    // changes no authorization state and has no impact outside subscribers.
+    window.dispatchEvent(new CustomEvent('ekodi:church-shell-synced'));
   }
   syncFromHome().catch(() => { /* keep the page's own header/footer on failure */ });
 })();
