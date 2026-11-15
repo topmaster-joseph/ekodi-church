@@ -406,7 +406,7 @@
 
   document.addEventListener('keydown',event=>{
     const tag=event.target?.tagName;
-    if(event.altKey||event.metaKey||event.ctrlKey||['INPUT','SELECT','TEXTAREA'].includes(tag))return;
+    if(event.altKey||event.metaKey||event.ctrlKey||['INPUT','SELECT','TEXTAREA','BUTTON'].includes(tag))return;
     if(view==='bulletin')return;
     let fn;
     if(['ArrowRight','PageDown',' '].includes(event.key))fn=()=>goTo(slideIndex+1);
