@@ -12,7 +12,8 @@ const languages=['ko','en','zh','ja','vi'];
 test('online sermon PPT starts in Korean with an explicit language switch, not five simultaneous headings',()=>{
   assert.equal(packet.date,'2026-11-15');
   assert.equal(packet.stage,'draft','internal final-review status must not be changed');
-  assert.equal(packet.slides.length,30,'existing broadcast slides preserved');
+  assert.equal(packet.slides.length,28,'duplicate language-practice slides retired without losing sermon content');
+  assert.equal(packet.slides.filter(x=>/^SERMON · (?:日本語|Tiếng Việt)$/.test(x.kicker||'')).length,0,'translated title pages must only appear when selected from the Korean sermon title');
   assert.equal(packet.slides[9].title,'모든 사람에게\n모든 것이 되어');
   assert.equal(packet.slides[9].sermonTitle,true);
   assert.deepEqual(packet.slides[9].lines,['2026.11.15 · 고린도전서 9:19–27']);
