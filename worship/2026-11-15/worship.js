@@ -85,12 +85,10 @@
       "title": "모든 사람에게\n모든 것이 되어",
       "kicker": "Sermon",
       "lines": [
-        "All Things to All People.",
-        "向什么样的人，就作什么样的人。",
-        "すべての人に、すべてのものとなって。",
-        "Trở nên mọi sự cho mọi người."
+        "2026.11.15 · 고린도전서 9:19–27"
       ],
-      "cover": true
+      "cover": true,
+      "sermonTitle": true
     },
     {
       "title": "すべての人に、すべてのものとなって。",
@@ -292,6 +290,19 @@
     }
   ];
 
+
+  // Korean is the canonical sermon title. Translation buttons only alter this
+  // title on the dedicated sermon slide; no other liturgical slide is translated.
+  const SERMON_TITLES=Object.freeze({
+    ko:'모든 사람에게\n모든 것이 되어',
+    en:'All Things to All People.',
+    zh:'向什么样的人，就作什么样的人。',
+    ja:'すべての人に、すべてのものとなって。',
+    vi:'Trở nên mọi sự cho mọi người.'
+  });
+  const validTitleLanguage=value=>Object.hasOwn(SERMON_TITLES,value)?value:'ko';
+  let sermonLanguage='ko';
+
   const storageKey='ekodi:church:worship:2026-11-15:slide';
   let slideIndex=0;
   let blackout=false;
@@ -299,6 +310,7 @@
     const saved=JSON.parse(localStorage.getItem(storageKey)||'null');
     if(saved && Number.isInteger(saved.slide) && saved.slide>=0 && saved.slide<slides.length) slideIndex=saved.slide;
     if(saved && saved.blackout===true) blackout=true;
+    if(saved) sermonLanguage=validTitleLanguage(saved.sermonLanguage);
   } catch { /* Blocked/private storage starts safely from the first slide. */ }
   const slideEl=document.querySelector('#slide');
   const kickerEl=document.querySelector('#slide-kicker');
@@ -307,11 +319,19 @@
   const numberEl=document.querySelector('#slide-number');
   const progressEl=document.querySelector('#progress');
   const selectEl=document.querySelector('#slide-picker');
+  const sermonLangNav=document.querySelector('#sermon-title-languages');
 
   function render(){
     const data=slides[slideIndex];
-    titleEl.textContent=data.title;
+    const displayedTitle=data.sermonTitle?SERMON_TITLES[sermonLanguage]:data.title;
+    titleEl.textContent=displayedTitle;
     kickerEl.textContent=data.kicker;
+    if(sermonLangNav){
+      sermonLangNav.hidden=!data.sermonTitle;
+      sermonLangNav.querySelectorAll('[data-sermon-lang]').forEach(button=>{
+        button.setAttribute('aria-pressed',String(data.sermonTitle&&button.dataset.sermonLang===sermonLanguage));
+      });
+    }
     bodyEl.replaceChildren();
     for(const line of data.lines){const p=document.createElement('p');p.textContent=line;bodyEl.append(p);}
     // Original Google Slides page rendered as an image; the text above stays
@@ -329,12 +349,12 @@
     progressEl.textContent=(slideIndex+1)+' / '+slides.length;
     document.querySelectorAll('#blackout,#operator-blackout').forEach(button=>button.setAttribute('aria-pressed',String(blackout)));
     if(selectEl)selectEl.value=String(slideIndex);
-    document.title=data.title.replaceAll('\n',' ')+' | 에코디교회';
+    document.title=displayedTitle.replaceAll('\n',' ')+' | 에코디교회';
   }
   function broadcastState(){
-    const state=JSON.stringify({slide:slideIndex,blackout});
+    const state=JSON.stringify({slide:slideIndex,blackout,sermonLanguage});
     try {localStorage.setItem(storageKey,state);}catch{/* Slide still works if storage is blocked. */}
-    if(channel) try{channel.postMessage({slide:slideIndex,blackout});}catch{}
+    if(channel) try{channel.postMessage({slide:slideIndex,blackout,sermonLanguage});}catch{}
   }
   function goTo(index){
     slideIndex=Math.min(slides.length-1,Math.max(0,index));
@@ -343,7 +363,9 @@
   function toggleBlackout(){blackout=!blackout;render();broadcastState();}
   function applyState(saved){
     if(!saved||!Number.isInteger(saved.slide)||saved.slide<0||saved.slide>=slides.length)return;
-    slideIndex=saved.slide;blackout=saved.blackout===true;render();
+    slideIndex=saved.slide;blackout=saved.blackout===true;
+    sermonLanguage=validTitleLanguage(saved.sermonLanguage);
+    render();
   }
   let channel=null;
   if(typeof BroadcastChannel==='function'){
@@ -372,6 +394,16 @@
   })){
     document.getElementById(id)?.addEventListener('click',callback);
   }
+
+  sermonLangNav?.querySelectorAll('[data-sermon-lang]').forEach(button=>{
+    button.addEventListener('click',()=>{
+      if(!slides[slideIndex]?.sermonTitle)return;
+      sermonLanguage=validTitleLanguage(button.dataset.sermonLang);
+      render();
+      broadcastState(); // Keep presenter, stage and 9:16 view synchronized.
+    });
+  });
+
   document.addEventListener('keydown',event=>{
     const tag=event.target?.tagName;
     if(event.altKey||event.metaKey||event.ctrlKey||['INPUT','SELECT','TEXTAREA'].includes(tag))return;
