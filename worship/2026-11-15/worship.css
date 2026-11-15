@@ -6,3 +6,15 @@ body[data-view=stage] .slide{width:min(100vw,calc(100dvh*16/9));height:auto;max-
 body[data-view=vertical] .slide{width:min(100vw,calc(100dvh*9/16));max-height:100dvh}
 body[data-view=operator] .slide{width:min(100%,calc((100dvh - 190px)*16/9));margin:0 auto}
 body[data-view=stage] .presentation,body[data-view=vertical] .presentation{overflow:hidden}
+
+/* Sermon title language switch: Korean-first, accessible, sized for 16:9 and 9:16. */
+.sermon-title-languages[hidden]{display:none!important}
+.sermon-title-languages{position:absolute;z-index:3;bottom:14%;left:5%;right:5%;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:clamp(4px,.65cqw,13px)}
+.sermon-title-languages button{font-family:inherit;font-size:clamp(10px,1.42cqw,18px);font-weight:800;line-height:1.15;white-space:nowrap;min-height:clamp(30px,4.8cqw,50px);padding:.65em 1.05em;border-radius:999px;border:1px solid #b6cfc0;color:#244d38;background:#f0f6f0;box-shadow:0 2px 9px #14291c10}
+.sermon-title-languages button[aria-pressed=true]{background:#244c38;color:#fff;border-color:#244c38}
+.sermon-title-languages button:hover{filter:brightness(.97)}
+.sermon-title-languages button:focus-visible{outline:3px solid #bf9e62;outline-offset:3px}
+.slide[data-blackout=true] .sermon-title-languages{visibility:hidden}
+body[data-view=vertical] .sermon-title-languages{bottom:15%;left:6%;right:6%;gap:6px}
+body[data-view=vertical] .sermon-title-languages button{font-size:clamp(10px,2.5cqw,17px);min-height:clamp(30px,6cqw,44px);padding:.55em .7em}
+body[data-view=operator] .sermon-title-languages button{font-size:clamp(8px,1.6cqw,14px);min-height:clamp(24px,3.5cqw,34px);padding:.4em .6em}

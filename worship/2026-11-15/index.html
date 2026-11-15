@@ -9,8 +9,8 @@
 <title>2026.11.15 주일예배 · 주보·PPT·방송 | 에코디교회</title>
 <meta name="description" content="에코디교회 2026년 11월 15일 주일예배 주보, 말씀, 30장 PPT와 EKODI 내장 방송용 발표 화면">
 <link rel="canonical" href="https://ekodi.kr/ekodichurch/worship/2026-11-15/">
-<link rel="stylesheet" href="./worship.css"><link rel="stylesheet" href="./bulletin.css?v=20261115a">
-<script src="./worship.js" defer></script>
+<link rel="stylesheet" href="./worship.css?v=20261115-title-languages"><link rel="stylesheet" href="./bulletin.css?v=20261115a">
+<script src="./worship.js?v=20261115-title-languages" defer></script>
 <script src="../bulletin-data.js?v=20261115a" data-date="2026-11-15" defer></script>
 </head>
 <body data-view="bulletin">
@@ -33,7 +33,15 @@
   </section>
   <section class="presentation" id="presentation" aria-label="예배 발표 화면" tabindex="0">
     <div id="slide" class="slide" role="region" aria-live="polite" aria-label="현재 발표 슬라이드">
-      <p class="slide-eyebrow" id="slide-kicker"></p><h1 id="slide-title"></h1><div id="slide-body" class="slide-body"></div><footer class="slide-footer"><span>EKODI CHURCH · 고린도전서 9:19–27</span><span id="slide-number"></span></footer>
+      <p class="slide-eyebrow" id="slide-kicker"></p><h1 id="slide-title"></h1><div id="slide-body" class="slide-body"></div>
+      <nav class="sermon-title-languages" id="sermon-title-languages" aria-label="설교 제목 언어 선택" hidden>
+        <button type="button" data-sermon-lang="ko" lang="ko" aria-pressed="true">한국어</button>
+        <button type="button" data-sermon-lang="en" lang="en" aria-pressed="false">English</button>
+        <button type="button" data-sermon-lang="zh" lang="zh" aria-pressed="false">中文</button>
+        <button type="button" data-sermon-lang="ja" lang="ja" aria-pressed="false">日本語</button>
+        <button type="button" data-sermon-lang="vi" lang="vi" aria-pressed="false">Tiếng Việt</button>
+      </nav>
+      <footer class="slide-footer"><span>EKODI CHURCH · 고린도전서 9:19–27</span><span id="slide-number"></span></footer>
     </div>
     <div class="stage-controls" id="stage-controls"><button id="previous" type="button" aria-label="이전 슬라이드">← 이전</button><span id="progress">1 / 30</span><button id="next" type="button" aria-label="다음 슬라이드">다음 →</button><button id="blackout" type="button" aria-pressed="false">암전 B</button><button id="fullscreen" type="button">전체화면 F</button></div>
   </section>
