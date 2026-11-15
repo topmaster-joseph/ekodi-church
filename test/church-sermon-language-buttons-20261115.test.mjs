@@ -26,10 +26,6 @@ test('online sermon PPT starts in Korean with an explicit language switch, not f
   new Function(js);
 });
 
-function fakeButton(lang){
-  const attributes={};
-  return {dataset:{sermonLang:lang},addEventListener(name,cb){this[name]=cb;},setAttribute(name,value){attributes[name]=value;},getAttribute(name){return attributes[name];},click(){this.click?.call(this);}};
-}
 function runtime(){
   const ids=new Map();
   function node(id){
@@ -73,7 +69,7 @@ function runtime(){
     postMessage(v){posts.push(v);}
   }
   const window={innerHeight:900,addEventListener(name,callback){listeners[name]=callback;}};
-  vm.runInNewContext(js,{document,window,location:{search:'?view=stage'},localStorage,BroadcastChannel,Image:class{},URL,console});
+  vm.runInNewContext(js,{document,window,location:{search:'?view=stage'},localStorage,BroadcastChannel,Image:class{},URL,URLSearchParams,console});
   return {ids,nav,buttons,posts,get channel(){return channel;},document};
 }
 
