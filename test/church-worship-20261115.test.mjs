@@ -15,12 +15,12 @@ test('November 15 draft uses the approved EKODI common reading (1 Cor 9:19–27)
   assert.doesNotMatch(get('prayer/index.html'),/2026-11-08/);
 });
 
-test('Thirty 16:9 text slides, score pages withheld, isolated presenter channel',()=>{
-  assert.equal(packet.slides.length,30);assert.equal((js.match(/"title":/g)||[]).length,30);
+test('Twenty-eight 16:9 text slides, score pages withheld, isolated presenter channel',()=>{
+  assert.equal(packet.slides.length,28);assert.equal((js.match(/"title":/g)||[]).length,28);
   assert.ok(packet.slides.every(s=>!s.image&&s.title&&Array.isArray(s.lines)));
   assert.deepEqual(packet.slideSource.omittedPages,[6,7,8,9,10,13]);
-  assert.equal(packet.slides[7].lines[0],registry);assert.equal(packet.slides[22].title,'이번 주 매일묵상 · 11/15–11/21');
-  assert.match(js,/ekodi-church-worship-20261115/);assert.equal(packet.slides[23].lines[0],'오늘 주일모임 후 공동의회 · 세례교인 모두 참석');assert.match(js,/ekodi:church:worship:2026-11-15:slide/);assert.doesNotMatch(js,/20261108|2026-11-08/);
+  assert.equal(packet.slides[7].lines[0],registry);assert.equal(packet.slides[20].title,'이번 주 매일묵상 · 11/15–11/21');
+  assert.match(js,/ekodi-church-worship-20261115/);assert.equal(packet.slides[21].lines[0],'오늘 주일모임 후 공동의회 · 세례교인 모두 참석');assert.match(js,/ekodi:church:worship:2026-11-15:slide/);assert.doesNotMatch(js,/20261108|2026-11-08/);
   assert.equal(packet.youtube.status,'metadata-prepared-not-scheduled');assert.match(packet.youtube.title,/2026\.11\.15/);
   assert.doesNotMatch(JSON.stringify(packet),/streamKey|stream_key|rtmp|검토본|최종 확인 필요/i);
   assert.deepEqual(Object.fromEntries(Object.entries(packet.sources).map(([k,v])=>[k,v.title])),{bulletin:'261115에코디주보',slides:'261115에코디PPT',sermon:'261115에코디설교'});
