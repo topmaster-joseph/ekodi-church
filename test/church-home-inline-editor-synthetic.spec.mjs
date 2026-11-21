@@ -78,9 +78,9 @@ test('manager creates own schedule without writing Mission records',async({page}
   await form.locator('[name="venue"]').fill('예배실');
   await form.locator('[name="body"]').fill('준비모임');
   await form.locator('button[type="submit"]').click();
+  await expect.poll(()=>page.evaluate(()=>window.__mutations.some(x=>x.method==='POST'&&x.data.categoryId==='schedule'))).toBeTruthy();
   const mutations=await page.evaluate(()=>window.__mutations);
   const saved=mutations.find(x=>x.method==='POST'&&x.data.categoryId==='schedule');
-  expect(saved).toBeTruthy();
   expect(JSON.parse(saved.data.body)).toMatchObject({date:'2026-12-10',time:'10:00',venue:'예배실'});
   expect(mutations.some(x=>x.path.includes('ekodimission'))).toBeFalsy();
 });
