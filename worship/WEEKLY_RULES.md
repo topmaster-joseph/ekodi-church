@@ -46,3 +46,27 @@
 - 동의가 확인되지 않은 단체사진
 - 원고의 내부 체크리스트("예배 전 확인")
 - 찬양 악보 슬라이드
+
+
+## 4. 2026년 11월 22일부터 적용하는 새 예배순서
+
+1. 경배찬양 (예배 15분 전) / Praise & Worship
+2. 예배부름 / Call to Worship
+3. 입례찬송 / Processional Hymn
+4. 공동고백 / Community Confession
+5. 회개찬송 / Hymn of Repentance
+6. 대표기도 / Congregational Prayer
+7. 말씀봉독 / Scripture Reading
+8. 말씀찬송 / Hymn before the Sermon
+9. 말씀선포 / Proclamation of the Word
+10. 말씀기도 / Prayer in Response to the Word
+11. 결단찬송 / Hymn of Commitment
+12. 교회소식 / Church Announcements
+13. 파송찬송 / Sending Hymn
+14. 주기도문 / The Lord's Prayer
+
+- **주보 2면 4열:** 왼쪽에는 예배순서 / English / 해당 주 한국어 곡명·본문·제목 / 담당자 순서의 표를 둡니다. 오른쪽 위부터 예배위원 → 협력기관 → 적용질문 **한 개**를 둡니다.
+- **11월 22일 곡명:** 경배찬양(예배 15분 전) 은혜, 날구원하신주, 지금까지(각각 다음 줄); 입례찬송 거룩하신 하나님; 회개찬송 나 주님의 기쁨되기; 말씀찬송 아 하나님의 은혜로; 결단찬송 성령이여 강림하사; 파송찬송 주 안에 우린 하나. 주일별 곡명은 다른 날짜에 자동 상속하지 않습니다.
+- **연간 예배위원 일정:** 별도 `church_worship_committee_assignments`(날짜별 1행)와 연도별 검증 자료를 사용합니다. 경배찬양/예배인도/대표기도/말씀선포/식사준비를 날짜별로 개별 수정합니다. 지난주 1개, **이번주 날짜는 항상 왼쪽에서 두 번째**, 미래 3개를 표시하며 미확정은 `확인필요`로 둡니다. 권한은 교회 `tenant_admin` 쓰기만 허용하고, 저장 후 재조회로 확인합니다. 기존 방문자나 교회 직원에게 변경권한을 부여하지 않습니다.
+- **공식 Google 원본:** 11월 22일 주보 `261122에코디주보`는 https://docs.google.com/document/d/1nIbDkR6G2o0XkgYA2jSxZT82XrvdhOWtGG5zO7sop3I/edit 입니다. 설교 및 PPT 원본 링크는 기존 그대로 보존합니다.
+- **검증:** 소스 테스트, 웹/모바일 4열 가독성 및 A4 인쇄, 보존된 다국어 설교 제목 버튼과 현장 발표, 최신 주일 링크, 권한 정책을 재검증한 뒤 공식 릴리스합니다. 이전 주일의 기록을 소급 변경하지 않습니다.
