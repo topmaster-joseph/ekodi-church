@@ -10,9 +10,9 @@
   const schedules=[...document.querySelectorAll('[data-church-schedule]')];
   if (!notices.length&&!schedules.length) return;
   const detail=Boolean(document.querySelector('[data-church-public-page]'));
-  const kind=document.body.dataset.churchPublicPage||'';
+  let kind=document.body.dataset.churchPublicPage||'';
   const manageRoot=document.querySelector('[data-church-public-manage]');
-  let managerToken='',allPosts=[],currentRows=[];
+  let managerToken='',allPosts=[],currentRows=[],authEpoch=0;
 
   const el=(tag,className,text)=>{
     const result=document.createElement(tag);
@@ -53,7 +53,7 @@
     textWrap.append(anchor,time);
     if(!compact)textWrap.append(el('p','church-public-excerpt',String(post.body||'').slice(0,180)));
     row.append(markOriginal(textWrap));
-    if(managerToken&&detail&&kind==='notices'){
+    if(managerToken&&kind==='notices'&&(detail||!manageRoot?.hidden)){
       const edit=el('button','church-public-edit','수정');
       edit.type='button';edit.addEventListener('click',()=>editRecord(post));
       row.append(edit);
@@ -145,7 +145,7 @@
     copy.append(link,el('p','',item.venue));
     if(!compact&&item.description)copy.append(el('small','',item.description));
     row.append(markOriginal(date),markOriginal(copy));
-    if(managerToken&&detail&&kind==='schedule'&&item.source==='board'){
+    if(managerToken&&kind==='schedule'&&(detail||!manageRoot?.hidden)&&item.source==='board'){
       const button=el('button','church-public-edit','수정');
       button.type='button';
       button.addEventListener('click',()=>editRecord(allPosts.find(p=>p.id===item.postId)));
@@ -156,9 +156,11 @@
   function renderSchedules(){
     for(const root of schedules){
       root.replaceChildren();
-      if(!currentRows.length){failure(root,'공개된 주요 일정이 없습니다.');continue;}
+      const managingHome=Boolean(root.closest('[data-church-home-manage]'));
+      const items=managingHome?allPosts.map(parseSchedulePost).filter(Boolean).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time)):currentRows;
+      if(!items.length){failure(root,managingHome?'교회가 등록한 일정이 없습니다.':'공개된 주요 일정이 없습니다.');continue;}
       const limit=Math.max(1,Math.min(100,Number(root.dataset.limit)||3));
-      for(const item of currentRows.slice(0,limit))root.append(scheduleRow(item,!detail));
+      for(const item of items.slice(0,limit))root.append(scheduleRow(item,!(detail||managingHome)));
     }
   }
   async function loadData(){
@@ -193,13 +195,14 @@
       const raw=localStorage.getItem(KEY)||sessionStorage.getItem(KEY);
       if(!raw)return '';
       const data=JSON.parse(raw);
-      return data?.access_token||data?.currentSession?.access_token||'';
+      return data?.currentSession?.access_token||data?.session?.access_token||data?.access_token||'';
     }catch{return '';}
   }
   const authHeaders=()=>({'authorization':'Bearer '+managerToken,'content-type':'application/json'});
   async function mutation(url,method,data){
     const response=await fetch(BASE+url,{method,credentials:'same-origin',cache:'no-store',headers:authHeaders(),body:JSON.stringify(data)});
     const payload=await response.json().catch(()=>({}));
+    if(response.status===401||response.status===403)revokeEditor();
     if(!response.ok||!payload.ok)throw new Error(payload.error||'게시하지 못했습니다.');
     return payload;
   }
@@ -282,17 +285,76 @@
         currentEdit=null;form.reset();save.textContent='등록하기';status.textContent='게시했습니다.';await loadData();
       }catch(error){status.textContent=error.message;}
     });
-    manageRoot.append(heading,tip,form,status);
+    if(manageRoot.hasAttribute('data-church-home-manage'))manageRoot.prepend(heading,tip);
+    else manageRoot.append(heading,tip);
+    manageRoot.append(form,status);
+  }
+  function revokeEditor(){
+    managerToken='';
+    if(manageRoot)manageRoot.hidden=true;
+    if(!detail){
+      kind='';
+      document.querySelectorAll('[data-church-inline-manage]').forEach(button=>{
+        button.hidden=true;
+        button.setAttribute('aria-expanded','false');
+      });
+    }
+    renderNotices();renderSchedules();
+  }
+  function homeManagerControls(){
+    for(const button of document.querySelectorAll('[data-church-inline-manage]')){
+      button.hidden=false;
+      if(button.dataset.churchManagementBound)return;
+      button.dataset.churchManagementBound='true';
+      button.setAttribute('aria-expanded','false');
+      button.addEventListener('click',()=>{
+        if(!managerToken)return;
+        const target=button.dataset.churchInlineManage;
+        const same=kind===target&&!manageRoot.hidden;
+        if(same){
+          manageRoot.hidden=true;kind='';
+        }else{
+          const scheduleList=manageRoot.querySelector('[data-church-schedule]');
+          manageRoot.replaceChildren();
+          if(scheduleList){
+            scheduleList.hidden=target!=='schedule';
+            manageRoot.append(scheduleList);
+          }
+          currentEdit=null;form=null;status=null;
+          kind=target;
+          enableEditor();
+          manageRoot.scrollIntoView({behavior:'smooth',block:'nearest'});
+        }
+        document.querySelectorAll('[data-church-inline-manage]').forEach(item=>{
+          item.setAttribute('aria-expanded',String(!same&&item===button));
+        });
+        renderNotices();renderSchedules();
+      });
+    }
   }
   async function checkManager(){
     if(!manageRoot)return;
-    const token=findToken();
-    if(!token)return;
+    const epoch=++authEpoch,token=findToken();
+    if(!token){revokeEditor();return;}
     try{
       const result=await getJson(BASE+'/me',{headers:{authorization:'Bearer '+token}});
-      if(result.authenticated!==true||!['owner','admin','moderator'].includes(result.role))return;
-      managerToken=token;enableEditor();renderNotices();renderSchedules();
-    }catch{/* fail closed: public reader never sees write controls */}
+      if(epoch!==authEpoch||token!==findToken())return;
+      if(result.authenticated!==true||result.manage!==true||!['owner','admin','moderator'].includes(result.role)){
+        revokeEditor();return;
+      }
+      managerToken=token;
+      if(detail){
+        if(!form)enableEditor();
+        else manageRoot.hidden=false;
+      }else homeManagerControls();
+      renderNotices();renderSchedules();
+    }catch{if(epoch===authEpoch)revokeEditor();}
   }
+  document.addEventListener('church:public-content-updated',()=>{void loadData();});
+  window.addEventListener('storage',e=>{if(e.key===KEY)void checkManager();});
+  window.addEventListener('ekodi:auth-state',()=>void checkManager());
+  window.addEventListener('ekodi:auth-logout',()=>{++authEpoch;revokeEditor();});
+  window.addEventListener('pageshow',()=>void checkManager());
+  window.addEventListener('focus',()=>void checkManager());
   loadData().then(checkManager);
 })();
