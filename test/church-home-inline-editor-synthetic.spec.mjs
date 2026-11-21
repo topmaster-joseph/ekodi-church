@@ -64,6 +64,7 @@ test('manager creates notice and loses editor on logout',async({page})=>{
   const mutations=await page.evaluate(()=>window.__mutations);
   expect(mutations.some(x=>x.method==='POST'&&x.data.categoryId==='notice')).toBeTruthy();
   await expect(form.locator('.church-public-delete')).toBeHidden();
+  console.log('NOTICE_EDITOR_DOM',JSON.stringify(await page.evaluate(()=>({rootHidden:document.querySelector('[data-church-home-manage]')?.hidden,listCount:document.querySelectorAll('[data-church-manage-notices] .church-public-item').length,mainCount:document.querySelectorAll('[data-church-notices] .church-public-item').length,editorText:document.querySelector('[data-church-home-manage]')?.textContent?.slice(0,300)}))));
   const row=page.locator('[data-church-manage-notices] .church-public-item').filter({hasText:'새 공지'});
   await row.getByRole('button',{name:'수정'}).click();
   await expect(form.locator('.church-public-delete')).toBeVisible();
