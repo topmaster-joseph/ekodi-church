@@ -19,6 +19,11 @@ const META={
 
 const P={};
 function add(ko,my,kac,vi,mn,id){P[ko]={my,kac,vi,mn,id};}
+add('로그인','အကောင့်ဝင်ရန်','Login','Đăng nhập','Нэвтрэх','Masuk');
+add('로그아웃','အကောင့်ထွက်ရန်','Logout','Đăng xuất','Гарах','Keluar');
+add('로그아웃 중','အကောင့်ထွက်နေသည်','Logout galaw nga ai','Đang đăng xuất','Гарч байна','Sedang keluar');
+add('에코디 계정','EKODI အကောင့်','EKODI account','Tài khoản EKODI','EKODI бүртгэл','Akun EKODI');
+add('내 교회 마이페이지','ကျွန်ုပ်၏ အသင်းတော်အကောင့်','Nye Church account','Tài khoản Hội thánh của tôi','Миний сүмийн бүртгэл','Akun gereja saya');
 add('에코디교회 홈','ပင်မစာမျက်နှာ','EKODI Nawku Htingnu home','Trang chủ Hội thánh EKODI','EKODI Сүмийн нүүр','Beranda Gereja EKODI');
 add('메뉴 열기','မီနူးဖွင့်ရန်','Menu hpaw','Mở menu','Цэс нээх','Buka menu');
 add('주요 메뉴','အဓိက မီနူး','Main menu','Menu chính','Үндсэн цэс','Menu utama');
