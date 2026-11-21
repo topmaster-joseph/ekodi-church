@@ -54,6 +54,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Install synthetic broadcast browser
         run: npx playwright install --with-deps chromium
+      - name: Church inline editor synthetic guest/manager browser E2E
+        run: npx playwright test test/church-home-inline-editor-synthetic.spec.mjs --reporter=line
       - name: Virtual broadcaster and production synthetic canary
         run: npm run test:live:synthetic
       - name: Worship stage and portrait synthetic browser canary
