@@ -11,7 +11,10 @@ test('Church homepage offers in-place notice and event management only after rol
   assert.match(home,/data-church-home-manage hidden/);
   assert.match(home,/data-church-schedule data-limit="100" hidden/);
   assert.match(home,/href="church-public-updates\.css"/);
-  assert.match(ui,/result\.authenticated!==true\|\|result\.manage!==true/);
+  assert.match(ui,/result\.authenticated!==true/);
+  assert.match(ui,/result\.manage!==true/);
+  assert.match(ui,/explainRole\('unauthorized'\)/);
+  assert.match(home,/data-church-role-diagnostic role="status" aria-live="polite" hidden/);
   assert.match(ui,/owner','admin','moderator/);
   assert.match(ui,/function revokeEditor\(/);
   assert.match(ui,/data-church-inline-manage/);

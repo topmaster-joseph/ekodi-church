@@ -8,6 +8,7 @@ const html='<html lang="ko"><head><meta charset="utf-8"></head><body>'
   +'<button data-church-inline-manage="schedule" hidden>일정 바로 관리</button>'
   +'<div data-church-shared-schedules data-limit="3"><ol data-church-schedules-list></ol></div>'
   +'<section data-church-public-manage data-church-home-manage hidden><div data-church-schedule data-limit="100" hidden></div></section>'
+  +'<p data-church-role-diagnostic role="status" aria-live="polite" hidden></p>'
   +'<script src="/ekodichurch/church-shared-schedules.js"></script>'
   +'<script src="/ekodichurch/church-public-updates.js"></script></body></html>';
 async function boot(page,authorized){
@@ -18,12 +19,13 @@ async function boot(page,authorized){
     if(authorized)localStorage.setItem('sb-renzehysxirjilvdxacv-auth-token',JSON.stringify({currentSession:{access_token:'fixture-token'}}));
     window.__records=[{id:1,title:'기존 공지',body:'기존 내용',categoryId:'notice',createdAt:'2026-11-22T00:00:00Z'}];
     window.__mutations=[];
+    window.__authenticated=authorized;
     window.__canManage=authorized;
     window.fetch=async(input,options={})=>{
       const path=new URL(String(input),location.href).pathname;
       const method=(options.method||'GET').toUpperCase();
       const response=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json'}});
-      if(path.endsWith('/board/api/me'))return response({authenticated:window.__canManage,manage:window.__canManage,role:window.__canManage?'admin':'member'});
+      if(path.endsWith('/board/api/me'))return response({authenticated:window.__authenticated,manage:window.__canManage,role:window.__canManage?'admin':'member'});
       if(path.endsWith('/board/api/posts')&&method==='GET')return response({ok:true,items:window.__records});
       if(path.endsWith('/board/api/categories'))return response({items:[{category_id:'notice'},{category_id:'schedule'}]});
       if(path.includes('/board/api/posts')&&method!=='GET'){
@@ -50,6 +52,7 @@ test('guest remains read-only',async({page})=>{
   await expect(page.locator('[data-church-inline-manage="notices"]')).toBeHidden();
   await expect(page.locator('[data-church-inline-manage="schedule"]')).toBeHidden();
   await expect(page.locator('[data-church-home-manage]')).toBeHidden();
+  await expect(page.locator('[data-church-role-diagnostic]')).toBeHidden();
 });
 test('manager creates notice and loses editor on logout',async({page})=>{
   await boot(page,true);
@@ -76,8 +79,22 @@ test('manager creates notice and loses editor on logout',async({page})=>{
   await expect.poll(()=>page.evaluate(()=>window.__mutations.some(x=>x.method==='DELETE'))).toBeTruthy();
   await page.evaluate(()=>{window.__canManage=false;window.dispatchEvent(new Event('focus'));});
   await expect(toggle).toBeHidden();
+  await expect(page.locator('[data-church-role-diagnostic]')).toContainText('관리 권한이 없습니다');
   await page.evaluate(()=>window.dispatchEvent(new Event('ekodi:auth-logout')));
   await expect(toggle).toBeHidden();
+});
+test('an authenticated member gets an explicit read-only permission diagnostic',async({page})=>{
+  await boot(page,true);
+  await page.evaluate(()=>{window.__canManage=false;window.dispatchEvent(new Event('focus'));});
+  const role=page.locator('[data-church-role-diagnostic]');
+  await expect(role).toBeVisible();
+  await expect(role).toContainText('게시판 운영자 승인');
+  await expect(page.locator('[data-church-inline-manage="notices"]')).toBeHidden();
+  await expect(page.locator('[data-church-inline-manage="schedule"]')).toBeHidden();
+  await expect(page.locator('[data-church-home-manage]')).toBeHidden();
+  expect(await page.evaluate(()=>window.__mutations.length)).toBe(0);
+  await page.evaluate(()=>window.dispatchEvent(new Event('ekodi:auth-logout')));
+  await expect(role).toBeHidden();
 });
 test('manager creates own schedule without writing Mission records',async({page})=>{
   await boot(page,true);

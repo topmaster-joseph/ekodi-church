@@ -42,7 +42,8 @@ test('Church only reads independently owned published schedule metadata and neve
   assert.ok(js.includes("aria-pressed"));
   assert.doesNotMatch(js,/innerHTML|\bPOST\b|\bPATCH\b|\bDELETE\b|http:\/\//);
   const management=await read('church-public-updates.js');
-  assert.ok(management.includes("result.authenticated!==true||result.manage!==true||!['owner','admin','moderator'].includes(result.role)"));
+  assert.ok(management.includes("result.authenticated!==true"));
+  assert.ok(management.includes("result.manage!==true||!['owner','admin','moderator'].includes(result.role)"));
   assert.ok(management.includes("document.querySelector('[data-church-schedule]')?.removeAttribute('hidden')"));
   assert.ok(management.includes("if(managerToken&&kind==='schedule'&&(detail||!manageRoot?.hidden)&&item.source==='board')"));
 });
