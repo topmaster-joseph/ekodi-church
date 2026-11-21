@@ -1,4 +1,10 @@
 /* Compact responsive public church updates — no new data or identity authority. */
+.church-home-editor{width:min(1120px,calc(100% - 36px));box-sizing:border-box;margin:0 auto 32px}
+.church-home-editor [data-church-schedule][hidden]{display:none!important}
+.church-home-editor .church-public-item{align-items:flex-start}
+.church-home-editor .church-public-form{max-width:840px}
+.church-home-actions [hidden]{display:none!important}
+@media(max-width:760px){.church-home-editor{width:calc(100% - 28px);padding:15px}}
 .church-public-panels{width:min(1120px,calc(100% - 36px));margin:28px auto 36px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;color:#19372f;scroll-margin-top:108px}
 .church-public-panel,.church-public-content,.church-public-management{min-width:0;background:#fcfbf8;border:1px solid #dfe5de;border-radius:16px;padding:clamp(16px,2.1vw,25px)}
 .church-public-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
