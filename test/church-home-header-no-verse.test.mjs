@@ -16,7 +16,7 @@ test('Church homepage has no header verse markup or script that can reinsert it'
 test('six core navigations, devotional page and published Church/Mission schedules survive',()=>{
   const home=read('index.html');
   const nav=home.match(/<nav id="main-nav"[\s\S]*?<\/nav>/)?.[0]||'';
-  const labels=['매일묵상','예배·방송','공지사항','주요일정','함께하기','마이페이지'];
+  const labels=['매일묵상','예배·방송','공지사항','주요일정','함께하기','큐티인 신청'];
   assert.equal((nav.match(/<a\b/g)||[]).length,6);
   let pos=-1;
   for(const label of labels){

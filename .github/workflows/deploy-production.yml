@@ -111,14 +111,17 @@ jobs:
           grep -Fq "current_site_access" mypage/app.js
           grep -Fq "metadata:{service:" live/live.js
           grep -Fq "syncPublishedWorship" script.js
-          grep -Fq "href: '/ekodichurch/my/'" script.js
-          grep -Fq 'href="/ekodichurch/my/' index.html
+          # The public navigation now opens QTIN directly; the member workspace remains a protected page.
+          grep -Fq "href: '/qtin/church', label: '큐티인 신청'" script.js
+          grep -Fq 'href="/qtin/church"' index.html
+          test -s my/index.html
+          grep -Fq 'href="/ekodichurch/my/' church-account-header.js || grep -Fq "name.href = '/ekodichurch/my/'" church-account-header.js
           if grep -Fq "https://ekodi.kr/ekodichurch/my" script.js || grep -Fq "https://ekodi.kr/ekodichurch/my" index.html; then
-            echo 'Church header member navigation must remain a site-local path.'
+            echo 'Church public navigation must remain a first-party site-local path.'
             exit 1
           fi
           if grep -Fq "https://ekodi.kr/my/" index.html || grep -Fq "https://ekodi.kr/my/" script.js; then
-            echo 'Church public surface must use its site-local My Page, not global My EKODI.'
+            echo 'Church public surface must avoid global My EKODI.'
             exit 1
           fi
           if grep -Fq 'https://my.ekodi.kr/' script.js; then
