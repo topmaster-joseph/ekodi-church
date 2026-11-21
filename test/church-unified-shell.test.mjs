@@ -11,7 +11,7 @@ const routes = [
  '/ekodichurch/notices/',
  '/ekodichurch/schedule/',
  '/ekodichurch/#together',
- '/ekodichurch/my/'
+ '/qtin/church'
 ];
 function mainNavigation(html){
  const match = html.match(/<nav (?:id="main-nav"|class="church-shell-nav")[^>]*>([\s\S]*?)<\/nav>/);
@@ -24,7 +24,7 @@ test('six canonical Church destinations appear in identical order on all menus',
   const html=await read(page);
   const anchors=mainNavigation(html);
   assert.deepEqual(anchors.map(x=>x.href),routes, page);
-  assert.deepEqual(anchors.map(x=>x.label),['매일묵상','예배·방송','공지사항','주요일정','함께하기','마이페이지'],page);
+  assert.deepEqual(anchors.map(x=>x.label),['매일묵상','예배·방송','공지사항','주요일정','함께하기','큐티인 신청'],page);
   assert.match(html,/church-site-shell\.css/,page);
   assert.match(html,/class="site-footer church-footer/,page);
   assert.match(html,/data-ekodi-service-footer/,page);
