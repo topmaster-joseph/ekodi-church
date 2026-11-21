@@ -75,7 +75,14 @@
           const item=el('article','church-public-notice-detail');
           item.append(el('h2','',post.title),el('time','',dateText(String(post.createdAt||'').slice(0,10))));
           const body=el('p','church-public-body',post.body);
-          item.append(body);root.append(item);
+          item.append(body);
+          if(managerToken){
+            const edit=el('button','church-public-edit','이 공지 수정');
+            edit.type='button';
+            edit.addEventListener('click',()=>editRecord(post));
+            item.append(edit);
+          }
+          root.append(item);
           continue;
         }
         failure(root,'해당 공지사항을 찾을 수 없습니다.');continue;
@@ -215,6 +222,7 @@
   let currentEdit=null,form=null,status=null;
   function editRecord(post){
     if(!post||!form)return;
+    if(kind==='schedule'&&!parseSchedulePost(post))return;
     currentEdit=post;
     form.querySelector('[name="title"]').value=post.title||'';
     const value=form.querySelector('[name="body"]');
@@ -228,6 +236,8 @@
       value.value=parsed.description;
     }
     form.querySelector('button[type="submit"]').textContent='수정 저장';
+    const remove=form.querySelector('.church-public-delete');
+    if(remove)remove.hidden=false;
     manageRoot.scrollIntoView({behavior:'smooth',block:'center'});
   }
   async function ensureCategory(){
@@ -264,11 +274,11 @@
     const actions=el('div','church-public-form-actions');
     const save=el('button','church-public-save','등록하기');save.type='submit';
     const reset=el('button','church-public-reset','새 글 작성');reset.type='button';
-    reset.addEventListener('click',()=>{currentEdit=null;form.reset();save.textContent='등록하기';status.textContent='';});
-    const remove=el('button','church-public-delete','삭제');remove.type='button';
+    reset.addEventListener('click',()=>{currentEdit=null;form.reset();save.textContent='등록하기';remove.hidden=true;status.textContent='';});
+    const remove=el('button','church-public-delete','삭제');remove.type='button';remove.hidden=true;
     remove.addEventListener('click',async()=>{
       if(!currentEdit||!window.confirm('선택한 글을 삭제하시겠습니까?'))return;
-      try{status.textContent='삭제 중...';await mutation('/posts/'+currentEdit.id,'DELETE',{});currentEdit=null;form.reset();save.textContent='등록하기';status.textContent='삭제했습니다.';document.dispatchEvent(new Event('church:public-content-updated'));}
+      try{status.textContent='삭제 중...';await mutation('/posts/'+currentEdit.id,'DELETE',{});currentEdit=null;form.reset();save.textContent='등록하기';remove.hidden=true;status.textContent='삭제했습니다.';document.dispatchEvent(new Event('church:public-content-updated'));}
       catch(error){status.textContent=error.message;}
     });
     actions.append(save,reset,remove);form.append(actions);
@@ -281,14 +291,14 @@
       let text=content;
       if(kind==='schedule'){
         const date=String(values.get('date')||''),time=String(values.get('time')||''),venue=String(values.get('venue')||'').trim();
-        if(date<localDay()){status.textContent='지난 날짜를 새 주요 일정으로 등록할 수 없습니다.';return;}
+        if(!currentEdit&&date<localDay()){status.textContent='지난 날짜를 새 주요 일정으로 등록할 수 없습니다.';return;}
         text=JSON.stringify({date,time,venue,description:content});
       }
       try{
         status.textContent='저장 중...';await ensureCategory();
         const payload={title,body:text,categoryId:kind==='notices'?'notice':'schedule'};
         await mutation('/posts'+(currentEdit?'/'+currentEdit.id:''),currentEdit?'PATCH':'POST',payload);
-        currentEdit=null;form.reset();save.textContent='등록하기';status.textContent='게시했습니다.';document.dispatchEvent(new Event('church:public-content-updated'));
+        currentEdit=null;form.reset();save.textContent='등록하기';remove.hidden=true;status.textContent='게시했습니다.';document.dispatchEvent(new Event('church:public-content-updated'));
       }catch(error){status.textContent=error.message;}
     });
     if(manageRoot.hasAttribute('data-church-home-manage'))manageRoot.prepend(heading,tip);
