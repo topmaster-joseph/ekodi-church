@@ -234,6 +234,7 @@
       paintRows(list,entries.filter(item=>item.date===selected),100,'선택한 날짜의 공개 일정이 없습니다.');
     });
   }
+  document.addEventListener('church:public-content-updated',()=>{void load()});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)void load()});
   window.addEventListener('focus',()=>{void load()});
   const refresh=setInterval(()=>{if(!document.hidden)void load()},300000);
