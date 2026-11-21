@@ -648,8 +648,51 @@ async function startHost(){
   }catch(error){state.hosting=false;setPhase('error');$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 준비 실패: ${error.message}`);return false}
 }
 async function goLive(){if(!state.room)return false;try{await api(`/rooms/${state.room.id}/status`,{method:'POST',body:JSON.stringify({status:'live'})});state.isLive=true;setPhase('live');startLiveClock();$('goLiveButton').disabled=true;$('endLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);lockDestinationSelection();setRecordingState(false,'녹화 준비 중');await startManagedRecording();return true}catch(error){$('goLiveButton').disabled=false;sessionStorage.removeItem(PENDING_START_KEY);note(`방송 시작 실패: ${error.message}`);return false}}
+// Private rehearsal: no room, session, live status, external destination or upload API.
+let rehearsalRecorder=null;
+let rehearsalParts=[];
+let rehearsalUrl=null;
+function rehearsalNote(value){const el=$('rehearsalStatus');if(el)el.textContent=value}
+function clearRehearsalObjectUrl(){
+  if(rehearsalUrl){URL.revokeObjectURL(rehearsalUrl);rehearsalUrl=null}
+}
+async function startRehearsal(){
+  if(state.isLive||state.hosting||rehearsalRecorder?.state==='recording')return rehearsalNote('방송 중에는 비공개 테스트 녹화를 시작할 수 없습니다.');
+  if(typeof MediaRecorder==='undefined')return rehearsalNote('이 브라우저는 로컬 테스트 녹화를 지원하지 않습니다.');
+  try{
+    if(!state.local){const ready=await prepareStudio();if(!ready)return}
+    const stream=ensureProgramStream()||state.local;
+    if(!stream?.getVideoTracks?.().length)throw new Error('영상 입력을 확인할 수 없습니다.');
+    if(!stream?.getAudioTracks?.().length)throw new Error('마이크 입력을 확인할 수 없습니다.');
+    const available=['video/webm;codecs=vp8,opus','video/webm','video/mp4'];
+    const mime=available.find(type=>MediaRecorder.isTypeSupported?.(type));
+    if(!mime)throw new Error('녹화 가능한 영상 형식이 없습니다.');
+    const recorder=new MediaRecorder(stream,{mimeType:mime});
+    rehearsalParts=[];clearRehearsalObjectUrl();
+    const video=$('rehearsalPlayback');
+    if(video){video.pause();video.removeAttribute('src');video.load();video.classList.add('hidden')}
+    recorder.ondataavailable=event=>{if(event.data?.size)rehearsalParts.push(event.data)};
+    recorder.onerror=()=>rehearsalNote('테스트 녹화가 중단되었습니다. 장비 권한을 확인해 주세요.');
+    recorder.onstop=()=>{
+      if(!rehearsalParts.length){rehearsalNote('녹화된 데이터가 없습니다. 카메라와 마이크를 확인해 주세요.');return}
+      const blob=new Blob(rehearsalParts,{type:recorder.mimeType});
+      rehearsalUrl=URL.createObjectURL(blob);
+      if(video){video.src=rehearsalUrl;video.classList.remove('hidden')}
+      rehearsalNote('비공개 녹화 완료. 아래에서 직접 재생하여 영상·소리·화면 구성을 확인하세요. 서버 송출은 아직 검증하지 않았습니다.');
+    };
+    recorder.start(1000);rehearsalRecorder=recorder;
+    $('rehearsalButton').disabled=true;$('rehearsalStopButton').disabled=false;
+    rehearsalNote('로컬 테스트 녹화 중입니다. 말씀하고 화면을 바꿔 보세요. 끝나면 중지 · 확인을 누르세요.');
+  }catch(error){rehearsalNote('리허설 시작 실패: '+error.message)}
+}
+function stopRehearsal(){
+  if(rehearsalRecorder?.state==='recording')rehearsalRecorder.stop();
+  $('rehearsalButton').disabled=false;$('rehearsalStopButton').disabled=true;
+}
+window.addEventListener('pagehide',()=>{if(rehearsalRecorder?.state==='recording')rehearsalRecorder.stop();clearRehearsalObjectUrl()});
 async function startBroadcast(){
   if(state.isLive)return;
+  if(rehearsalRecorder?.state==='recording'){rehearsalNote('테스트 녹화를 먼저 중지하고 결과를 확인하세요.');return}
   sessionStorage.setItem(PENDING_START_KEY,'1');$('goLiveButton').disabled=true;
   if(!state.studioPrepared){const prepared=await prepareStudio();if(!prepared){sessionStorage.removeItem(PENDING_START_KEY);return}}
   if(!token()){
@@ -886,6 +929,7 @@ $('presenterDragHandle')?.addEventListener('pointerdown',beginPresenterDrag);$('
 document.querySelectorAll('[data-share-mode]').forEach(button=>button.addEventListener('click',()=>setShareMode(button.dataset.shareMode)));
 $('presentationFileButton')?.addEventListener('click',()=>$('presentationFileInput')?.click());
 $('presentationFileInput')?.addEventListener('change',presentationFileChanged);
+$('rehearsalButton')?.addEventListener('click',startRehearsal);$('rehearsalStopButton')?.addEventListener('click',stopRehearsal);
 $('hostButton').addEventListener('click',prepareStudio);$('joinButton').addEventListener('click',()=>joinViewer());$('goLiveButton').addEventListener('click',startBroadcast);$('endLiveButton').addEventListener('click',endLive);$('screenButton').addEventListener('click',shareScreen);$('fullscreenButton').addEventListener('click',toggleFullscreen);
 $('cameraButton').addEventListener('click',async()=>{try{if(!state.local){await acquireCamera();state.studioPrepared=true;setPhase('ready');$('goLiveButton').disabled=false;return note('카메라가 켜졌습니다.')}const track=state.local.getVideoTracks()[0];if(!track)return note('사용 가능한 카메라가 없습니다.');track.enabled=!track.enabled;$('cameraButton').setAttribute('aria-pressed',String(track.enabled));$('cameraButton').textContent=track.enabled?'카메라':'카메라 꺼짐';note(track.enabled?'카메라가 켜졌습니다.':'카메라를 껐습니다.')}catch(error){note(`카메라 사용 불가: ${error.message}`)}});
 $('micButton').addEventListener('click',()=>{const track=state.local?.getAudioTracks?.()[0];if(!track)return note('먼저 카메라·마이크를 준비해 주세요.');track.enabled=!track.enabled;$('micButton').setAttribute('aria-pressed',String(track.enabled));$('micButton').textContent=track.enabled?'마이크':'마이크 꺼짐';note(track.enabled?'마이크가 켜졌습니다.':'마이크를 껐습니다.')});
