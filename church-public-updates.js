@@ -61,6 +61,20 @@
   const failure=(root,message)=>{
     root.replaceChildren(el('p','church-public-empty',message));
   };
+  // Official bulletin issue date belongs to the title; the batch registration timestamp
+  // is not the Sunday publication date (e.g. several September/November issues imported together).
+  function noticePublishedDay(post){
+    const created=String(post?.createdAt||'').slice(0,10);
+    const title=String(post?.title||'');
+    const issue=title.match(/^(?:(\d{4})년\s*)?(\d{1,2})월\s*(\d{1,2})일\s+교회소식(?:\s|$)/);
+    if(!issue)return created;
+    const year=Number(issue[1]||created.slice(0,4));
+    const mm=Number(issue[2]),dd=Number(issue[3]);
+    if(!Number.isInteger(year)||year<2000||year>2100||mm<1||mm>12||dd<1||dd>31)return created;
+    const valid=new Date(Date.UTC(year,mm-1,dd));
+    if(valid.getUTCFullYear()!==year||valid.getUTCMonth()!==mm-1||valid.getUTCDate()!==dd)return created;
+    return [year,String(mm).padStart(2,'0'),String(dd).padStart(2,'0')].join('-');
+  }
   function noticeRow(post){
     const row=el('article','church-public-item church-public-notice');
     const line=el('div','church-public-notice-line');
@@ -72,13 +86,13 @@
       edit.type='button';edit.addEventListener('click',()=>editRecord(post));
       line.append(edit);
     }
-    const time=el('time','',dateText(String(post.createdAt||'').slice(0,10)));
+    const time=el('time','',dateText(noticePublishedDay(post)));
     line.append(time);
     row.append(markOriginal(line));
     return row;
   }
   function renderNotices(){
-    const posts=allPosts.filter(post=>post.categoryId==='notice').sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+    const posts=allPosts.filter(post=>post.categoryId==='notice').sort((a,b)=>noticePublishedDay(b).localeCompare(noticePublishedDay(a))||String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
     const selectedId=new URLSearchParams(location.search).get('post');
     for(const root of notices){
       const limit=Math.max(1,Math.min(100,Number(root.dataset.limit)||3));
@@ -90,7 +104,7 @@
           const back=el('a','church-public-back','공지사항 목록으로');back.href='/ekodichurch/notices/';
           root.append(back);
           const item=el('article','church-public-notice-detail');
-          item.append(el('h2','',post.title),el('time','',dateText(String(post.createdAt||'').slice(0,10))));
+          item.append(el('h2','',post.title),el('time','',dateText(noticePublishedDay(post))));
           const body=el('p','church-public-body',post.body);
           item.append(body);
           if(managerToken){
