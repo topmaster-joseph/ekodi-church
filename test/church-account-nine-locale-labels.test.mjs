@@ -12,7 +12,7 @@ test('all nine Church locales translate the account sign-in, sign-out and signin
     assert.ok(core.includes("'"+label+"':{en:"),'missing English/Chinese/Japanese base label: '+label);
     assert.ok(extended.includes("add('"+label+"',"),'missing extended locale translations: '+label);
   }
-  for(const locale of ['en','zh-CN','ja'])assert.match(core,new RegExp("'"+locale+"':|'?"+locale+"':"),locale+' mapping missing');
+  assert.match(core,/'로그인':\{en:'Sign in','zh-CN':'登录',ja:'ログイン'\}/);
   assert.match(extended,/const NEW=new Set\(\['my','kac','vi','mn','id'\]\)/);
   assert.match(core,/new MutationObserver\(/);
   assert.match(extended,/new MutationObserver\(schedule\)/);
