@@ -10,6 +10,7 @@ const ext = read('church-i18n-extended.js');
 // Strings rendered on the homepage that the production nine-language check requires.
 const REQUIRED = [
   '함께하기',
+  '큐티인 신청', '말씀 묵상집 신청하기',
   '기도·후원·협력으로 함께하기 →',
   '실시간 방송 시청', '시청 종료', '실시간 방송 준비', '별도 화면에서 시청',
   '에코디교회 실시간 방송 영상', '전체화면', '전체화면 종료',
