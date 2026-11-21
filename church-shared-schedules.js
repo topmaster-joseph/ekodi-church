@@ -182,7 +182,7 @@
       if(selectedEventKey&&!entries.some(item=>eventKey(item)===selectedEventKey&&item.date===selected))clearEventDetail();
       calendarForMonth();
       paintRows(list,entries.filter(item=>item.date===selected),100,'선택한 날짜의 공개 일정이 없습니다.');
-      paintRows(upcoming,entries,12,'예정된 공개 일정이 없습니다.');
+      paintRows(upcoming,entries,Math.min(5,Math.max(1,Number(root.dataset.limit)||3)),'예정된 공개 일정이 없습니다.');
     }else{
       paintRows(list,entries,Math.min(7,Math.max(1,Number(root.dataset.limit)||7)),'예정된 공개 일정이 없습니다.');
     }
