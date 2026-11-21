@@ -88,3 +88,25 @@
 .church-home-manage-toggle[hidden],.church-home-editor[hidden]{display:none!important}
 .church-home-editor .church-public-item{min-width:0}
 @media(max-width:760px){.church-home-actions{gap:8px}}
+
+/* Official notices: index rows contain only the title at left and date at right.
+   The full notice body is rendered only by the selected detail route. */
+.church-public-notice{width:100%;min-width:0}
+.church-public-notice .church-public-notice-line{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:clamp(10px,2vw,22px);width:100%;min-width:0;
+}
+.church-public-notice .church-public-notice-line>.church-public-link{
+  flex:1 1 auto;min-width:0;line-height:1.55;
+}
+.church-public-notice .church-public-notice-line>time{
+  flex:0 0 auto;margin:0;white-space:nowrap;font-size:13px;
+  color:#62776b;text-align:right;font-variant-numeric:tabular-nums;
+}
+.church-public-notice .church-public-notice-line>.church-public-edit{
+  flex:0 0 auto;min-height:34px;padding:5px 9px;font-size:12px;
+}
+@media(max-width:390px){
+  .church-public-notice .church-public-notice-line{gap:8px}
+  .church-public-notice .church-public-notice-line>time{font-size:12px}
+}
