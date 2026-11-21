@@ -115,3 +115,54 @@
   .church-public-notice .church-public-notice-line{gap:8px}
   .church-public-notice .church-public-notice-line>time{font-size:12px}
 }
+
+/* Church homepage 2026-11: readable notice index and a compact, selectable calendar.
+   Scope every override to the home panels; full calendar remains owned by /schedule/. */
+.church-public-panels{align-items:stretch;gap:clamp(14px,1.8vw,22px)}
+.church-public-panels #notices,.church-public-panels #church-schedules{box-shadow:0 8px 28px rgba(28,58,44,.045)}
+.church-public-panels #notices .church-public-heading{padding-bottom:8px;border-bottom:1px solid #e2e9df}
+.church-public-panels #notices .church-public-item{padding:16px 0;border-color:#e2e9df;min-height:56px}
+.church-public-panels #notices .church-public-notice-line{gap:16px;align-items:baseline}
+.church-public-panels #notices .church-public-link{font-size:clamp(14px,1.18vw,16px);font-weight:750;line-height:1.55;text-align:left}
+.church-public-panels #notices time{font-size:13px;font-weight:650;color:#64786a;line-height:1.5}
+.church-public-panels .church-shared-schedule{display:grid;align-content:start;gap:11px}
+.church-public-panels .church-shared-schedule-head{margin-bottom:0}
+.church-public-panels .church-shared-schedule>p{margin:0 0 3px;font-size:13px;line-height:1.5;color:#596b5f}
+.church-public-panels .church-shared-calendar{box-sizing:border-box;display:block;width:100%;margin:0;padding:14px;border:1px solid #dce5db;border-radius:12px;background:#fff;min-width:0}
+.church-public-panels .church-calendar-controls{display:flex;align-items:center;gap:6px;margin-bottom:11px}
+.church-public-panels .church-calendar-controls strong{font-size:16px;flex:1 1 auto;margin:0;letter-spacing:-.02em}
+.church-public-panels .church-calendar-controls button{min-width:34px;min-height:36px;padding:5px 8px;border-radius:8px}
+.church-public-panels .church-calendar-weekdays{margin:5px 0;font-weight:700}
+.church-public-panels .church-calendar-days{gap:4px}
+.church-public-panels .church-calendar-day{min-height:39px;font-size:13px;padding:5px 2px 11px}
+.church-public-panels .church-calendar-legend{margin:11px 0 0;font-size:12px;gap:15px}
+.church-public-panels .church-home-schedule-day{padding:14px;background:#f5f8f3;border:1px solid #e0e9df;border-radius:12px;min-width:0}
+.church-public-panels .church-home-schedule-day h3,.church-public-panels .church-home-upcoming h3{margin:0 0 10px;font-size:16px;font-weight:800;line-height:1.45;color:#193d2f;text-align:left}
+.church-public-panels .church-home-schedule-day ol,.church-public-panels .church-home-upcoming ol{display:grid;grid-template-columns:1fr!important;gap:8px;margin:0}
+.church-public-panels .church-home-schedule-day ol>li{padding:0!important;background:#fff;border:1px solid #e0e8dd!important;border-radius:10px!important;overflow:hidden}
+.church-public-panels .church-home-schedule-day .church-schedule-event-select{width:100%;min-height:52px;padding:11px 13px;text-align:left;align-items:flex-start}
+.church-public-panels .church-home-schedule-day .church-schedule-event-select strong{font-size:14px}
+.church-public-panels .church-home-schedule-day .church-schedule-event-meta{font-size:12px;line-height:1.55}
+.church-public-panels .church-home-upcoming{padding-top:15px;border-top:1px solid #e1e9df;min-width:0}
+.church-public-panels .church-home-upcoming ol>li{padding:10px 0!important;border:0!important;border-top:1px solid #edf0e9!important;border-radius:0!important;background:transparent!important}
+.church-public-panels .church-home-upcoming ol>li:first-child{border-top:0!important}
+.church-public-panels .church-home-upcoming .church-shared-link{font-size:14px;line-height:1.55}
+.church-public-panels .church-home-upcoming .church-shared-meta{font-size:12px;line-height:1.55}
+.church-public-panels .church-shared-empty{font-size:13px;line-height:1.65;min-height:0;border:0!important;padding:10px 0!important;background:transparent!important}
+.church-public-panels .church-schedule-event-detail{width:100%;box-sizing:border-box;padding:14px;margin-top:11px}
+.church-public-panels .church-schedule-event-detail[hidden]{display:none!important}
+.church-public-panels .church-schedule-event-select:focus-visible,
+.church-public-panels .church-calendar-day:focus-visible{outline:3px solid #bb954d;outline-offset:2px}
+@media(max-width:760px){
+ .church-public-panels #notices .church-public-item{padding:13px 0;min-height:48px}
+ .church-public-panels .church-shared-calendar{padding:12px}
+ .church-public-panels .church-home-schedule-day{padding:12px}
+}
+@media(max-width:390px){
+ .church-public-panels #notices .church-public-notice-line{gap:8px}
+ .church-public-panels #notices time{font-size:12px}
+ .church-public-panels .church-calendar-controls{gap:4px}
+ .church-public-panels .church-calendar-controls button{min-width:31px;padding:4px 5px}
+ .church-public-panels .church-calendar-controls strong{font-size:14px}
+ .church-public-panels .church-calendar-day{min-height:36px;font-size:12px}
+}
