@@ -140,3 +140,30 @@
 .live-caption-hint{display:block;margin-top:6px;color:#5f7067;font-size:12px}
 .viewer-stage{position:relative}.live-caption-overlay{position:absolute;left:5%;right:5%;bottom:12%;text-align:center;pointer-events:none}.live-caption-overlay p{display:inline-block;margin:2px 0;padding:4px 10px;border-radius:8px;background:#000000b3;color:#fff;font-size:clamp(14px,2.2vw,22px);line-height:1.45;word-break:keep-all}
 #viewerLanguageChips[hidden]{display:none!important}
+
+/* Compact program monitor: half the previous desktop width, 16:9 without forced viewport height. */
+@media(min-width:901px){
+  .studio .program-stage{
+    width:50%!important;
+    min-width:0!important;
+    min-height:0!important;
+    height:auto!important;
+    justify-self:start;
+  }
+  .studio .program-screen{
+    min-height:0!important;
+    width:100%!important;
+    height:auto!important;
+    aspect-ratio:16/9;
+  }
+}
+@media(max-width:900px){
+  .studio .program-stage{min-height:0!important;width:100%!important}
+  .studio .program-screen{min-height:0!important;aspect-ratio:16/9}
+}
+.rehearsal-check{margin:14px 0;padding:14px;border:1px solid #cbdad0;border-radius:16px;background:#f0f6f1}
+.rehearsal-check>strong{display:block;font-size:15px;color:#244f38}
+.rehearsal-check>p{font-size:12px;line-height:1.65;color:#4b6655;margin:8px 0}
+.rehearsal-actions{display:flex;gap:8px;flex-wrap:wrap}
+.rehearsal-actions button{flex:1 1 145px;padding:10px 12px;font-size:13px}
+.rehearsal-playback{display:block;width:100%;max-height:260px;aspect-ratio:16/9;background:#111;border-radius:12px;object-fit:contain;margin-top:10px}
