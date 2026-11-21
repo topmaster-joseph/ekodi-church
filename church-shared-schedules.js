@@ -36,22 +36,101 @@
     list.replaceChildren(add('li','church-shared-empty',message));
     if(upcoming)upcoming.replaceChildren(add('li','church-shared-empty',message));
   };
+  const eventDetail=root.querySelector('[data-church-event-detail]');
+  let selectedEventKey='',detailRequest=0;
+  const eventKey=item=>[item.source,item.kind,item.id,item.date,item.time,item.title].join('|');
+  function clearEventDetail(){
+    selectedEventKey='';
+    detailRequest++;
+    if(eventDetail){eventDetail.hidden=true;eventDetail.replaceChildren();}
+  }
+  const appendFact=(dl,name,value)=>{
+    dl.append(add('dt','',name),markOriginal(add('dd','',value||'확인 중')));
+  };
+  const safePublicPostApi=sourceUrl=>{
+    const match=String(sourceUrl||'').match(/^\/(ekodichurch|ekodimission)\/board\/post\/([1-9]\d*)(?:[?#].*)?$/);
+    return match?'/'+match[1]+'/board/api/posts/'+match[2]:'';
+  };
+  async function showEventDetail(item){
+    if(!eventDetail)return;
+    const token=++detailRequest;
+    eventDetail.replaceChildren();
+    eventDetail.hidden=false;
+    eventDetail.append(add('span','church-schedule-origin church-schedule-origin-'+item.source,origin(item)));
+    eventDetail.append(markOriginal(add('h3','',item.title||'주요일정')));
+    const facts=add('dl');
+    appendFact(facts,'날짜',fmt(item.date));
+    appendFact(facts,'시간',labelTime(item.time));
+    appendFact(facts,'장소',item.venue||'장소 미정');
+    eventDetail.append(facts);
+    const description=add('p','church-schedule-description','');
+    eventDetail.append(description);
+    const linked=escUrl(item.url);
+    const officialPostApi=safePublicPostApi(linked);
+    const defaultDescription=String(item.description||item.sourceLabel||'').trim();
+    description.textContent=defaultDescription||'일정의 추가 안내는 원래 등록한 기관에서 확인할 수 있습니다.';
+    markOriginal(description);
+    if(linked){
+      const original=add('a','church-schedule-source-link','등록 기관의 원문 보기');
+      original.href=linked;
+      eventDetail.append(original);
+    }
+    if(!officialPostApi)return;
+    try{
+      const response=await fetch(officialPostApi,{
+        method:'GET',credentials:'same-origin',cache:'no-store',
+        headers:{accept:'application/json'},signal:AbortSignal.timeout(7000)
+      });
+      if(!response.ok)throw new Error('public_post_unavailable');
+      const post=await response.json();
+      if(token!==detailRequest||selectedEventKey!==eventKey(item))return;
+      const raw=typeof post?.body==='string'?post.body:(typeof post?.post?.body==='string'?post.post.body:'');
+      if(!raw)return;
+      let display=raw;
+      try{
+        const parsed=JSON.parse(raw);
+        if(parsed&&typeof parsed==='object'&&parsed.date===item.date&&
+           typeof parsed.description==='string')display=parsed.description;
+      }catch{/* Free-text posts are a valid public detail. */}
+      description.textContent=String(display).slice(0,3000).trim()||defaultDescription||'공개된 상세 안내가 없습니다.';
+    }catch{
+      // Calendar public metadata remains usable if detailed board post is unavailable.
+      if(token!==detailRequest)return;
+    }
+  }
   function paintRows(target,items,limit,empty){
     if(!target)return;
     target.replaceChildren();
     const filtered=items.filter(item=>escUrl(item.url)).slice(0,limit);
     if(!filtered.length){target.append(add('li','church-shared-empty',empty));return;}
     for(const event of filtered){
-      const row=add('li'),link=add('a','church-shared-link',event.title||'일정 보기');
-      link.href=escUrl(event.url);
+      const isSelectedList=!!calendar&&target===list;
+      const row=add('li',isSelectedList?'church-schedule-event':'');
       const badge=add('span','church-schedule-origin church-schedule-origin-'+event.source,origin(event));
       const sourceLabel=event.sourceLabel;
-      const meta=add('span','church-shared-meta',[
-        sourceLabel,fmt(event.date),labelTime(event.time),event.venue
-      ].filter(Boolean).join(' · '));
-      // Member-authored title/venue stay in their original language (원문 표시).
-      for(const original of [link,meta])markOriginal(original);
-      row.append(badge,link,meta);target.append(row);
+      const meta=[sourceLabel,fmt(event.date),labelTime(event.time),event.venue].filter(Boolean).join(' · ');
+      if(isSelectedList){
+        const button=add('button','church-schedule-event-select');
+        button.type='button';
+        button.dataset.eventKey=eventKey(event);
+        button.setAttribute('aria-controls','church-schedule-event-detail');
+        button.setAttribute('aria-expanded',String(eventKey(event)===selectedEventKey));
+        const title=markOriginal(add('strong','',event.title||'일정 보기'));
+        const sub=markOriginal(add('span','church-schedule-event-meta',meta));
+        button.append(badge,title,sub);
+        button.addEventListener('click',()=>{
+          selectedEventKey=eventKey(event);
+          paintRows(list,entries.filter(item=>item.date===selected),100,'선택한 날짜의 공개 일정이 없습니다.');
+          void showEventDetail(event);
+        });
+        row.append(button);
+      }else{
+        const link=markOriginal(add('a','church-shared-link',event.title||'일정 보기'));
+        link.href=escUrl(event.url);
+        const subtitle=markOriginal(add('span','church-shared-meta',meta));
+        row.append(badge,link,subtitle);
+      }
+      target.append(row);
     }
   }
   function calendarForMonth(){
@@ -90,6 +169,7 @@
       if(info.mission)button.classList.add('has-mission-event');
       button.addEventListener('click',()=>{
         selected=date;
+        clearEventDetail();
         calendarForMonth();
         paintRows(list,entries.filter(item=>item.date===selected),100,'선택한 날짜의 공개 일정이 없습니다.');
       });
@@ -99,6 +179,7 @@
   function paint(items){
     entries=items;
     if(calendar){
+      if(selectedEventKey&&!entries.some(item=>eventKey(item)===selectedEventKey&&item.date===selected))clearEventDetail();
       calendarForMonth();
       paintRows(list,entries.filter(item=>item.date===selected),100,'선택한 날짜의 공개 일정이 없습니다.');
       paintRows(upcoming,entries,12,'예정된 공개 일정이 없습니다.');
@@ -140,6 +221,7 @@
       const d=new Date(Date.UTC(y,m-1+delta,1));
       month=d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0');
       selected=month+'-01';
+      clearEventDetail();
       calendarForMonth();
       paintRows(list,entries.filter(item=>item.date===selected),100,'선택한 날짜의 공개 일정이 없습니다.');
     };
@@ -147,6 +229,7 @@
     calendar.querySelector('[data-church-calendar-next]')?.addEventListener('click',()=>offset(1));
     calendar.querySelector('[data-church-calendar-today]')?.addEventListener('click',()=>{
       selected=today();month=selected.slice(0,7);
+      clearEventDetail();
       calendarForMonth();
       paintRows(list,entries.filter(item=>item.date===selected),100,'선택한 날짜의 공개 일정이 없습니다.');
     });
