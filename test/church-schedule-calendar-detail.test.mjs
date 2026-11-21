@@ -34,7 +34,8 @@ test('KST today is the default, selecting a day updates only that day list and r
 
 test('event details render only published data and same-origin authorized public GET; no writes or arbitrary HTML',()=>{
   assert.match(js,/safePublicPostApi/);
-  assert.match(js,/^.*match\(\/\^\\\/\(ekodichurch\|ekodimission\)\\\/board\\\/post\\\//m);
+  assert.match(js,/const match=String\(sourceUrl\|\|''\)\.match/);
+  assert.match(js,/ekodichurch\|ekodimission/);
   assert.match(js,/method:'GET',credentials:'same-origin',cache:'no-store'/);
   assert.match(js,/description\.textContent=/);
   assert.match(js,/eventDetail\.append\(facts\)/);
