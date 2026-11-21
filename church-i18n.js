@@ -211,6 +211,7 @@ const TEXT={
 '협력소식':{en:'Partner news','zh-CN':'合作消息',ja:'協力ニュース'},
 '마이페이지':{en:'My Page','zh-CN':'我的页面',ja:'マイページ'},
 '큐티인 신청':{en:'QTIN Order','zh-CN':'QTIN 订购',ja:'QTIN申込'},
+'말씀 묵상집 신청하기':{en:'Order the QTIN devotional booklet','zh-CN':'订购 QTIN 灵修读物',ja:'QTINデボーション冊子を申し込む'},
 '실시간 방송 시청':{en:'Watch live','zh-CN':'观看直播',ja:'ライブを見る'},
 '시청 종료':{en:'Stop watching','zh-CN':'停止观看',ja:'視聴を終了'},
 '실시간 방송 준비':{en:'Prepare live broadcast','zh-CN':'准备直播',ja:'ライブ配信の準備'},
