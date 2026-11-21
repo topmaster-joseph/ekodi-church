@@ -20,6 +20,9 @@
   signed.hidden = true;
   const name = document.createElement('a');
   name.className = 'church-account-name';
+  // A verified user's display name may contain native-script characters.
+  // Localize account UI controls, never translate or audit a person's own name.
+  name.dataset.ekodiUserContent = '';
   name.href = '/ekodichurch/my/';
   name.setAttribute('aria-label', '내 교회 마이페이지');
   const logout = document.createElement('button');
