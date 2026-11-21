@@ -182,6 +182,13 @@
         <div class="language-chips" id="languageChips" aria-label="가능 언어"></div>
       </section>
 
+      <section class="rehearsal-check" aria-label="공개 전 비공개 장비 및 녹화 점검">
+        <strong>방송 전 비공개 리허설</strong>
+        <p>카메라·마이크·화면 구성을 로컬 녹화로 확인합니다. 서버 방송방을 만들거나 외부 채널에 송출하지 않습니다.</p>
+        <div class="rehearsal-actions"><button type="button" id="rehearsalButton">테스트 녹화 시작</button><button type="button" id="rehearsalStopButton" disabled>녹화 중지 · 확인</button></div>
+        <p id="rehearsalStatus" role="status" aria-live="polite">테스트 전 · 영상과 음성을 확인하세요.</p>
+        <video id="rehearsalPlayback" class="rehearsal-playback hidden" controls playsinline preload="metadata" aria-label="비공개 리허설 녹화 재생"></video>
+      </section>
       <div class="broadcast-actions">
         <button class="primary" id="goLiveButton" type="button" disabled>방송 시작</button>
         <button class="danger" id="endLiveButton" type="button" disabled>방송 종료</button>
