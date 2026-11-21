@@ -10,7 +10,7 @@ test('Church home includes one canonical devotion tile plus notice and schedule 
     assert.match(home,new RegExp('<strong>'+label+'</strong>'));
   }
   assert.doesNotMatch(home,/<strong>오늘의 삶<\/strong>|id="life-hub"/);
-  assert.match(home,/data-church-notices data-limit="3"/);
+  assert.match(home,/data-church-notices data-limit="5"/);
   assert.match(home,/data-church-shared-schedules data-limit="3"/);
   assert.match(home,/src="church-shared-schedules\.js" defer/);
   assert.equal((home.match(/data-church-shared-schedules/g)||[]).length,1,'shared schedule rendered once');
