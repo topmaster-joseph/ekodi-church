@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 const read=file=>readFileSync(new URL('../'+file,import.meta.url),'utf8');
 
 test('six primary links are canonical, ordered and consistent across Church pages',()=>{
- const names=['매일묵상','예배·방송','공지사항','주요일정','함께하기','마이페이지'];
+ const names=['매일묵상','예배·방송','공지사항','주요일정','함께하기','큐티인 신청'];
  const paths=['index.html','devotion/index.html','notices/index.html','schedule/index.html'];
  for(const path of paths){
    const page=read(path);
@@ -17,7 +17,7 @@ test('six primary links are canonical, ordered and consistent across Church page
      assert.ok(pos>last,path+' preserves '+name+' order');
      last=pos;
    }
-   assert.doesNotMatch(nav,/오늘의 삶|공동체|협력소식|큐티인 신청|오시는 길|예배자료/);
+   assert.doesNotMatch(nav,/오늘의 삶|공동체|협력소식|오시는 길|예배자료/);
    assert.match(page,/church-compact-navigation\.css/);
  }
 });
@@ -35,13 +35,14 @@ test('home selection filters unrelated sections, preserving existing deep-link t
  assert.match(js,/getElementById\(key\)/);
 });
 
-test('community, partner updates and QTIN remain inside Together, not the global menu',()=>{
+test('community and partner updates remain inside Together while QTIN is directly accessible',()=>{
  const html=read('index.html'),sub=read('church-section-nav.js'),runtime=read('script.js');
  const nav=html.match(/<nav id="main-nav"[\s\S]*?<\/nav>/)?.[0]||'';
- for(const pair of [["공동체","#community"],["협력소식","#partner-news"],["오시는 길","#location"],["큐티인 신청","/qtin/church"]]){
+ for(const pair of [["공동체","#community"],["협력소식","#partner-news"],["오시는 길","#location"],]){
    assert.ok(sub.includes("['"+pair[0]+"','"+pair[1]+"']"));
    assert.ok(!nav.includes('>'+pair[0]+'</a>'));
  }
+ assert.match(nav, /href="\/qtin\/church">큐티인 신청<\/a>/);
  assert.doesNotMatch(runtime,/label: '공동체'|label: '협력소식'/);
  assert.ok(html.includes('<strong>매일묵상</strong>'));
  assert.doesNotMatch(nav,/오늘의 삶/);
