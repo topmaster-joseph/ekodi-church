@@ -44,20 +44,20 @@
   const failure=(root,message)=>{
     root.replaceChildren(el('p','church-public-empty',message));
   };
-  function noticeRow(post,compact){
+  function noticeRow(post){
     const row=el('article','church-public-item church-public-notice');
-    const textWrap=el('div');
+    const line=el('div','church-public-notice-line');
     const anchor=el('a','church-public-link',post.title);
     anchor.href='/ekodichurch/notices/?post='+encodeURIComponent(post.id);
-    const time=el('time','',dateText(String(post.createdAt||'').slice(0,10)));
-    textWrap.append(anchor,time);
-    if(!compact)textWrap.append(el('p','church-public-excerpt',String(post.body||'').slice(0,180)));
-    row.append(markOriginal(textWrap));
+    line.append(anchor);
     if(managerToken&&kind==='notices'&&(detail||!manageRoot?.hidden)){
       const edit=el('button','church-public-edit','수정');
       edit.type='button';edit.addEventListener('click',()=>editRecord(post));
-      row.append(edit);
+      line.append(edit);
     }
+    const time=el('time','',dateText(String(post.createdAt||'').slice(0,10)));
+    line.append(time);
+    row.append(markOriginal(line));
     return row;
   }
   function renderNotices(){
@@ -87,13 +87,13 @@
         }
         failure(root,'해당 공지사항을 찾을 수 없습니다.');continue;
       }
-      for(const post of posts.slice(0,limit))root.append(noticeRow(post,!detail));
+      for(const post of posts.slice(0,limit))root.append(noticeRow(post));
     }
     const managementList=manageRoot?.querySelector('[data-church-manage-notices]');
     if(managementList){
       managementList.replaceChildren();
       if(!posts.length)failure(managementList,'등록된 공지사항이 없습니다.');
-      else for(const post of posts.slice(0,100))managementList.append(noticeRow(post,false));
+      else for(const post of posts.slice(0,100))managementList.append(noticeRow(post));
     }
   }
   function parseSchedulePost(post){
