@@ -82,6 +82,12 @@
       }
       for(const post of posts.slice(0,limit))root.append(noticeRow(post,!detail));
     }
+    const managementList=manageRoot?.querySelector('[data-church-manage-notices]');
+    if(managementList){
+      managementList.replaceChildren();
+      if(!posts.length)failure(managementList,'등록된 공지사항이 없습니다.');
+      else for(const post of posts.slice(0,100))managementList.append(noticeRow(post,false));
+    }
   }
   function parseSchedulePost(post){
     if(post?.categoryId!=='schedule')return null;
@@ -262,7 +268,7 @@
     const remove=el('button','church-public-delete','삭제');remove.type='button';
     remove.addEventListener('click',async()=>{
       if(!currentEdit||!window.confirm('선택한 글을 삭제하시겠습니까?'))return;
-      try{status.textContent='삭제 중...';await mutation('/posts/'+currentEdit.id,'DELETE',{});currentEdit=null;form.reset();save.textContent='등록하기';status.textContent='삭제했습니다.';await loadData();}
+      try{status.textContent='삭제 중...';await mutation('/posts/'+currentEdit.id,'DELETE',{});currentEdit=null;form.reset();save.textContent='등록하기';status.textContent='삭제했습니다.';document.dispatchEvent(new Event('church:public-content-updated'));}
       catch(error){status.textContent=error.message;}
     });
     actions.append(save,reset,remove);form.append(actions);
@@ -282,7 +288,7 @@
         status.textContent='저장 중...';await ensureCategory();
         const payload={title,body:text,categoryId:kind==='notices'?'notice':'schedule'};
         await mutation('/posts'+(currentEdit?'/'+currentEdit.id:''),currentEdit?'PATCH':'POST',payload);
-        currentEdit=null;form.reset();save.textContent='등록하기';status.textContent='게시했습니다.';await loadData();
+        currentEdit=null;form.reset();save.textContent='등록하기';status.textContent='게시했습니다.';document.dispatchEvent(new Event('church:public-content-updated'));
       }catch(error){status.textContent=error.message;}
     });
     if(manageRoot.hasAttribute('data-church-home-manage'))manageRoot.prepend(heading,tip);
@@ -291,6 +297,8 @@
   }
   function revokeEditor(){
     managerToken='';
+    currentEdit=null;
+    if(form){form.reset();form.querySelector('button[type="submit"]').textContent='등록하기';}
     if(manageRoot)manageRoot.hidden=true;
     if(!detail){
       kind='';
@@ -304,7 +312,7 @@
   function homeManagerControls(){
     for(const button of document.querySelectorAll('[data-church-inline-manage]')){
       button.hidden=false;
-      if(button.dataset.churchManagementBound)return;
+      if(button.dataset.churchManagementBound)continue;
       button.dataset.churchManagementBound='true';
       button.setAttribute('aria-expanded','false');
       button.addEventListener('click',()=>{
@@ -319,6 +327,11 @@
           if(scheduleList){
             scheduleList.hidden=target!=='schedule';
             manageRoot.append(scheduleList);
+          }
+          if(target==='notices'){
+            const list=el('div','church-public-manage-notices');
+            list.dataset.churchManageNotices='';
+            manageRoot.append(list);
           }
           currentEdit=null;form=null;status=null;
           kind=target;
