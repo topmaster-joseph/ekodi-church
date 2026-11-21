@@ -37,6 +37,7 @@ add('예배와 모임 일정','ဝတ်ပြုနှင့် တွေ့ဆ
 add('교회 공식 알림','အသင်းတော် အကြောင်းကြားချက်','Htingnu shiga','Thông báo chính thức','Сүмийн албан мэдээ','Pengumuman resmi gereja');
 add('온라인','အွန်လိုင်း','Online','Trực tuyến','Онлайн','Online');
 add('큐티인 신청','QTIN မှာယူရန်','QTIN Order','Đặt QTIN','QTIN захиалах','Pesan QTIN');
+add('말씀 묵상집 신청하기','QTIN ဆင်ခြင်စာအုပ် မှာယူရန်','QTIN devotional booklet hpe order galaw u','Đặt sách suy niệm QTIN','QTIN бясалгалын ном захиалах','Pesan buku renungan QTIN');
 add('실시간 방송 시청','တိုက်ရိုက်ထုတ်လွှင့်မှု ကြည့်ရန်','Live yu u','Xem trực tiếp','Шууд үзэх','Tonton siaran langsung');
 add('시청 종료','ကြည့်ရှုမှု ရပ်ရန်','Yu ai hpe jahkring u','Dừng xem','Үзэхээ зогсоох','Berhenti menonton');
 add('실시간 방송 준비','တိုက်ရိုက်ထုတ်လွှင့်မှု ပြင်ဆင်ရန်','Live jahta na hpe hkyen lajang u','Chuẩn bị phát trực tiếp','Шууд дамжуулалт бэлтгэх','Siapkan siaran langsung');
