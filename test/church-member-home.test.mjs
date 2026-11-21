@@ -20,8 +20,9 @@ test('church-local My Page is user-facing and separated from admin operations',a
   assert.match(app,/sb-\.\*-auth-token/);
   assert.match(app,/clearAuthReturnFragment/);
   assert.match(app,/location\.hash\.startsWith\('#ekodi_'\)/);
-  assert.match(publicIndex,/href="\/ekodichurch\/my\//);
-  assert.match(publicScript,/href: '\/ekodichurch\/my\/'/);
+  assert.doesNotMatch(publicIndex.match(/<nav id="main-nav"[\s\S]*?<\/nav>/)?.[0] || '', /마이페이지/);
+  assert.match(publicIndex,/href="\/qtin\/church"/);
+  assert.match(publicScript,/href: '\/qtin\/church'/);
   assert.doesNotMatch(publicIndex,/href="https:\/\/ekodi\.kr\/ekodichurch\/my/);
   assert.doesNotMatch(publicScript,/href: 'https:\/\/ekodi\.kr\/ekodichurch\/my/);
 });
