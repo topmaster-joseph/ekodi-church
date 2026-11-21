@@ -157,3 +157,6 @@ html[data-ekodi-service="church"] .ekodi-user-ui-footer,
   .site-header .daily-verse-ref{display:inline!important;font-size:8px!important}
   .community-visit-copy{width:min(100% - 28px,900px);padding:48px 0 54px!important}
 }
+
+/* Footer identity is the Church and its named responsible person, not a business label. */
+.church-footer-info .church-footer-identity{font-weight:800;color:rgba(255,255,255,.94);font-size:12px;letter-spacing:.01em}
