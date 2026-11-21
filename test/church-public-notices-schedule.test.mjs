@@ -60,7 +60,7 @@ test('notice index hides body previews and places date at the far right; detail 
   assert.ok(row.indexOf('line.append(anchor)')<row.indexOf('line.append(time)'));
   assert.doesNotMatch(row,/post\.body|church-public-excerpt/,'notice list may not render any body text');
   assert.match(render,/const body=el\('p','church-public-body',post\.body\)/);
-  assert.match(render,/notices\/\?post=/);
+  assert.match(row,/notices\/\?post=/);
   assert.match(css,/\.church-public-notice \.church-public-notice-line\s*\{/);
   assert.match(css,/justify-content:space-between/);
   assert.match(css,/\.church-public-notice \.church-public-notice-line>time\s*\{/);
