@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 const runtime=readFileSync(new URL('../church-public-updates.js',import.meta.url),'utf8');
 const shared=readFileSync(new URL('../church-shared-schedules.js',import.meta.url),'utf8');
-const html='<html lang="ko"><body>'
+const html='<html lang="ko"><head><meta charset="utf-8"></head><body>'
   +'<div data-church-notices data-limit="3"></div>'
   +'<button data-church-inline-manage="notices" hidden>공지사항 바로 관리</button>'
   +'<button data-church-inline-manage="schedule" hidden>일정 바로 관리</button>'
@@ -11,9 +11,9 @@ const html='<html lang="ko"><body>'
   +'<script src="/ekodichurch/church-shared-schedules.js"></script>'
   +'<script src="/ekodichurch/church-public-updates.js"></script></body></html>';
 async function boot(page,authorized){
-  await page.route('https://ekodi.kr/ekodichurch/',route=>route.fulfill({status:200,contentType:'text/html',body:html}));
-  await page.route('https://ekodi.kr/ekodichurch/church-public-updates.js',route=>route.fulfill({status:200,contentType:'application/javascript',body:runtime}));
-  await page.route('https://ekodi.kr/ekodichurch/church-shared-schedules.js',route=>route.fulfill({status:200,contentType:'application/javascript',body:shared}));
+  await page.route('https://ekodi.kr/ekodichurch/',route=>route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:html}));
+  await page.route('https://ekodi.kr/ekodichurch/church-public-updates.js',route=>route.fulfill({status:200,contentType:'application/javascript; charset=utf-8',body:runtime}));
+  await page.route('https://ekodi.kr/ekodichurch/church-shared-schedules.js',route=>route.fulfill({status:200,contentType:'application/javascript; charset=utf-8',body:shared}));
   await page.addInitScript(({authorized})=>{
     if(authorized)localStorage.setItem('sb-renzehysxirjilvdxacv-auth-token',JSON.stringify({currentSession:{access_token:'fixture-token'}}));
     window.__records=[{id:1,title:'기존 공지',body:'기존 내용',categoryId:'notice',createdAt:'2026-11-22T00:00:00Z'}];
@@ -64,7 +64,6 @@ test('manager creates notice and loses editor on logout',async({page})=>{
   const mutations=await page.evaluate(()=>window.__mutations);
   expect(mutations.some(x=>x.method==='POST'&&x.data.categoryId==='notice')).toBeTruthy();
   await expect(form.locator('.church-public-delete')).toBeHidden();
-  console.log('NOTICE_EDITOR_DOM',JSON.stringify(await page.evaluate(()=>({rootHidden:document.querySelector('[data-church-home-manage]')?.hidden,listCount:document.querySelectorAll('[data-church-manage-notices] .church-public-item').length,mainCount:document.querySelectorAll('[data-church-notices] .church-public-item').length,editorText:document.querySelector('[data-church-home-manage]')?.textContent?.slice(0,300)}))));
   const row=page.locator('[data-church-manage-notices] .church-public-item').filter({hasText:'새 공지'});
   await row.getByRole('button',{name:'수정'}).click();
   await expect(form.locator('.church-public-delete')).toBeVisible();
