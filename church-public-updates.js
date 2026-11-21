@@ -12,7 +12,24 @@
   const detail=Boolean(document.querySelector('[data-church-public-page]'));
   let kind=document.body.dataset.churchPublicPage||'';
   const manageRoot=document.querySelector('[data-church-public-manage]');
+  const roleHint=document.querySelector('[data-church-role-diagnostic]');
   let managerToken='',allPosts=[],currentRows=[],authEpoch=0;
+  // A contextual read-only status, never a privilege grant or claim about a person.
+  function explainRole(kind=''){
+    if(!roleHint)return;
+    const korean=(document.documentElement.lang||'ko-KR').startsWith('ko');
+    const messages=korean?{
+      unauthorized:'이 계정에는 교회 공지사항·일정 관리 권한이 없습니다. 게시판 운영자 승인이 필요합니다.',
+      session:'교회 게시판에서 로그인 권한을 확인하지 못했습니다. 로그인 상태를 확인해 주세요.',
+      error:'게시판 관리 권한 확인이 지연되고 있습니다. 다시 접속하면 재확인합니다.'
+    }:{
+      unauthorized:'This account does not have Church notice or schedule management permission. Board-owner approval is required.',
+      session:'The Church board could not verify this sign-in. Check your account session.',
+      error:'Church board permission verification is unavailable. Please retry.'
+    };
+    roleHint.textContent=messages[kind]||'';
+    roleHint.hidden=!kind;
+  }
 
   const el=(tag,className,text)=>{
     const result=document.createElement(tag);
@@ -358,25 +375,29 @@
   async function checkManager(){
     if(!manageRoot)return;
     const epoch=++authEpoch,token=findToken();
-    if(!token){revokeEditor();return;}
+    if(!token){revokeEditor();explainRole();return;}
     try{
       const result=await getJson(BASE+'/me',{headers:{authorization:'Bearer '+token}});
       if(epoch!==authEpoch||token!==findToken())return;
-      if(result.authenticated!==true||result.manage!==true||!['owner','admin','moderator'].includes(result.role)){
-        revokeEditor();return;
+      if(result.authenticated!==true){
+        revokeEditor();explainRole('session');return;
       }
+      if(result.manage!==true||!['owner','admin','moderator'].includes(result.role)){
+        revokeEditor();explainRole('unauthorized');return;
+      }
+      explainRole();
       managerToken=token;
       if(detail){
         if(!form)enableEditor();
         else manageRoot.hidden=false;
       }else homeManagerControls();
       renderNotices();renderSchedules();
-    }catch{if(epoch===authEpoch)revokeEditor();}
+    }catch{if(epoch===authEpoch){revokeEditor();explainRole('error');}}
   }
   document.addEventListener('church:public-content-updated',()=>{void loadData();});
   window.addEventListener('storage',e=>{if(e.key===KEY)void checkManager();});
   window.addEventListener('ekodi:auth-state',()=>void checkManager());
-  window.addEventListener('ekodi:auth-logout',()=>{++authEpoch;revokeEditor();});
+  window.addEventListener('ekodi:auth-logout',()=>{++authEpoch;revokeEditor();explainRole();});
   window.addEventListener('pageshow',()=>void checkManager());
   window.addEventListener('focus',()=>void checkManager());
   loadData().then(checkManager);
