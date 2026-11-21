@@ -5,12 +5,12 @@ import {readFileSync} from 'node:fs';
 const file=name=>readFileSync(new URL('../'+name,import.meta.url),'utf8');
 
 test('Church homepage offers in-place notice and event management only after role verification',()=>{
-  const home=file('index.html'),ui=file('church-public-updates.js'),css=file('church-home-content-editor.css');
+  const home=file('index.html'),ui=file('church-public-updates.js'),css=file('church-public-updates.css');
   assert.match(home,/data-church-inline-manage="notices"[^>]*hidden/);
   assert.match(home,/data-church-inline-manage="schedule"[^>]*hidden/);
   assert.match(home,/data-church-home-manage hidden/);
   assert.match(home,/data-church-schedule data-limit="100" hidden/);
-  assert.match(home,/href="church-home-content-editor\.css"/);
+  assert.match(home,/href="church-public-updates\.css"/);
   assert.match(ui,/result\.authenticated!==true\|\|result\.manage!==true/);
   assert.match(ui,/owner','admin','moderator/);
   assert.match(ui,/function revokeEditor\(/);
