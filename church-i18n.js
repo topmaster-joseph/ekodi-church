@@ -24,6 +24,11 @@ const PAGE_META={
 };
 
 const TEXT={
+'로그인':{en:'Sign in','zh-CN':'登录',ja:'ログイン'},
+'로그아웃':{en:'Sign out','zh-CN':'退出登录',ja:'ログアウト'},
+'로그아웃 중':{en:'Signing out','zh-CN':'正在退出登录',ja:'ログアウト中'},
+'에코디 계정':{en:'EKODI account','zh-CN':'EKODI账户',ja:'EKODI アカウント'},
+'내 교회 마이페이지':{en:'My Church account','zh-CN':'我的教会账户',ja:'教会マイページ'},
 '에코디교회 홈':{en:'EKODI Church home','zh-CN':'EKODI教会首页',ja:'EKODI教会ホーム'},
 '메뉴 열기':{en:'Open menu','zh-CN':'打开菜单',ja:'メニューを開く'},
 '주요 메뉴':{en:'Main menu','zh-CN':'主菜单',ja:'メインメニュー'},
