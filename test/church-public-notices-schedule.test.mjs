@@ -49,3 +49,21 @@ test('small and wide screens keep two-column concise menus and adaptive cards',(
   assert.match(css,/grid-template-columns:1fr/);
   assert.match(css,/min-height:44px/);
 });
+
+test('notice index hides body previews and places date at the far right; detail retains full body',()=>{
+  const js=read('church-public-updates.js'),css=read('church-public-updates.css');
+  const row=js.slice(js.indexOf('  function noticeRow(post)'),js.indexOf('  function renderNotices()'));
+  const render=js.slice(js.indexOf('  function renderNotices()'),js.indexOf('  function parseSchedulePost('));
+  assert.match(row,/const line=el\('div','church-public-notice-line'\)/);
+  assert.match(row,/line\.append\(anchor\)/);
+  assert.match(row,/line\.append\(time\)/);
+  assert.ok(row.indexOf('line.append(anchor)')<row.indexOf('line.append(time)'));
+  assert.doesNotMatch(row,/post\.body|church-public-excerpt/,'notice list may not render any body text');
+  assert.match(render,/const body=el\('p','church-public-body',post\.body\)/);
+  assert.match(render,/notices\/\?post=/);
+  assert.match(css,/\.church-public-notice \.church-public-notice-line\s*\{/);
+  assert.match(css,/justify-content:space-between/);
+  assert.match(css,/\.church-public-notice \.church-public-notice-line>time\s*\{/);
+  assert.match(css,/text-align:right/);
+  assert.match(css,/white-space:nowrap/);
+});
