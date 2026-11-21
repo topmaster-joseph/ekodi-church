@@ -24,7 +24,7 @@ if (nav) {
     { href: '/ekodichurch/notices/', label: '공지사항' },
     { href: '/ekodichurch/schedule/', label: '주요일정' },
     { href: '/ekodichurch/#together', label: '함께하기', className: 'nav-together' },
-    { href: '/ekodichurch/my/', label: '마이페이지', className: 'shell-my' },
+    { href: '/qtin/church', label: '큐티인 신청' },
   ];
   const links = items.map((item) => {
     const link = document.createElement('a');
