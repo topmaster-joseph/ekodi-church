@@ -47,6 +47,24 @@
   style.textContent = '.site-header.church-shell-solid{backdrop-filter:saturate(140%) blur(10px);-webkit-backdrop-filter:saturate(140%) blur(10px);box-shadow:0 6px 24px #0000001f}.site-header.church-shell-solid.church-shell-ink-light{background:rgba(18,49,43,.96)!important}.site-header.church-shell-solid.church-shell-ink-dark{background:rgba(250,249,245,.97)!important}';
   document.head.appendChild(style);
   pinHeader();
+
+  // Visit totals are site-scoped and anonymous. The shared gateway may already
+  // attach these two scripts; check the actual DOM to avoid duplicate beacons.
+  function mountNativeVisitSummary() {
+    if (!document.querySelector('footer[data-ekodi-service-footer]')) return;
+    if (window.__EKODI_USER_UI_FOOTER_BOOTED) return;
+    if (document.querySelector('script[src*="/shell/user-ui-footer.js"]')) return;
+    const beacon = document.createElement('script');
+    beacon.src = 'https://ekodi.kr/shell/native-visit-beacon.js';
+    beacon.defer = true;
+    beacon.dataset.churchNativeBeacon = 'site';
+    const footer = document.createElement('script');
+    footer.src = 'https://ekodi.kr/shell/user-ui-footer.js';
+    footer.defer = true;
+    footer.dataset.churchNativeFooter = 'site';
+    document.head.append(beacon, footer);
+  }
+  mountNativeVisitSummary();
   if (isHome) return;
 
   const absolutize = root => root.querySelectorAll('a[href^="#"]').forEach(a => {
