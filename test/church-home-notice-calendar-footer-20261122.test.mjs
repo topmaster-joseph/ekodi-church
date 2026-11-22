@@ -21,12 +21,13 @@ test('notice index sorts by true Sunday issue date and hides bodies',()=>{
 
 test('calendar defaults to Seoul today, selects date and shows event detail',()=>{
  const home=read('index.html'),js=read('church-shared-schedules.js'),css=read('church-public-updates.css');
- for(const key of ['data-church-shared-calendar','data-church-calendar-prev','data-church-calendar-next','data-church-calendar-today','data-church-calendar-days','data-church-selected-day','data-church-schedules-list','data-church-event-detail','data-church-upcoming-list','church-shared-calendar.css'])assert.ok(home.includes(key),key);
+ for(const key of ['data-church-shared-calendar','data-church-calendar-prev','data-church-calendar-next','data-church-calendar-today','data-church-calendar-days','data-church-selected-day','data-church-schedules-list','data-church-event-detail','church-shared-calendar.css'])assert.ok(home.includes(key),key);
  assert.equal((home.match(/data-church-shared-schedules/g)||[]).length,1);
+ assert.doesNotMatch(home,/data-church-upcoming-list|class="church-home-upcoming"/);
  assert.match(js,/timeZone:'Asia\/Seoul'/);
  assert.match(js,/selected=today\(\);month=selected\.slice\(0,7\)/);
  assert.match(js,/selectedEventKey=eventKey\(event\)/);
- assert.match(js,/Math\.min\(5,Math\.max\(1,Number\(root\.dataset\.limit\)\|\|3\)\)/);
+ assert.match(js,/const dayEvents=entries\.filter\(item=>item\.date===date\)/);
  assert.match(js,/published-read-only/);
  assert.doesNotMatch(js,/innerHTML|document\.write|method:\s*['"]POST/);
  assert.match(css,/\.church-public-panels \.church-shared-calendar/);

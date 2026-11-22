@@ -17,7 +17,7 @@ test('Church public schedule has a readable month grid and both source legends',
   assert.ok(!page.includes('다가오는 일정'));
   assert.ok(page.includes('교회 일정')&&page.includes('선교회 일정'));
   assert.ok(page.includes('href="/ekodimission#schedule"'));
-  assert.ok(page.includes('/ekodichurch/board?category=schedule'));
+  assert.ok(!page.includes('href="/ekodichurch/board?category=schedule"'),'visitors should use native schedule, not empty board list');
   assert.ok(home.includes('href="/ekodichurch/schedule/"'));
   assert.ok(css.includes('grid-template-columns:repeat(7,minmax(0,1fr))'));
   assert.ok(css.includes('@media(max-width:390px)'));

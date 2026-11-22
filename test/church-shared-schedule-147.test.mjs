@@ -6,7 +6,8 @@ const read=file=>readFile(new URL('../'+file,import.meta.url),'utf8');
 test('Church keeps its own schedule board and renders separately owned Mission dates',async()=>{
  const [html,css,js]=await Promise.all([read('index.html'),read('church-homepage-layout.css'),read('church-shared-schedules.js')]);
  assert.match(html,/id="church-schedules" data-church-shared-schedules/);
- assert.match(html,/href="\/ekodichurch\/board\?category=schedule"/);
+ assert.doesNotMatch(html,/href="\/ekodichurch\/board\?category=schedule"/);
+ assert.match(html,/data-church-schedules-list/);
  assert.match(html,/src="church-shared-schedules\.js" defer/);
  assert.match(css,/\.church-shared-schedule ol\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
  assert.match(css,/@media\(max-width:720px\)\{\.church-shared-schedule/);

@@ -159,7 +159,15 @@
     for(let day=1;day<=countDays;day++){
       const date=month+'-'+String(day).padStart(2,'0');
       const info=counts.get(date)||{church:0,mission:0};
-      const button=add('button','church-calendar-day',String(day));
+      const button=add('button','church-calendar-day');
+      button.append(add('span','church-calendar-number',String(day)));
+      const dayEvents=entries.filter(item=>item.date===date);
+      if(dayEvents.length){
+        const preview=markOriginal(add('span','church-calendar-preview',dayEvents[0].title||'일정'));
+        preview.title=String(dayEvents[0].title||'일정').slice(0,160);
+        button.append(preview);
+        if(dayEvents.length>1)button.append(add('span','church-calendar-more','+'+(dayEvents.length-1)));
+      }
       button.type='button';
       button.dataset.date=date;
       button.setAttribute('aria-label',year+'년 '+mm+'월 '+day+'일, 교회 일정 '+info.church+'건, 선교회 일정 '+info.mission+'건');
