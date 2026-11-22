@@ -31,7 +31,7 @@ test('notice and schedule pages share church shell, footer and visit instrumenta
   assert.match(shell,/mountNativeVisitSummary\(\)/);
   assert.match(shell,/native-visit-beacon\.js/);
   assert.match(shell,/user-ui-footer\.js/);
-  assert.match(shell,/querySelector\('script\[src\*="/shell\/user-ui-footer\.js"\]'\)/);
+  assert.ok(shell.includes('script[src*="/shell/user-ui-footer.js"]'));
   for(const route of ['notices/index.html','schedule/index.html']){
     const html=await source(route);
     assert.match(html,/class="site-header/);
