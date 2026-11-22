@@ -1,0 +1,432 @@
+{
+  "schema": "ekodi.worship.materials.v1",
+  "site": "ekodichurch",
+  "date": "2026-11-29",
+  "time": "11:00",
+  "title": "내가 받은 복음을 전하다",
+  "scripture": "고린도전서 15:1–11",
+  "preacher": "정찬균 목사",
+  "order": [
+    [
+      "예배부름",
+      "인도자"
+    ],
+    [
+      "공동체 고백",
+      "다같이"
+    ],
+    [
+      "경배찬양",
+      "다같이"
+    ],
+    [
+      "대표기도",
+      "맡은이"
+    ],
+    [
+      "헌신찬양",
+      "다같이"
+    ],
+    [
+      "성경봉독 — 고린도전서 15:1–11",
+      "다같이"
+    ],
+    [
+      "말씀나눔 — 내가 받은 복음을 전하다",
+      "정찬균 목사"
+    ],
+    [
+      "나눔기도",
+      "다같이"
+    ],
+    [
+      "결단찬양",
+      "다같이"
+    ],
+    [
+      "교회소식",
+      "인도자"
+    ],
+    [
+      "주기도문",
+      "다같이"
+    ]
+  ],
+  "devotion": [
+    [
+      "11/29",
+      "고린도전서 15:1–11"
+    ],
+    [
+      "11/30",
+      "고린도전서 15:12–22"
+    ],
+    [
+      "12/01",
+      "확인필요"
+    ],
+    [
+      "12/02",
+      "확인필요"
+    ],
+    [
+      "12/03",
+      "확인필요"
+    ],
+    [
+      "12/04",
+      "확인필요"
+    ],
+    [
+      "12/05",
+      "확인필요"
+    ]
+  ],
+  "slides": [
+    {
+      "title": "에코디교회",
+      "kicker": "WHO IS GOD? WHO AM I? WHAT DO I DO?",
+      "lines": [
+        "잠시 후 예배가 시작됩니다",
+        "기대하는 마음으로 미리 준비해 주세요"
+      ],
+      "cover": true
+    },
+    {
+      "title": "Call to Worship",
+      "kicker": "예배부름",
+      "lines": [
+        "약속대로 오신 그리스도를 기억하며 다시 오실 주님을 기다리는 우리를 하나님이 예배에 초대하십니다"
+      ]
+    },
+    {
+      "title": "Community Confession",
+      "kicker": "공동고백",
+      "lines": [
+        "받은 복음 위에 우리를 세우시는 하나님 앞에서 공동체가 고백합니다"
+      ]
+    },
+    {
+      "title": "공동체 고백",
+      "kicker": "Community Confession",
+      "lines": [
+        "하나님은 우리를 세상에서 하나님의 구별된 백성으로 부르셨습니다.\n(갈 4:4-7, 롬 8:14-17, 벧전 2:9, 히 10:24-25)",
+        "하나님은 우리를 복음으로 서로 환대하며 나누는 공동체로 세우셨습니다.\n(창 1:27, 31, 행 2:42-47, 롬 12:13)",
+        "하나님은 우리를 세상에서 자기비움과 자기부정으로 자유롭고 거룩하게 하십니다.\n(행 1:8, 롬 8:28, 벧전 2:11-12, 렘 29:4-7, 빌 2:5-8, 눅 9:23)"
+      ]
+    },
+    {
+      "title": "Praise & Worship",
+      "kicker": "경배와 찬양",
+      "lines": [
+        "다같이"
+      ]
+    },
+    {
+      "title": "Represent Praying",
+      "kicker": "대표기도",
+      "lines": [
+        "맡은이"
+      ]
+    },
+    {
+      "title": "Song of Offering",
+      "kicker": "헌신찬양",
+      "lines": [
+        "다같이"
+      ]
+    },
+    {
+      "title": "Scripture Reading",
+      "kicker": "말씀읽기",
+      "lines": [
+        "고린도전서 15:1–11",
+        "EKODI 2026-11 공통본문"
+      ]
+    },
+    {
+      "title": "받은 복음 · 가장 중요한 것",
+      "kicker": "고린도전서 15장 배경",
+      "lines": [
+        "11–14장: 예배와 은사 → 15장: 부활의 복음",
+        "‘받아 전한’ 복음 · 바울 이전 교회의 신앙 요약(3–5절)",
+        "죽으심 · 묻히심 · 살아나심 · 나타나심 — 성경대로"
+      ]
+    },
+    {
+      "title": "내가 받은 복음을\n전하다",
+      "kicker": "Sermon",
+      "lines": [
+        "2026.11.29 · 고린도전서 15:1–11"
+      ],
+      "cover": true,
+      "sermonTitle": true
+    },
+    {
+      "title": "나는 무엇 위에 서 있습니까?",
+      "kicker": "말씀나눔",
+      "lines": [
+        "흔들리는 고린도 교회에게 바울은\n새로운 지식이 아니라 처음 복음을 말합니다.",
+        "너희가 받았고, 그 위에 서 있으며,\n그것으로 구원받는 복음입니다.",
+        "대림절, 우리는 그 복음 위에서\n오실 주님을 기다립니다."
+      ]
+    },
+    {
+      "title": "1 | 받은 복음 위에 서다",
+      "kicker": "말씀나눔",
+      "lines": [
+        "복음은 우리가 만든 것이 아니라\n은혜로 받은 선물입니다.",
+        "받은 복음 위에 설 때\n흔들리지 않습니다.",
+        "그 복음을 굳게 붙들 때\n복음이 우리를 구원합니다."
+      ]
+    },
+    {
+      "title": "2 | 가장 중요한 것, 죽으심과 부활",
+      "kicker": "말씀나눔",
+      "lines": [
+        "그리스도께서 우리 죄를 위해 죽으시고\n묻히셨다가 사흘 만에 다시 살아나셨습니다.",
+        "게바와 열두 제자, 오백여 형제가\n살아나신 주님을 만났습니다.",
+        "우리의 믿음은\n이 증언의 사슬 끝에 서 있습니다."
+      ]
+    },
+    {
+      "title": "3 | 은혜가 나를 전하는 사람으로",
+      "kicker": "말씀나눔",
+      "lines": [
+        "교회를 박해하던 바울은\n자신을 가장 작은 사도라 부릅니다.",
+        "지금의 나는\n하나님의 은혜로 된 것입니다.",
+        "그 은혜가 헛되지 않아\n받은 복음을 다시 전하게 합니다."
+      ]
+    },
+    {
+      "title": "그리스도의 복음 | 오셨고, 다시 오실 주님",
+      "kicker": "말씀나눔",
+      "lines": [
+        "하나님은 약속대로 아들을 보내셨고\n그 아들은 우리를 위해 죽고 다시 사셨습니다.",
+        "첫 오심의 복음이\n다시 오실 날의 소망이 됩니다.",
+        "그래서 우리는\n기다리며 전합니다."
+      ]
+    },
+    {
+      "title": "함께 나눌 세 가지 질문",
+      "kicker": "말씀나눔",
+      "lines": [
+        "내가 처음 받은 복음은 무엇이었고,\n지금 나는 그 복음 위에 서 있습니까?",
+        "그리스도의 죽으심과 부활은\n이번 대림절 나의 기다림에 어떤 소망이 됩니까?",
+        "은혜로 ‘지금의 나’가 된 이야기를\n이번 주 누구와 나눌 수 있습니까?"
+      ]
+    },
+    {
+      "title": "공동체의 응답",
+      "kicker": "인도자 · 회중",
+      "lines": [
+        "우리가 받은 복음 위에 / 흔들리지 않고 서겠습니다",
+        "죽으시고 살아나신 주님을 / 가장 중요한 소식으로 붙들겠습니다",
+        "은혜로 된 지금의 나로 / 헛되지 않게 수고하겠습니다",
+        "다시 오실 주님을 기다리며 / 받은 복음을 전하겠습니다",
+        "다함께 / 말씀대로 살아내고 살려내겠습니다"
+      ]
+    },
+    {
+      "title": "이번 주 실천 한 걸음",
+      "kicker": "말씀나눔",
+      "lines": [
+        "이번 주 한 사람에게\n내가 받은 복음을 5분 동안 나눕니다.",
+        "날마다 공통본문을 읽으며\n오실 주님을 기다리는 기도를 드립니다.",
+        "상대의 형편과 동의를 존중합니다."
+      ]
+    },
+    {
+      "title": "Response Sharing & Praying",
+      "kicker": "나눔기도",
+      "lines": [
+        "다같이"
+      ]
+    },
+    {
+      "title": "Song of Commitment",
+      "kicker": "결단찬양",
+      "lines": [
+        "다같이"
+      ]
+    },
+    {
+      "title": "이번 주 매일묵상 · 11/29–12/05",
+      "kicker": "EKODI 공통본문",
+      "lines": [
+        "일 11/29 고린도전서 15:1–11 · 월 11/30 고린도전서 15:12–22",
+        "화 12/01 확인필요 · 수 12/02 확인필요",
+        "목 12/03 확인필요 · 금 12/04 확인필요",
+        "토 12/05 확인필요 · 12월 공통본문 등록 필요"
+      ]
+    },
+    {
+      "title": "Community Announce",
+      "kicker": "교회소식",
+      "lines": [
+        "오늘은 대림절 첫째 주일 · 교회력의 새해가 시작됩니다",
+        "오신 주님을 기억하며 다시 오실 주님을 기다립니다",
+        "우리가 받은 복음을 이번 주 한 사람에게 전해 봅시다",
+        "온라인 예배 다국어 자막(영어·중국어·일본어·베트남어·몽골어)"
+      ]
+    },
+    {
+      "title": "주기도문",
+      "kicker": "THE LORD'S PRAYER",
+      "lines": [
+        "한국어 · English · 中文 · 日本語 · Tiếng Việt",
+        "주기도문 5개 언어 전문 수록"
+      ]
+    },
+    {
+      "title": "주기도문 | 한국어",
+      "kicker": "THE LORD'S PRAYER",
+      "lines": [
+        "하늘에 계신 우리 아버지,",
+        "아버지의 이름을 거룩하게 하시며 아버지의 나라가 오게 하시며",
+        "아버지의 뜻이 하늘에서와 같이 땅에서도 이루어지게 하소서.",
+        "오늘 우리에게 일용할 양식을 주시고",
+        "우리가 우리에게 잘못한 사람을 용서하여 준 것 같이",
+        "우리 죄를 용서하여 주시고 우리를 시험에 빠지지 않게 하시고",
+        "악에서 구하소서.",
+        "나라와 권능과 영광이 영원히 아버지의 것입니다. 아멘."
+      ]
+    },
+    {
+      "title": "주기도문 | English",
+      "kicker": "THE LORD'S PRAYER",
+      "lines": [
+        "Our Father which art in heaven,",
+        "Hallowed be thy name. Thy kingdom come.",
+        "Thy will be done in earth, as it is in heaven.",
+        "Give us this day our daily bread.",
+        "And forgive us our debts, as we forgive our debtors.",
+        "And lead us not into temptation, but deliver us from evil:",
+        "For thine is the kingdom, and the power, and the glory, for ever. Amen."
+      ]
+    },
+    {
+      "title": "주기도문 | 中文",
+      "kicker": "THE LORD'S PRAYER",
+      "lines": [
+        "我们在天上的父：",
+        "愿人都尊你的名为圣。愿你的国降临。",
+        "愿你的旨意行在地上，如同行在天上。",
+        "我们日用的饮食，今日赐给我们。",
+        "免我们的债，如同我们免了人的债。",
+        "不叫我们遇见试探，救我们脱离凶恶。",
+        "因为国度、权柄、荣耀，全是你的，直到永远。阿们。"
+      ]
+    },
+    {
+      "title": "주기도문 | 日本語",
+      "kicker": "THE LORD'S PRAYER",
+      "lines": [
+        "天にまします我らの父よ、",
+        "願わくは御名をあがめさせたまえ。御国を来たらせたまえ。",
+        "御心の天になるごとく、地にもなさせたまえ。",
+        "我らの日用の糧を、今日も与えたまえ。",
+        "我らに罪を犯す者を我らが赦すごとく、我らの罪をも赦したまえ。",
+        "我らを試みにあわせず、悪より救い出したまえ。",
+        "国と力と栄えとは、限りなく汝のものなればなり。アーメン。"
+      ]
+    },
+    {
+      "title": "주기도문 | Tiếng Việt",
+      "kicker": "THE LORD'S PRAYER",
+      "lines": [
+        "Lạy Cha chúng con ở trên trời,",
+        "danh Cha được thánh. Nước Cha được đến.",
+        "Ý Cha được nên, ở đất như trời.",
+        "Xin cho chúng con hôm nay đồ ăn đủ ngày.",
+        "Xin tha tội lỗi cho chúng con, như chúng con cũng tha kẻ phạm tội nghịch cùng chúng con.",
+        "Xin chớ để chúng con bị cám dỗ, mà cứu chúng con khỏi điều ác.",
+        "Vì nước, quyền, vinh hiển đều thuộc về Cha đời đời. A-men."
+      ]
+    }
+  ],
+  "publicBulletin": "/ekodichurch/worship/2026-11-29/",
+  "broadcastSafe": true,
+  "youtube": {
+    "channel": "https://www.youtube.com/@ekodichurch",
+    "title": "내가 받은 복음을 전하다 | 고린도전서 15:1–11 | 2026.11.29 에코디교회 주일모임",
+    "description": "2026년 11월 29일(일) 오전 11시 에코디교회 주일모임 · 대림절 첫째 주일\n말씀제목 | 내가 받은 복음을 전하다\n공통본문 | 고린도전서 15:1–11\n말씀나눔 | 정찬균 목사\n바울이 받아 전한 복음, 곧 그리스도의 죽으심과 부활은 우리가 서 있는 터이며 우리를 구원하는 능력입니다. 대림절 첫째 주일, 처음 오신 주님의 복음을 붙들고 다시 오실 주님을 기다리며 그 복음을 전합니다.\n다국어 자막: 영어·중국어·일본어·베트남어·몽골어 (ekodi.kr/live/church/)\n에클레시아 · 코이노니아 · 디아스포라 · 희년\n#에코디교회 #고린도전서 #대림절",
+    "visibility": "public",
+    "chat": true,
+    "dvr": true,
+    "latency": "normal",
+    "status": "metadata-prepared-not-scheduled"
+  },
+  "interpretation": {
+    "captions": true,
+    "sourceLang": "ko",
+    "targetLangs": [
+      "en",
+      "zh",
+      "ja",
+      "vi",
+      "mn"
+    ],
+    "console": "/live/church/?mode=studio",
+    "viewer": "/live/church/",
+    "engine": "EKODI Live interpretation captions (Workers AI m2m100)"
+  },
+  "occasion": "대림절 첫째 주일",
+  "sources": {
+    "bulletin": {
+      "title": "261129에코디주보",
+      "fileId": "1_WGaxbh3Gsx3Br60r_NnWMDLVuhHGVHKFJdtHS-BxdA",
+      "url": "https://docs.google.com/document/d/1_WGaxbh3Gsx3Br60r_NnWMDLVuhHGVHKFJdtHS-BxdA/edit"
+    },
+    "slides": {
+      "title": "261129에코디PPT",
+      "fileId": "1SU9kPcjIO_cL6pXRCiRvq1MUC8qHZhdpCxPs7I3c4yE",
+      "url": "https://docs.google.com/presentation/d/1SU9kPcjIO_cL6pXRCiRvq1MUC8qHZhdpCxPs7I3c4yE/edit"
+    },
+    "sermon": {
+      "title": "261129에코디설교",
+      "fileId": "11lpOWW-SDbS4gpfI2YeqKQ2Chj8xcLkyIESyCfbcYSg",
+      "url": "https://docs.google.com/document/d/11lpOWW-SDbS4gpfI2YeqKQ2Chj8xcLkyIESyCfbcYSg/edit"
+    }
+  },
+  "slideSource": {
+    "type": "google-slides-text",
+    "fileId": "1SU9kPcjIO_cL6pXRCiRvq1MUC8qHZhdpCxPs7I3c4yE",
+    "sourcePages": 46,
+    "publishedPages": 33,
+    "omittedPages": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      11,
+      12,
+      16,
+      20,
+      32,
+      35,
+      36
+    ],
+    "omittedReason": "찬양 악보 화면(경배 3–8, 입례 11–12, 회개 16, 말씀찬송 20, 결단 32, 파송 35–36: 텍스트 없이 이미지만 있는 자리)은 저작권 보호를 위해 공개 웹에서 제외(현장 PPT에서 사용). 1번은 텍스트 없는 표지 이미지",
+    "rendering": "원본 PPT 문구를 16:9 비율 고정 HTML 슬라이드로 표시"
+  },
+  "stage": "draft",
+  "lectionary": {
+    "source": "대한예수교장로회총회 매일성서정과",
+    "url": "https://www.pck.or.kr/bbs/board.php?bo_table=lectionary",
+    "status": "needs-verification",
+    "note": "예장통합 지정 본문 확인필요. EKODI 2026-11 공통본문 레지스트리 observances: 2026-11-29 대림절 첫째 주일. 아래는 RCL B년 대림절 첫째 주일 참고 본문(PC(USA) RCL, 2026 기준)",
+    "readings": [
+      "이사야 64:1–9",
+      "시편 80:1–7, 17–19",
+      "고린도전서 1:3–9",
+      "마가복음 13:24–37"
+    ]
+  },
+  "commonScripture": {
+    "registry": "ekodi-common-scripture-2026-11",
+    "nextMonth": "2026-12 공통본문 미등록 — 12/01–12/05 매일묵상 확인필요"
+  }
+}
