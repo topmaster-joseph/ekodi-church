@@ -52,6 +52,7 @@ test('only Church authorized editors receive CRUD; published calendar remains re
   assert.match(manager,/data-church-schedule/);
   assert.match(manager,/managerToken/);
   assert.match(manager,/owner','admin','moderator'/);
-  assert.match(html,/href="\/ekodichurch\/board\?category=schedule"/);
+  assert.doesNotMatch(html,/href="\/ekodichurch\/board\?category=schedule"/);
+  assert.match(html,/data-church-public-manage hidden/);
   assert.match(js,/published-read-only/);
 });
