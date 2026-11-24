@@ -21,6 +21,13 @@
     return node;
   };
   const fmt=date=>/^\d{4}-\d{2}-\d{2}$/.test(date||'')?date.replace(/-/g,'.'):'';
+  // 화면 언어에 맞춘 날짜 표기(한국어 원문은 그대로). 번역 사전은 정확히 같은 문장만 바꾸므로 날짜가 들어간 문구는 여기서 만든다.
+  const uiLocale=()=>{const lang=String(document.documentElement.lang||'ko-KR');return /^ko/i.test(lang)?'ko-KR':lang;};
+  const tr=source=>{const loc=uiLocale();if(loc==='ko-KR')return source;const api=window.EKODIChurchI18n;const value=api?.translate?.(source,loc);if(value&&value!==source)return value;const en=api?.translate?.(source,'en');return en&&en!==source?en:source;};
+  const intl=(opts,y,m,d)=>{const loc=uiLocale();for(const tag of [loc,'en']){try{return new Intl.DateTimeFormat(tag,{timeZone:'UTC',...opts}).format(new Date(Date.UTC(y,m-1,d||1)));}catch{}}return y+'-'+String(m).padStart(2,'0');};
+  const monthLabel=(y,m)=>uiLocale()==='ko-KR'?y+'년 '+m+'월':intl({year:'numeric',month:'long'},y,m);
+  const dayLabel=date=>{if(uiLocale()==='ko-KR')return fmt(date)+' 일정';const [y,m,d]=date.split('-').map(Number);return intl({year:'numeric',month:'short',day:'numeric'},y,m,d)+' · '+tr('일정');};
+  const dayAria=(y,m,d,info)=>uiLocale()==='ko-KR'?y+'년 '+m+'월 '+d+'일, 교회 일정 '+info.church+'건, 선교회 일정 '+info.mission+'건':intl({year:'numeric',month:'long',day:'numeric'},y,m,d)+' — '+tr('교회 일정')+' '+info.church+', '+tr('선교회 일정')+' '+info.mission;
   const today=()=>{
     const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
     const get=type=>parts.find(x=>x.type===type)?.value||'';
@@ -142,8 +149,8 @@
     const [year,mm]=month.split('-').map(Number);
     const countDays=new Date(Date.UTC(year,mm,0)).getUTCDate();
     const first=new Date(Date.UTC(year,mm-1,1)).getUTCDay();
-    label.textContent=year+'년 '+mm+'월';
-    if(selectedLabel)selectedLabel.textContent=fmt(selected)+' 일정';
+    label.textContent=monthLabel(year,mm);
+    if(selectedLabel)selectedLabel.textContent=dayLabel(selected);
     const counts=new Map();
     for(const item of entries){
       if(!item.date?.startsWith(month+'-'))continue;
@@ -170,7 +177,7 @@
       }
       button.type='button';
       button.dataset.date=date;
-      button.setAttribute('aria-label',year+'년 '+mm+'월 '+day+'일, 교회 일정 '+info.church+'건, 선교회 일정 '+info.mission+'건');
+      button.setAttribute('aria-label',dayAria(year,mm,day,info));
       button.setAttribute('aria-pressed',String(date===selected));
       if(date===today())button.classList.add('is-today');
       if(info.church)button.classList.add('has-church-event');
@@ -242,6 +249,8 @@
       paintRows(list,entries.filter(item=>item.date===selected),100,'선택한 날짜의 공개 일정이 없습니다.');
     });
   }
+  // 언어를 바꾸면 날짜가 들어간 달력 문구도 그 언어로 다시 그린다(lang 속성 변화에만 반응해 반복 갱신 없음).
+  if(calendar){let lastLang=uiLocale();new MutationObserver(()=>{const now=uiLocale();if(now===lastLang)return;lastLang=now;calendarForMonth();}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});}
   document.addEventListener('church:public-content-updated',()=>{void load()});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)void load()});
   window.addEventListener('focus',()=>{void load()});
