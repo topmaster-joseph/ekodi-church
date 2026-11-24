@@ -105,3 +105,6 @@
  .church-schedule-event-select{padding:11px 12px}
  .church-schedule-event-detail dl{grid-template-columns:60px minmax(0,1fr);gap:8px}
 }
+
+/* 상단 고정 헤더 아래로 날짜·일정 버튼이 숨지 않게: 스크롤로 맞출 때 헤더 높이만큼 띄운다(포커스 가림 방지). */
+.church-calendar-day,.church-schedule-event-select,[data-church-calendar-controls] button,.church-calendar-controls button{scroll-margin-top:112px;scroll-margin-bottom:16px}
